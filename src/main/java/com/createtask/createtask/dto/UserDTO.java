@@ -4,11 +4,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.Getter;
-import lombok.Setter;
 
-@Getter
-@Setter
 public class UserDTO {
 
     @NotNull(message = "UserID must not be null")
@@ -30,4 +26,19 @@ public class UserDTO {
     @NotBlank(message = "FullName must not be blank")
     @Size(max = 255, message = "FullName must not exceed 255 characters")
     private String fullName;
+
+    public Integer getUserID() { return userID; }
+    public void setUserID(Integer userID) { this.userID = userID; }
+
+    public String getUsername() { return username; }
+    public void setUsername(String username) { this.username = username; }
+
+    public String getPassword() { return password; }
+    public void setPassword(String password) { this.password = password; }
+
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
+
+    public String getFullName() { return fullName; }
+    public void setFullName(String fullName) { this.fullName = fullName; }
 }

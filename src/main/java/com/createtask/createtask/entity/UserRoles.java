@@ -2,14 +2,10 @@ package com.createtask.createtask.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import lombok.Getter;
-import lombok.Setter;
 
 import java.io.Serializable;
 import java.util.Objects;
 
-@Getter
-@Setter
 @Entity
 @Table(name = "UserRoles")
 public class UserRoles {
@@ -29,9 +25,16 @@ public class UserRoles {
     @NotNull(message = "UserRole must not be null")
     private UserRole userRole;
 
+    public UserRolesId getId() { return id; }
+    public void setId(UserRolesId id) { this.id = id; }
+
+    public User getUser() { return user; }
+    public void setUser(User user) { this.user = user; }
+
+    public UserRole getUserRole() { return userRole; }
+    public void setUserRole(UserRole userRole) { this.userRole = userRole; }
+
     @Embeddable
-    @Getter
-    @Setter
     public static class UserRolesId implements Serializable {
 
         @Column(name = "UserID")
@@ -41,6 +44,12 @@ public class UserRoles {
         @Column(name = "UserRoleID")
         @NotNull(message = "UserRoleID must not be null")
         private Integer userRoleID;
+
+        public Integer getUserID() { return userID; }
+        public void setUserID(Integer userID) { this.userID = userID; }
+
+        public Integer getUserRoleID() { return userRoleID; }
+        public void setUserRoleID(Integer userRoleID) { this.userRoleID = userRoleID; }
 
         @Override
         public boolean equals(Object o) {

@@ -4,11 +4,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.Getter;
-import lombok.Setter;
 
-@Getter
-@Setter
 @Entity
 @Table(name = "UserRole")
 public class UserRole {
@@ -22,4 +18,10 @@ public class UserRole {
     @NotBlank(message = "RoleName must not be blank")
     @Size(max = 255, message = "RoleName must not exceed 255 characters")
     private String roleName;
+
+    public Integer getUserRoleID() { return userRoleID; }
+    public void setUserRoleID(Integer userRoleID) { this.userRoleID = userRoleID; }
+
+    public String getRoleName() { return roleName; }
+    public void setRoleName(String roleName) { this.roleName = roleName; }
 }

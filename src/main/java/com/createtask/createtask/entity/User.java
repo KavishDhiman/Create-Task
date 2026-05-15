@@ -6,9 +6,11 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
+import java.util.Objects;
+
 @Entity
 @Table(name = "User")
-public class User {
+public class User implements Comparable<User> {
 
     @Id
     @Column(name = "UserID")
@@ -50,4 +52,27 @@ public class User {
 
     public String getFullName() { return fullName; }
     public void setFullName(String fullName) { this.fullName = fullName; }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof User)) return false;
+        User user = (User) o;
+        return Objects.equals(userID, user.userID);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(userID);
+    }
+
+    @Override
+    public int compareTo(User other) {
+        return Integer.compare(this.userID, other.userID);
+    }
+
+    @Override
+    public String toString() {
+        return "User{userID=" + userID + ", username='" + username + "', email='" + email + "'}";
+    }
 }

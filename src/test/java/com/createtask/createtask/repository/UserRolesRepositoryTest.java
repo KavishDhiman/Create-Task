@@ -34,7 +34,6 @@ class UserRolesRepositoryTest {
 
     @BeforeEach
     void setUp() {
-        // Create supporting User
         testUser = new User();
         testUser.setUserID(902);
         testUser.setUsername("roles_test_user");
@@ -43,13 +42,11 @@ class UserRolesRepositoryTest {
         testUser.setFullName("Roles Test User");
         userRepository.save(testUser);
 
-        // Create supporting Role
         testRole = new UserRole();
         testRole.setUserRoleID(902);
         testRole.setRoleName("Roles Tester");
         userRoleRepository.save(testRole);
 
-        // Create composite ID and mapping
         compositeId = new UserRoles.UserRolesId();
         compositeId.setUserID(902);
         compositeId.setUserRoleID(902);
@@ -67,10 +64,6 @@ class UserRolesRepositoryTest {
         userRoleRepository.deleteById(902);
         userRepository.deleteById(902);
     }
-
-    // -------------------------------------------------------
-    // POSITIVE TESTS
-    // -------------------------------------------------------
 
     @Test
     void testSaveUserRoles_Success() {
@@ -106,7 +99,6 @@ class UserRolesRepositoryTest {
         Optional<UserRoles> deleted = userRolesRepository.findById(compositeId);
         assertThat(deleted).isNotPresent();
 
-        // Re-save so @AfterEach tearDown doesn't fail on delete
         UserRoles mapping = new UserRoles();
         mapping.setId(compositeId);
         mapping.setUser(testUser);
@@ -117,13 +109,8 @@ class UserRolesRepositoryTest {
     @Test
     void testFindAll_ContainsMappings() {
         List<UserRoles> all = userRolesRepository.findAll();
-        // Seeded data has 10 mappings + our test mapping
         assertThat(all).isNotEmpty();
     }
-
-    // -------------------------------------------------------
-    // NEGATIVE TESTS
-    // -------------------------------------------------------
 
     @Test
     void testFindByUserID_NotFound() {

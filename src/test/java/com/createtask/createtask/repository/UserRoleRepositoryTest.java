@@ -35,10 +35,6 @@ class UserRoleRepositoryTest {
         userRoleRepository.deleteById(901);
     }
 
-    // -------------------------------------------------------
-    // POSITIVE TESTS
-    // -------------------------------------------------------
-
     @Test
     void testSaveRole_Success() {
         Optional<UserRole> found = userRoleRepository.findById(901);
@@ -81,14 +77,8 @@ class UserRoleRepositoryTest {
         userRoleRepository.deleteById(901);
         Optional<UserRole> deleted = userRoleRepository.findById(901);
         assertThat(deleted).isNotPresent();
-
-        // Re-save so @AfterEach tearDown doesn't fail
         userRoleRepository.save(testRole);
     }
-
-    // -------------------------------------------------------
-    // NEGATIVE TESTS
-    // -------------------------------------------------------
 
     @Test
     void testFindByRoleName_NotFound() {

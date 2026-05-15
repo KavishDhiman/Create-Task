@@ -1,6 +1,5 @@
-package com.createtask.createtask.entity;
+package com.createtask.createtask.dto;
 
-import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -9,16 +8,11 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@Entity
-@Table(name = "UserRole")
-public class UserRole {
+public class UserRoleDTO {
 
-    @Id
-    @Column(name = "UserRoleID")
     @NotNull(message = "UserRoleID must not be null")
     private Integer userRoleID;
 
-    @Column(name = "RoleName", nullable = false, length = 255)
     @NotBlank(message = "RoleName must not be blank")
     @Size(max = 255, message = "RoleName must not exceed 255 characters")
     private String roleName;

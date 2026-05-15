@@ -12,6 +12,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.TreeSet;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -46,7 +47,11 @@ class ProjectRepositoryTest {
         if (projectRepository.existsById(9001)) {
             projectRepository.deleteById(9001);
         }
+        if (projectRepository.existsById(9002)) {
+            projectRepository.deleteById(9002);
+        }
     }
+
 
 
     @Test
@@ -91,10 +96,8 @@ class ProjectRepositoryTest {
         Optional<Project> deleted = projectRepository.findById(9001);
         assertThat(deleted).isNotPresent();
 
-        // Re-save so @AfterEach tearDown doesn't fail
         projectRepository.save(testProject);
     }
-
 
 
     @Test
@@ -114,5 +117,97 @@ class ProjectRepositoryTest {
     void testFindByUserID_NotFound() {
         List<Project> found = projectRepository.findByUser_UserID(9999);
         assertThat(found).isEmpty();
+    }
+
+
+    @Test
+    void testEquals_SameProjectID_ShouldBeEqual() {
+        Project p1 = new Project();
+        p1.setProjectID(9001);
+
+        Project p2 = new Project();
+        p2.setProjectID(9001);
+
+        assertThat(p1).isEqualTo(p2);
+    }
+
+    @Test
+    void testEquals_DifferentProjectID_ShouldNotBeEqual() {
+        Project p1 = new Project();
+        p1.setProjectID(9001);
+
+        Project p2 = new Project();
+        p2.setProjectID(9002);
+
+        assertThat(p1).isNotEqualTo(p2);
+    }
+
+    @Test
+    void testHashCode_SameProjectID_ShouldHaveSameHashCode() {
+        Project p1 = new Project();
+        p1.setProjectID(9001);
+
+        Project p2 = new Project();
+        p2.setProjectID(9001);
+
+        assertThat(p1.hashCode()).isEqualTo(p2.hashCode());
+    }
+
+
+
+    @Test
+    void testCompareTo_ShouldSortByStartDateAscending() {
+        User user = userRepository.findById(1).get();
+
+        Project early = new Project();
+        early.setProjectID(9001);
+        early.setProjectName("Early Project");
+        early.setStartDate(LocalDate.of(2024, 1, 1));
+        early.setUser(user);
+
+        Project late = new Project();
+        late.setProjectID(9002);
+        late.setProjectName("Late Project");
+        late.setStartDate(LocalDate.of(2024, 6, 1));
+        late.setUser(user);
+
+        assertThat(early.compareTo(late)).isNegative();
+    }
+
+    @Test
+    void testCompareTo_EqualDates_ShouldReturnZero() {
+        Project p1 = new Project();
+        p1.setProjectID(9001);
+        p1.setStartDate(LocalDate.of(2024, 1, 1));
+
+        Project p2 = new Project();
+        p2.setProjectID(9002);
+        p2.setStartDate(LocalDate.of(2024, 1, 1));
+
+        assertThat(p1.compareTo(p2)).isZero();
+    }
+
+    @Test
+    void testTreeSet_ShouldStoreSortedByStartDate() {
+        User user = userRepository.findById(1).get();
+
+        Project p1 = new Project();
+        p1.setProjectID(9001);
+        p1.setProjectName("March Project");
+        p1.setStartDate(LocalDate.of(2024, 3, 1));
+        p1.setUser(user);
+
+        Project p2 = new Project();
+        p2.setProjectID(9002);
+        p2.setProjectName("January Project");
+        p2.setStartDate(LocalDate.of(2024, 1, 1));
+        p2.setUser(user);
+
+        TreeSet<Project> sortedProjects = new TreeSet<>();
+        sortedProjects.add(p1);
+        sortedProjects.add(p2);
+
+        assertThat(sortedProjects.first().getProjectName())
+                .isEqualTo("January Project");
     }
 }

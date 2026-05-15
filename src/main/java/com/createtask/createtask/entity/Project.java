@@ -3,10 +3,11 @@ package com.createtask.createtask.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import java.time.LocalDate;
+import java.util.Objects;
 
 @Entity
 @Table(name = "Project")
-public class Project {
+public class Project implements Comparable<Project> {
 
     @Id
     @Column(name = "ProjectID")
@@ -58,6 +59,29 @@ public class Project {
     public void setStartDate(LocalDate startDate)      { this.startDate = startDate; }
     public void setEndDate(LocalDate endDate)          { this.endDate = endDate; }
     public void setUser(User user)                     { this.user = user; }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Project project = (Project) o;
+        return Objects.equals(projectID, project.projectID);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(projectID);
+    }
+
+
+    @Override
+    public int compareTo(Project other) {
+        if (this.startDate == null && other.startDate == null) return 0;
+        if (this.startDate == null) return 1;   // null dates go last
+        if (other.startDate == null) return -1;
+        return this.startDate.compareTo(other.startDate);
+    }
+
 
     @Override
     public String toString() {

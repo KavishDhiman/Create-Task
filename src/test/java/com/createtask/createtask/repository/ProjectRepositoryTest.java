@@ -2,101 +2,117 @@ package com.createtask.createtask.repository;
 
 import com.createtask.createtask.entity.Project;
 import com.createtask.createtask.entity.User;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import java.time.LocalDate;
-import java.util.*;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
-import static org.assertj.core.api.Assertions.*;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE) // uses your AWS MySQL
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class ProjectRepositoryTest {
 
     @Autowired
     private ProjectRepository projectRepository;
 
     @Autowired
-    private UserRepository userRepository; // needed to attach a valid user
+    private UserRepository userRepository;
 
-    private User testUser;
     private Project testProject;
 
     @BeforeEach
-    void setup() {
-        // Fetch an existing user from AWS DB (don't create new to avoid conflicts)
-        testUser = userRepository.findById(1).orElseThrow();
+    void setUp() {
+        User user = userRepository.findById(1).get();
 
         testProject = new Project();
         testProject.setProjectID(9001);
         testProject.setProjectName("Test Project");
-        testProject.setDescription("Day 2 test");
-        testProject.setStartDate(LocalDate.now());
-        testProject.setUser(testUser);
-
+        testProject.setDescription("Test Description");
+        testProject.setStartDate(LocalDate.of(2024, 1, 1));
+        testProject.setEndDate(LocalDate.of(2024, 6, 30));
+        testProject.setUser(user);
         projectRepository.save(testProject);
     }
 
     @AfterEach
-    void cleanup() {
-        projectRepository.deleteById(9001);
+    void tearDown() {
+        if (projectRepository.existsById(9001)) {
+            projectRepository.deleteById(9001);
+        }
     }
 
 
     @Test
-    void testSaveProject() {
-        Optional<Project> saved = projectRepository.findById(9001);
-        assertThat(saved).isPresent();
-        assertThat(saved.get().getProjectName()).isEqualTo("Test Project");
+    void testSaveProject_Success() {
+        Optional<Project> found = projectRepository.findById(9001);
+        assertThat(found).isPresent();
+        assertThat(found.get().getProjectName()).isEqualTo("Test Project");
     }
 
-
     @Test
-    void testFindAllProjects() {
-        List<Project> all = projectRepository.findAll();
-        assertThat(all).isNotEmpty();
-    }
-
-
-    @Test
-    void testFindById() {
-        Optional<Project> project = projectRepository.findById(9001);
-        assertThat(project).isPresent();
-        assertThat(project.get().getDescription()).isEqualTo("Day 2 test");
-    }
-
-
-    @Test
-    void testUpdateProject() {
-        Project p = projectRepository.findById(9001).orElseThrow();
-        p.setProjectName("Updated Project");
-        projectRepository.save(p);
-
-        Project updated = projectRepository.findById(9001).orElseThrow();
-        assertThat(updated.getProjectName()).isEqualTo("Updated Project");
-    }
-
-
-    @Test
-    void testDeleteProject() {
-        projectRepository.deleteById(9001);
-        Optional<Project> deleted = projectRepository.findById(9001);
-        assertThat(deleted).isEmpty();
-    }
-
-
-    @Test
-    void testFindByUser() {
-        List<Project> projects = projectRepository.findByUser_UserID(testUser.getUserID());
+    void testFindAllProjects_NotEmpty() {
+        List<Project> projects = projectRepository.findAll();
         assertThat(projects).isNotEmpty();
     }
 
+    @Test
+    void testFindByUserID_Success() {
+        List<Project> projects = projectRepository.findByUser_UserID(1);
+        assertThat(projects).isNotEmpty();
+    }
 
     @Test
-    void testFindByProjectNameKeyword() {
-        List<Project> results = projectRepository.findByProjectNameContainingIgnoreCase("test");
-        assertThat(results).isNotEmpty();
+    void testFindByProjectName_Success() {
+        List<Project> projects = projectRepository
+                .findByProjectNameContainingIgnoreCase("Test");
+        assertThat(projects).isNotEmpty();
+    }
+
+    @Test
+    void testUpdateProject_Success() {
+        Project p = projectRepository.findById(9001).get();
+        p.setProjectName("Updated Project");
+        projectRepository.save(p);
+
+        Project updated = projectRepository.findById(9001).get();
+        assertThat(updated.getProjectName()).isEqualTo("Updated Project");
+    }
+
+    @Test
+    void testDeleteProject_Success() {
+        projectRepository.deleteById(9001);
+        Optional<Project> deleted = projectRepository.findById(9001);
+        assertThat(deleted).isNotPresent();
+
+        // Re-save so @AfterEach tearDown doesn't fail
+        projectRepository.save(testProject);
+    }
+
+
+
+    @Test
+    void testFindById_NotFound() {
+        Optional<Project> found = projectRepository.findById(9999);
+        assertThat(found).isNotPresent();
+    }
+
+    @Test
+    void testFindByProjectName_NotFound() {
+        List<Project> found = projectRepository
+                .findByProjectNameContainingIgnoreCase("xyznotexist");
+        assertThat(found).isEmpty();
+    }
+
+    @Test
+    void testFindByUserID_NotFound() {
+        List<Project> found = projectRepository.findByUser_UserID(9999);
+        assertThat(found).isEmpty();
     }
 }

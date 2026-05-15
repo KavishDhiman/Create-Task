@@ -1,8 +1,10 @@
 package com.createtask.createtask.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
+
 import java.io.Serializable;
 import java.util.Objects;
 
@@ -18,11 +20,13 @@ public class UserRoles {
     @ManyToOne
     @MapsId("userID")
     @JoinColumn(name = "UserID")
+    @NotNull(message = "User must not be null")
     private User user;
 
     @ManyToOne
     @MapsId("userRoleID")
     @JoinColumn(name = "UserRoleID")
+    @NotNull(message = "UserRole must not be null")
     private UserRole userRole;
 
     @Embeddable
@@ -31,20 +35,25 @@ public class UserRoles {
     public static class UserRolesId implements Serializable {
 
         @Column(name = "UserID")
-        private int userID;
+        @NotNull(message = "UserID must not be null")
+        private Integer userID;
 
         @Column(name = "UserRoleID")
-        private int userRoleID;
+        @NotNull(message = "UserRoleID must not be null")
+        private Integer userRoleID;
 
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
             if (!(o instanceof UserRolesId)) return false;
             UserRolesId that = (UserRolesId) o;
-            return userID == that.userID && userRoleID == that.userRoleID;
+            return Objects.equals(userID, that.userID) &&
+                    Objects.equals(userRoleID, that.userRoleID);
         }
 
         @Override
-        public int hashCode() { return Objects.hash(userID, userRoleID); }
+        public int hashCode() {
+            return Objects.hash(userID, userRoleID);
+        }
     }
 }

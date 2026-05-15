@@ -8,7 +8,7 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "UserRoles")
-public class UserRoles {
+public class UserRoles implements Comparable<UserRoles> {
 
     @EmbeddedId
     private UserRolesId id;
@@ -33,6 +33,31 @@ public class UserRoles {
 
     public UserRole getUserRole() { return userRole; }
     public void setUserRole(UserRole userRole) { this.userRole = userRole; }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof UserRoles)) return false;
+        UserRoles userRoles = (UserRoles) o;
+        return Objects.equals(id, userRoles.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
+
+    @Override
+    public int compareTo(UserRoles other) {
+        int userCompare = Integer.compare(this.id.getUserID(), other.id.getUserID());
+        if (userCompare != 0) return userCompare;
+        return Integer.compare(this.id.getUserRoleID(), other.id.getUserRoleID());
+    }
+
+    @Override
+    public String toString() {
+        return "UserRoles{userID=" + id.getUserID() + ", userRoleID=" + id.getUserRoleID() + "}";
+    }
 
     @Embeddable
     public static class UserRolesId implements Serializable {

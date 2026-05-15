@@ -20,7 +20,6 @@ class UserRepositoryTest {
     @Autowired
     private UserRepository userRepository;
 
-    // Test user saved before each test, deleted after
     private User testUser;
 
     @BeforeEach
@@ -39,10 +38,6 @@ class UserRepositoryTest {
         userRepository.deleteById(901);
     }
 
-    // -------------------------------------------------------
-    // POSITIVE TESTS
-    // -------------------------------------------------------
-
     @Test
     void testSaveUser_Success() {
         Optional<User> found = userRepository.findById(901);
@@ -53,7 +48,6 @@ class UserRepositoryTest {
 
     @Test
     void testFindAllUsers_ContainsSeededData() {
-        // DB has 12 seeded users + our test user
         List<User> users = userRepository.findAll();
         assertThat(users).isNotEmpty();
         assertThat(users.size()).isGreaterThanOrEqualTo(1);
@@ -101,13 +95,8 @@ class UserRepositoryTest {
         Optional<User> deleted = userRepository.findById(901);
         assertThat(deleted).isNotPresent();
 
-        // Re-save so @AfterEach tearDown doesn't fail
         userRepository.save(testUser);
     }
-
-    // -------------------------------------------------------
-    // NEGATIVE TESTS
-    // -------------------------------------------------------
 
     @Test
     void testFindByUsername_NotFound() {

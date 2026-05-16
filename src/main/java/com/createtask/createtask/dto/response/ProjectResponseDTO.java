@@ -1,62 +1,62 @@
-package com.createtask.createtask.dto;
-
-import jakarta.validation.constraints.*;
+package com.createtask.createtask.dto.response;
 import java.time.LocalDate;
+import java.util.Objects;
 
-public class ProjectDTO {
+// Carries data going OUT to the client (GET/POST/PUT responses).
+// We expose userName and userID so the client gets readable info without the full User object.
+public class ProjectResponseDTO {
 
     private Integer projectID;
-
-    @NotBlank(message = "Project name must not be blank. Please provide a meaningful name for the project.")
-    @Size(max = 255, message = "Project name must not exceed 255 characters. Please shorten the project name.")
     private String projectName;
-
-    @Size(max = 1000, message = "Description must not exceed 1000 characters. Please provide a concise project description.")
     private String description;
-
-    @NotNull(message = "Start date must not be null. Please provide a valid start date for the project.")
     private LocalDate startDate;
-
     private LocalDate endDate;
-
-    @NotNull(message = "User ID must not be null. Every project must be associated with a valid registered user.")
     private Integer userID;
+    private String userName;   // human-readable owner name for the response
 
-    public ProjectDTO() {}
+    // ==================== Constructors ====================
+    public ProjectResponseDTO() {}
 
-    public ProjectDTO(Integer projectID, String projectName, String description,
-                      LocalDate startDate, LocalDate endDate, Integer userID) {
+    public ProjectResponseDTO(Integer projectID, String projectName, String description,
+                              LocalDate startDate, LocalDate endDate,
+                              Integer userID, String userName) {
         this.projectID   = projectID;
         this.projectName = projectName;
         this.description = description;
         this.startDate   = startDate;
         this.endDate     = endDate;
         this.userID      = userID;
+        this.userName    = userName;
     }
 
+    // ==================== Getters ====================
     public Integer getProjectID()      { return projectID; }
     public String getProjectName()     { return projectName; }
     public String getDescription()     { return description; }
     public LocalDate getStartDate()    { return startDate; }
     public LocalDate getEndDate()      { return endDate; }
     public Integer getUserID()         { return userID; }
+    public String getUserName()        { return userName; }
 
+    // ==================== Setters ====================
     public void setProjectID(Integer projectID)        { this.projectID = projectID; }
     public void setProjectName(String projectName)     { this.projectName = projectName; }
     public void setDescription(String description)     { this.description = description; }
     public void setStartDate(LocalDate startDate)      { this.startDate = startDate; }
     public void setEndDate(LocalDate endDate)          { this.endDate = endDate; }
     public void setUserID(Integer userID)              { this.userID = userID; }
+    public void setUserName(String userName)           { this.userName = userName; }
 
+    // ==================== toString ====================
     @Override
     public String toString() {
-        return "ProjectDTO{" +
+        return "ProjectResponseDTO{" +
                 "projectID=" + projectID +
                 ", projectName='" + projectName + '\'' +
-                ", description='" + description + '\'' +
                 ", startDate=" + startDate +
                 ", endDate=" + endDate +
                 ", userID=" + userID +
+                ", userName='" + userName + '\'' +
                 '}';
     }
 }

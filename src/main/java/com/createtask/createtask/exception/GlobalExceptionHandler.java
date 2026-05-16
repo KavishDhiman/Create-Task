@@ -11,17 +11,12 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Intercepts all exceptions thrown across the application and converts them
- * into consistent JSON error responses. @RestControllerAdvice applies globally
- * across all controllers and auto-serializes the response body to JSON.
- *
- * Every error response contains: timestamp, status, error, and message.
- */
+// Intercepts all exceptions thrown across the application and converts them
+// into consistent JSON error responses — no raw stack traces ever reach the client.
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    /** Builds the standard error response body used by all handlers. */
+    // Builds the standard error response body reused by all exception handlers below.
     private ResponseEntity<Map<String, Object>> buildResponse(HttpStatus status, String message) {
         Map<String, Object> body = new HashMap<>();
         body.put("timestamp", LocalDateTime.now().toString());
@@ -30,6 +25,7 @@ public class GlobalExceptionHandler {
         body.put("message", message);
         return new ResponseEntity<>(body, status);
     }
+
 
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<Map<String, Object>> handleUserNotFound(UserNotFoundException ex) {
@@ -56,10 +52,22 @@ public class GlobalExceptionHandler {
         return buildResponse(HttpStatus.CONFLICT, ex.getMessage());
     }
 
-    /**
-     * Handles @Valid failures from controller request bodies.
-     * Extracts each field-level error and returns them all in a single response.
-     */
+
+    // Fires when a project lookup by ID fails — returns 404 so the client knows it doesn't exist.
+    @ExceptionHandler(ProjectNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleProjectNotFound(ProjectNotFoundException ex) {
+        return buildResponse(HttpStatus.NOT_FOUND, ex.getMessage());
+    }
+
+    // Fires when someone tries to create a project with an ID that's already taken.
+    @ExceptionHandler(DuplicateProjectException.class)
+    public ResponseEntity<Map<String, Object>> handleDuplicateProject(DuplicateProjectException ex) {
+        return buildResponse(HttpStatus.CONFLICT, ex.getMessage());
+    }
+
+
+
+    // Handles @Valid failures from request bodies — collects all field errors in one response.
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, Object>> handleValidationErrors(MethodArgumentNotValidException ex) {
         Map<String, Object> body = new HashMap<>();
@@ -77,7 +85,7 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
     }
 
-    /** Catch-all to prevent raw stack traces from reaching the client. */
+    // Catch-all safety net — prevents any unhandled exception from leaking a stack trace.
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handleGenericException(Exception ex) {
         return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR,

@@ -1,10 +1,14 @@
-package com.createtask.createtask.dto;
+package com.createtask.createtask.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
-public class UserRoleDTO {
+/**
+ * UserRoleRequestDTO is the input object for creating a new role.
+ * Validated by @Valid in the controller before reaching the service.
+ */
+public class UserRoleRequestDTO {
 
     @NotNull(message = "UserRoleID must not be null")
     private Integer userRoleID;

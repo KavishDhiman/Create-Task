@@ -41,12 +41,18 @@ public class UserRoleServiceImpl implements UserRoleService {
     }
 
     /**
-     * TreeSet automatically calls UserRole's compareTo() on each insertion,
-     * producing roles sorted alphabetically by roleName.
+     * Returns all roles sorted by userRoleID in ascending order.
      */
     @Override
     public TreeSet<UserRole> getAllRolesSorted() {
-        return new TreeSet<>(userRoleRepository.findAll());
+
+        TreeSet<UserRole> sortedRoles = new TreeSet<>(
+                (r1, r2) -> Integer.compare(r1.getUserRoleID(), r2.getUserRoleID())
+        );
+
+        sortedRoles.addAll(userRoleRepository.findAll());
+
+        return sortedRoles;
     }
 
     /**

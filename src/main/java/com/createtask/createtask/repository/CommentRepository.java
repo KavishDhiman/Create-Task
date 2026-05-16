@@ -16,3 +16,4 @@ public interface CommentRepository extends JpaRepository<Comment, Integer> {
 
     boolean existsByText(String text);
 }
+

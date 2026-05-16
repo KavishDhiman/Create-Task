@@ -15,3 +15,4 @@ public interface AttachmentRepository extends JpaRepository<Attachment, Integer>
 
     boolean existsByFileName(String fileName);
 }
+

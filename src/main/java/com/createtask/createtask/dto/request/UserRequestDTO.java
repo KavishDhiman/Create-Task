@@ -1,12 +1,19 @@
-package com.createtask.createtask.dto;
+package com.createtask.createtask.dto.request;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
-public class UserDTO {
+/**
+ * UserRequestDTO is the input object received from the client for
+ * create (POST) and update (PUT) user operations.
+ * Validations here are enforced by @Valid in the controller before
+ * the request reaches the service layer.
+ */
+public class UserRequestDTO {
 
+    /** Required for manual ID assignment as per the project DB design. */
     @NotNull(message = "UserID must not be null")
     private Integer userID;
 

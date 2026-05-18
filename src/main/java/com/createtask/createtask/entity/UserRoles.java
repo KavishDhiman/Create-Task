@@ -17,7 +17,7 @@ public class UserRoles implements Comparable<UserRoles> {
     @MapsId("userID")
     @JoinColumn(name = "UserID")
     @NotNull(message = "User must not be null")
-    private User user;
+    private AppUser user;
 
     @ManyToOne
     @MapsId("userRoleID")
@@ -28,8 +28,8 @@ public class UserRoles implements Comparable<UserRoles> {
     public UserRolesId getId() { return id; }
     public void setId(UserRolesId id) { this.id = id; }
 
-    public User getUser() { return user; }
-    public void setUser(User user) { this.user = user; }
+    public AppUser getUser() { return user; }
+    public void setUser(AppUser user) { this.user = user; }
 
     public UserRole getUserRole() { return userRole; }
     public void setUserRole(UserRole userRole) { this.userRole = userRole; }

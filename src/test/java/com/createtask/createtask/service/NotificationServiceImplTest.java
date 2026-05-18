@@ -3,7 +3,7 @@ package com.createtask.createtask.service;
 import com.createtask.createtask.dto.request.NotificationRequestDTO; // Request DTO used to create notifications
 import com.createtask.createtask.dto.response.NotificationResponseDTO; // Response DTO returned by service methods
 import com.createtask.createtask.entity.Notification; // Notification entity used in mocked repository calls
-import com.createtask.createtask.entity.User; // User entity needed to simulate a valid recipient
+import com.createtask.createtask.entity.AppUser; // User entity needed to simulate a valid recipient
 import com.createtask.createtask.exception.NotificationNotFoundException; // Expected in negative delete/get tests
 import com.createtask.createtask.exception.NotificationRecipientNotFoundException; // Expected when user ID is invalid
 import com.createtask.createtask.repository.NotificationRepository; // Mocked — no real DB calls in unit tests
@@ -41,14 +41,14 @@ class NotificationServiceImplTest {
 
     // ─── Shared test fixtures ────────────────────────────────────────────────
 
-    private User testUser; // Reusable User entity across test methods
+    private AppUser testUser; // Reusable User entity across test methods
     private Notification testNotification; // Reusable Notification entity across test methods
     private NotificationRequestDTO requestDTO; // Reusable request DTO for create tests
 
     @BeforeEach // Runs before every single test — resets state so tests remain independent
     void setUp() {
         // Build a fake User entity to simulate a valid recipient
-        testUser = new User();
+        testUser = new AppUser();
         testUser.setUserID(1); // Assign a known ID for use in assertions
         testUser.setFullName("Test User"); // Used in toResponseDTO() mapping
 

@@ -1,17 +1,17 @@
 package com.createtask.createtask.repository;
 
-import com.createtask.createtask.entity.User;
+import com.createtask.createtask.entity.AppUser;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, Integer> {
+public interface UserRepository extends JpaRepository<AppUser, Integer> {
 
-    Optional<User> findByUsername(String username);
+    Optional<AppUser> findByUsername(String username);
 
-    Optional<User> findByEmail(String email);
+    Optional<AppUser> findByEmail(String email);
 
     boolean existsByUsername(String username);
 

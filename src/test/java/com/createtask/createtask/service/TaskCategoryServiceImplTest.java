@@ -4,7 +4,7 @@ import com.createtask.createtask.dto.response.CategoryResponseDTO;
 import com.createtask.createtask.entity.Category;
 import com.createtask.createtask.entity.Task;
 import com.createtask.createtask.entity.TaskCategory;
-import com.createtask.createtask.entity.User;
+import com.createtask.createtask.entity.AppUser;
 import com.createtask.createtask.exception.DuplicateResourceException;
 import com.createtask.createtask.exception.ResourceNotFoundException;
 import com.createtask.createtask.repository.CategoryRepository;
@@ -49,7 +49,7 @@ class TaskCategoryServiceImplTest {
     @BeforeEach
     void setUp() {
         // Build a minimal user needed by the Task entity
-        User user = new User();
+        AppUser user = new AppUser();
         user.setUserID(1);
         user.setUsername("john_doe");
         user.setPassword("password123");

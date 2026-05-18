@@ -2,7 +2,7 @@ package com.createtask.createtask.controller;
 
 import com.createtask.createtask.dto.request.UserRequestDTO;
 import com.createtask.createtask.dto.response.UserResponseDTO;
-import com.createtask.createtask.entity.User;
+import com.createtask.createtask.entity.AppUser;
 import com.createtask.createtask.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -31,8 +31,8 @@ public class UserController {
     }
 
     /** Converts a UserRequestDTO to a User entity for service layer processing. */
-    private User toEntity(UserRequestDTO dto) {
-        User user = new User();
+    private AppUser toEntity(UserRequestDTO dto) {
+        AppUser user = new AppUser();
         user.setUserID(dto.getUserID());
         user.setUsername(dto.getUsername());
         user.setPassword(dto.getPassword());
@@ -42,7 +42,7 @@ public class UserController {
     }
 
     /** Converts a User entity to a UserResponseDTO, excluding the password field. */
-    private UserResponseDTO toResponse(User user) {
+    private UserResponseDTO toResponse(AppUser user) {
         return new UserResponseDTO(
                 user.getUserID(),
                 user.getUsername(),
@@ -54,7 +54,7 @@ public class UserController {
     @Operation(summary = "Create a new user")
     @PostMapping
     public ResponseEntity<UserResponseDTO> createUser(@Valid @RequestBody UserRequestDTO dto) {
-        User saved = userService.createUser(toEntity(dto));
+        AppUser saved = userService.createUser(toEntity(dto));
         return ResponseEntity.status(HttpStatus.CREATED).body(toResponse(saved));
     }
 
@@ -79,7 +79,7 @@ public class UserController {
     public ResponseEntity<UserResponseDTO> updateUser(
             @PathVariable Integer userId,
             @Valid @RequestBody UserRequestDTO dto) {
-        User updated = userService.updateUser(userId, toEntity(dto));
+        AppUser updated = userService.updateUser(userId, toEntity(dto));
         return ResponseEntity.ok(toResponse(updated));
     }
 

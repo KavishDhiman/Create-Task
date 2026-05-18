@@ -1,6 +1,6 @@
 package com.createtask.createtask.service.impl;
 
-import com.createtask.createtask.entity.User;
+import com.createtask.createtask.entity.AppUser;
 import com.createtask.createtask.entity.UserRole;
 import com.createtask.createtask.entity.UserRoles;
 import com.createtask.createtask.exception.RoleAlreadyAssignedException;
@@ -44,7 +44,7 @@ public class UserRolesServiceImpl implements UserRolesService {
      */
     @Override
     public UserRoles assignRoleToUser(Integer userId, Integer roleId) {
-        User user = userService.getUserById(userId);
+        AppUser user = userService.getUserById(userId);
         UserRole userRole = userRoleService.getRoleById(roleId);
 
         if (userRolesRepository.existsByUser_UserIDAndUserRole_UserRoleID(userId, roleId)) {

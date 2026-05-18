@@ -3,7 +3,7 @@ package com.createtask.createtask.service;
 import com.createtask.createtask.dto.request.ProjectRequestDTO;
 import com.createtask.createtask.dto.response.ProjectResponseDTO;
 import com.createtask.createtask.entity.Project;
-import com.createtask.createtask.entity.User;
+import com.createtask.createtask.entity.AppUser;
 import com.createtask.createtask.exception.DuplicateProjectException;
 import com.createtask.createtask.exception.ProjectNotFoundException;
 import com.createtask.createtask.exception.UserNotFoundException;
@@ -43,14 +43,14 @@ class ProjectServiceTest {
     @InjectMocks
     private ProjectServiceImpl projectService;
 
-    private User testUser;
+    private AppUser testUser;
     private Project testProject;
     private ProjectRequestDTO requestDTO;
 
     // Sets up reusable test data before every single test method runs.
     @BeforeEach
     void setUp() {
-        testUser = new User();
+        testUser = new AppUser();
         testUser.setUserID(1);
         testUser.setUsername("john_doe");
         testUser.setEmail("john.doe@email.com");

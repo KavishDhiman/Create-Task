@@ -14,11 +14,16 @@ public class CategoryRequestDTO {
     @NotBlank(message = "Category name is required")
     private String categoryName;
 
+    // Default constructor required by Jackson for JSON deserialization
     public CategoryRequestDTO() {}
 
+    // Returns the category ID supplied by the client
     public Integer getCategoryID() { return categoryID; }
+    // Sets the category ID
     public void setCategoryID(Integer categoryID) { this.categoryID = categoryID; }
 
+    // Returns the category name
     public String getCategoryName() { return categoryName; }
+    // Sets the category name — must not be blank
     public void setCategoryName(String categoryName) { this.categoryName = categoryName; }
 }

@@ -20,6 +20,7 @@ public class TaskCategoryController {
         this.taskCategoryService = taskCategoryService;
     }
 
+    // Assigns a category to a specific task
     @PostMapping("/{taskId}/categories/{categoryId}")
     public ResponseEntity<Void> assignCategoryToTask(@PathVariable int taskId,
                                                      @PathVariable int categoryId) {
@@ -27,6 +28,7 @@ public class TaskCategoryController {
         return ResponseEntity.ok().build();
     }
 
+    // Removes a category from a specific task
     @DeleteMapping("/{taskId}/categories/{categoryId}")
     public ResponseEntity<Void> removeCategoryFromTask(@PathVariable int taskId,
                                                        @PathVariable int categoryId) {
@@ -34,6 +36,7 @@ public class TaskCategoryController {
         return ResponseEntity.noContent().build();
     }
 
+    // Fetches all categories assigned to a specific task
     @GetMapping("/{taskId}/categories")
     public ResponseEntity<List<CategoryResponseDTO>> getCategoriesForTask(@PathVariable int taskId) {
         List<CategoryResponseDTO> categories = taskCategoryService.getCategoriesForTask(taskId);

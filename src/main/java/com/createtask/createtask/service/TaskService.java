@@ -20,8 +20,8 @@ public interface TaskService {
     // Updates an existing task's details — throws 404 if task does not exist
     TaskResponseDTO updateTask(int taskID, TaskRequestDTO requestDTO);
 
-    // Deletes a task by ID — throws 404 if task does not exist
-    void deleteTask(int taskID);
+    // Deletes task by ID and returns the deleted task details — throws 404 if not found
+    TaskResponseDTO deleteTask(int taskID);
 
     // Retrieves all tasks under a specific project — used by GET /projects/{id}/tasks
     List<TaskResponseDTO> getTasksByProject(int projectID);

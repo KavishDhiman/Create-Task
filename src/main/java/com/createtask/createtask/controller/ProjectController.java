@@ -12,22 +12,23 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-// Exposes all project-related HTTP endpoints — delegates all logic to the service layer.
-// @Tag groups these endpoints together under "Project Management" in Swagger UI.
+// Exposes all project HTTP endpoints — every method delegates straight to the service layer.
+// @Tag groups these endpoints together neatly inside Swagger UI.
 @RestController
 @RequestMapping("/api/v1")
 @Tag(name = "Project Management", description = "APIs for creating, updating, fetching and deleting projects")
 public class ProjectController {
 
-    // Controller only knows about the service interface — not the implementation.
+    // Controller only depends on the interface — makes it easy to swap implementations later.
     private final ProjectService projectService;
 
     public ProjectController(ProjectService projectService) {
         this.projectService = projectService;
     }
 
-    // POST /api/v1/projects — creates a new project after validating the request body.
-    @Operation(summary = "Create a new project", description = "Creates a new project and links it to the specified user.")
+    // POST /api/v1/projects — validates the body first, then hands off to service.
+    @Operation(summary = "Create a new project",
+            description = "Creates a new project and links it to the specified user.")
     @PostMapping("/projects")
     public ResponseEntity<ProjectResponseDTO> createProject(
             @Valid @RequestBody ProjectRequestDTO requestDTO) {
@@ -35,8 +36,9 @@ public class ProjectController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
-    // GET /api/v1/projects/{projectId} — fetches one project by its ID.
-    @Operation(summary = "Get project by ID", description = "Returns the details of a single project using its unique ID.")
+    // GET /api/v1/projects/{projectId} — returns one project's full details.
+    @Operation(summary = "Get project by ID",
+            description = "Returns the details of a single project using its unique ID.")
     @GetMapping("/projects/{projectId}")
     public ResponseEntity<ProjectResponseDTO> getProjectById(
             @PathVariable Integer projectId) {
@@ -44,16 +46,18 @@ public class ProjectController {
         return ResponseEntity.ok(response);
     }
 
-    // GET /api/v1/projects — returns every project in the system.
-    @Operation(summary = "Get all projects", description = "Returns a list of all projects currently stored in the system.")
+    // GET /api/v1/projects — returns the full list of all projects in the system.
+    @Operation(summary = "Get all projects",
+            description = "Returns a list of all projects currently stored in the system.")
     @GetMapping("/projects")
     public ResponseEntity<List<ProjectResponseDTO>> getAllProjects() {
         List<ProjectResponseDTO> response = projectService.getAllProjects();
         return ResponseEntity.ok(response);
     }
 
-    // PUT /api/v1/projects/{projectId} — updates an existing project's details.
-    @Operation(summary = "Update a project", description = "Updates the name, description, dates, or owner of an existing project.")
+    // PUT /api/v1/projects/{projectId} — replaces project details with new values from request.
+    @Operation(summary = "Update a project",
+            description = "Updates the name, description, dates, or owner of an existing project.")
     @PutMapping("/projects/{projectId}")
     public ResponseEntity<ProjectResponseDTO> updateProject(
             @PathVariable Integer projectId,
@@ -62,22 +66,22 @@ public class ProjectController {
         return ResponseEntity.ok(response);
     }
 
-    // DELETE /api/v1/projects/{projectId} — removes a project permanently from the system.
-    @Operation(summary = "Delete a project", description = "Permanently deletes the project with the given ID from the system.")
+    // DELETE /api/v1/projects/{projectId} — now returns the confirmation string from service.
+    @Operation(summary = "Delete a project",
+            description = "Permanently deletes the project with the given ID from the system.")
     @DeleteMapping("/projects/{projectId}")
     public ResponseEntity<String> deleteProject(@PathVariable Integer projectId) {
-        projectService.deleteProject(projectId);
-        return ResponseEntity.ok("Project with ID " + projectId + " has been deleted successfully.");
+        String message = projectService.deleteProject(projectId);
+        return ResponseEntity.ok(message);
     }
 
-    // GET /api/v1/users/{userId}/projects — returns all projects owned by a specific user.
-    @Operation(summary = "Get projects by user", description = "Returns all projects that are owned by the specified user.")
+    // GET /api/v1/users/{userId}/projects — lists all projects owned by a particular user.
+    @Operation(summary = "Get projects by user",
+            description = "Returns all projects that are owned by the specified user.")
     @GetMapping("/users/{userId}/projects")
     public ResponseEntity<List<ProjectResponseDTO>> getProjectsByUser(
             @PathVariable Integer userId) {
         List<ProjectResponseDTO> response = projectService.getProjectsByUser(userId);
         return ResponseEntity.ok(response);
     }
-
-
 }

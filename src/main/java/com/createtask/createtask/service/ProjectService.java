@@ -1,11 +1,11 @@
 package com.createtask.createtask.service;
 
-import com.createtask.createtask.dto.response.ProjectResponseDTO;
 import com.createtask.createtask.dto.request.ProjectRequestDTO;
+import com.createtask.createtask.dto.response.ProjectResponseDTO;
 import java.util.List;
 
 // Contract that defines what operations the project service must support.
-// The controller only talks to this interface — never directly to the implementation.
+// Controller only talks to this interface — never directly to the implementation.
 public interface ProjectService {
 
     ProjectResponseDTO createProject(ProjectRequestDTO requestDTO);
@@ -16,8 +16,8 @@ public interface ProjectService {
 
     ProjectResponseDTO updateProject(Integer projectID, ProjectRequestDTO requestDTO);
 
-    void deleteProject(Integer projectID);
+    // Changed from void to String so the caller gets a clear confirmation message back.
+    String deleteProject(Integer projectID);
 
     List<ProjectResponseDTO> getProjectsByUser(Integer userID);
-
 }

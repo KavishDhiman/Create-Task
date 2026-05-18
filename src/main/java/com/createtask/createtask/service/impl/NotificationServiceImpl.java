@@ -10,7 +10,7 @@ import com.createtask.createtask.dto.response.NotificationResponseDTO;
 import com.createtask.createtask.entity.Notification;
 
 // User entity needed to link notification with user
-import com.createtask.createtask.entity.User;
+import com.createtask.createtask.entity.AppUser;
 
 // Custom exception thrown when notification is not found
 import com.createtask.createtask.exception.NotificationNotFoundException;
@@ -71,7 +71,7 @@ public class NotificationServiceImpl implements NotificationService {
     public NotificationResponseDTO createNotification(NotificationRequestDTO requestDTO) {
 
         // Find user by userId from request DTO
-        User user = userRepository.findById(requestDTO.getUserId())
+        AppUser user = userRepository.findById(requestDTO.getUserId())
 
                 // Throw exception if user does not exist
                 .orElseThrow(() -> new NotificationRecipientNotFoundException(

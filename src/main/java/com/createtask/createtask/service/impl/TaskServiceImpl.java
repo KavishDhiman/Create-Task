@@ -4,7 +4,7 @@ import com.createtask.createtask.dto.request.TaskRequestDTO;
 import com.createtask.createtask.dto.response.TaskResponseDTO;
 import com.createtask.createtask.entity.Project;
 import com.createtask.createtask.entity.Task;
-import com.createtask.createtask.entity.User;
+import com.createtask.createtask.entity.AppUser;
 import com.createtask.createtask.exception.ResourceNotFoundException;
 import com.createtask.createtask.repository.ProjectRepository;
 import com.createtask.createtask.repository.TaskRepository;
@@ -51,7 +51,7 @@ public class TaskServiceImpl implements TaskService {
         }
 
         // Resolve user reference — throws 404 if user ID doesn't exist in DB
-        User user = null;
+        AppUser user = null;
         if (requestDTO.getUserID() != null) {
             user = userRepository.findById(requestDTO.getUserID())
                     .orElseThrow(() -> new ResourceNotFoundException(
@@ -114,7 +114,7 @@ public class TaskServiceImpl implements TaskService {
 
         // Re-validate and update user FK if a new user ID is provided
         if (requestDTO.getUserID() != null) {
-            User user = userRepository.findById(requestDTO.getUserID())
+            AppUser user = userRepository.findById(requestDTO.getUserID())
                     .orElseThrow(() -> new ResourceNotFoundException(
                             "User not found with ID: " + requestDTO.getUserID()));
             task.setUser(user);

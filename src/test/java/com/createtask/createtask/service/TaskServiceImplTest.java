@@ -4,7 +4,7 @@ import com.createtask.createtask.dto.request.TaskRequestDTO;
 import com.createtask.createtask.dto.response.TaskResponseDTO;
 import com.createtask.createtask.entity.Project;
 import com.createtask.createtask.entity.Task;
-import com.createtask.createtask.entity.User;
+import com.createtask.createtask.entity.AppUser;
 import com.createtask.createtask.exception.ResourceNotFoundException;
 import com.createtask.createtask.repository.ProjectRepository;
 import com.createtask.createtask.repository.TaskRepository;
@@ -39,7 +39,7 @@ class TaskServiceImplTest {
     @InjectMocks private TaskServiceImpl taskService;
 
     // Shared test fixtures — built fresh before each test
-    private User testUser;
+    private AppUser testUser;
     private Project testProject;
     private Task testTask;
     private TaskRequestDTO requestDTO;
@@ -47,7 +47,7 @@ class TaskServiceImplTest {
     @BeforeEach
     void setUp() {
         // Build a sample user matching the User entity field names
-        testUser = new User();
+        testUser = new AppUser();
         testUser.setUserID(1);
         testUser.setUsername("john_doe");
         testUser.setPassword("password123");

@@ -3,7 +3,7 @@ package com.createtask.createtask.service.impl;
 import com.createtask.createtask.dto.request.ProjectRequestDTO;
 import com.createtask.createtask.dto.response.ProjectResponseDTO;
 import com.createtask.createtask.entity.Project;
-import com.createtask.createtask.entity.User;
+import com.createtask.createtask.entity.AppUser;
 import com.createtask.createtask.exception.DuplicateProjectException;
 import com.createtask.createtask.exception.ProjectNotFoundException;
 import com.createtask.createtask.exception.UserNotFoundException;
@@ -44,7 +44,7 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     // Converts incoming request DTO into a Project entity ready to be saved.
-    private Project toEntity(ProjectRequestDTO dto, User user) {
+    private Project toEntity(ProjectRequestDTO dto, AppUser user) {
         Project project = new Project();
         project.setProjectID(dto.getProjectID());
         project.setProjectName(dto.getProjectName());
@@ -66,7 +66,7 @@ public class ProjectServiceImpl implements ProjectService {
             );
         }
 
-        User user = userRepository.findById(requestDTO.getUserID())
+        AppUser user = userRepository.findById(requestDTO.getUserID())
                 .orElseThrow(() -> new UserNotFoundException(requestDTO.getUserID()));
 
         Project saved = projectRepository.save(toEntity(requestDTO, user));
@@ -105,7 +105,7 @@ public class ProjectServiceImpl implements ProjectService {
                                 " was not found. Cannot update a project that does not exist."
                 ));
 
-        User user = userRepository.findById(requestDTO.getUserID())
+        AppUser user = userRepository.findById(requestDTO.getUserID())
                 .orElseThrow(() -> new UserNotFoundException(requestDTO.getUserID()));
 
         // Updating fields on the existing entity preserves the same DB row — no duplicate created.

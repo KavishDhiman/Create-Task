@@ -4,7 +4,7 @@ import com.createtask.createtask.dto.request.CommentRequestDTO;
 import com.createtask.createtask.dto.response.CommentResponseDTO;
 import com.createtask.createtask.entity.Comment;
 import com.createtask.createtask.entity.Task;
-import com.createtask.createtask.entity.User;
+import com.createtask.createtask.entity.AppUser;
 import com.createtask.createtask.exception.CommentNotFoundException;
 import com.createtask.createtask.repository.CommentRepository;
 import com.createtask.createtask.repository.TaskRepository;
@@ -39,7 +39,7 @@ public class CommentServiceImpl implements CommentService {
 
         Task task = taskRepository.findById(taskId).orElseThrow();
 
-        User user = userRepository.findById(requestDTO.getUserID())
+        AppUser user = userRepository.findById(requestDTO.getUserID())
                 .orElseThrow();
 
         Comment comment = new Comment();

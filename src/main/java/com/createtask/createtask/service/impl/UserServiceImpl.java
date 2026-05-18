@@ -1,6 +1,6 @@
 package com.createtask.createtask.service.impl;
 
-import com.createtask.createtask.entity.User;
+import com.createtask.createtask.entity.AppUser;
 import com.createtask.createtask.exception.DuplicateUserException;
 import com.createtask.createtask.exception.UserNotFoundException;
 import com.createtask.createtask.repository.UserRepository;
@@ -28,7 +28,7 @@ public class UserServiceImpl implements UserService {
      * Throws DuplicateUserException for either conflict.
      */
     @Override
-    public User createUser(User user) {
+    public AppUser createUser(AppUser user) {
         if (userRepository.existsByUsername(user.getUsername())) {
             throw new DuplicateUserException("username", user.getUsername());
         }
@@ -43,14 +43,14 @@ public class UserServiceImpl implements UserService {
      * and ensure a proper exception is raised when the user is missing.
      */
     @Override
-    public User getUserById(Integer userId) {
+    public AppUser getUserById(Integer userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(userId));
     }
 
     /** Returns all users from the database as an unordered list. */
     @Override
-    public List<User> getAllUsers() {
+    public List<AppUser> getAllUsers() {
         return userRepository.findAll();
     }
 
@@ -59,7 +59,7 @@ public class UserServiceImpl implements UserService {
      * producing a set sorted by userID without an explicit sort call.
      */
     @Override
-    public TreeSet<User> getAllUsersSorted() {
+    public TreeSet<AppUser> getAllUsersSorted() {
         return new TreeSet<>(userRepository.findAll());
     }
 
@@ -69,8 +69,8 @@ public class UserServiceImpl implements UserService {
      * to avoid a false conflict when updating other fields only.
      */
     @Override
-    public User updateUser(Integer userId, User updatedUser) {
-        User existing = userRepository.findById(userId)
+    public AppUser updateUser(Integer userId, AppUser updatedUser) {
+        AppUser existing = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(userId));
 
         if (!existing.getUsername().equals(updatedUser.getUsername())

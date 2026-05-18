@@ -27,7 +27,7 @@ public class Notification {
     @NotNull(message = "User must not be null") // Every notification must be linked to a recipient user
     @ManyToOne // Many notifications can belong to one user
     @JoinColumn(name = "UserID", nullable = false) // Foreign key column linking to the User table; enforced at DB level
-    private User user; // The User entity who is the recipient of this notification
+    private AppUser user; // The User entity who is the recipient of this notification
 
     // Returns the unique notification ID (primary key)
     public int getNotificationID() {
@@ -45,7 +45,7 @@ public class Notification {
     }
 
     // Returns the recipient user of this notification
-    public User getUser() {
+    public AppUser getUser() {
         return user; // Returns the User entity linked to this notification
     }
 
@@ -65,7 +65,7 @@ public class Notification {
     }
 
     // Sets the recipient user of this notification
-    public void setUser(User user) {
+    public void setUser(AppUser user) {
         this.user = user; // Assigns the User entity linked to this notification
     }
 

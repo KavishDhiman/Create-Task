@@ -42,7 +42,7 @@ public class Task implements Comparable<Task> {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "UserID")
-    private User user;
+    private AppUser user;
 
     public Task() {
     }
@@ -103,11 +103,11 @@ public class Task implements Comparable<Task> {
         this.project = project;
     }
 
-    public User getUser() {
+    public AppUser getUser() {
         return user;
     }
 
-    public void setUser(User user) {
+    public void setUser(AppUser user) {
         this.user = user;
     }
 

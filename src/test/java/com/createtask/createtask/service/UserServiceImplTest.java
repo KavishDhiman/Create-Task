@@ -1,6 +1,6 @@
 package com.createtask.createtask.service;
 
-import com.createtask.createtask.entity.User;
+import com.createtask.createtask.entity.AppUser;
 import com.createtask.createtask.exception.DuplicateUserException;
 import com.createtask.createtask.exception.UserNotFoundException;
 import com.createtask.createtask.repository.UserRepository;
@@ -39,11 +39,11 @@ class UserServiceImplTest {
     private UserServiceImpl userService;
 
     /** Reusable test User object set up before each test. */
-    private User testUser;
+    private AppUser testUser;
 
     @BeforeEach
     void setUp() {
-        testUser = new User();
+        testUser = new AppUser();
         testUser.setUserID(1);
         testUser.setUsername("john_doe");
         testUser.setPassword("password123");
@@ -59,7 +59,7 @@ class UserServiceImplTest {
         when(userRepository.existsByEmail("john.doe@email.com")).thenReturn(false);
         when(userRepository.save(testUser)).thenReturn(testUser);
 
-        User result = userService.createUser(testUser);
+        AppUser result = userService.createUser(testUser);
 
         assertThat(result.getUsername()).isEqualTo("john_doe");
         verify(userRepository).save(testUser);
@@ -98,7 +98,7 @@ class UserServiceImplTest {
     void getUserById_Success() {
         when(userRepository.findById(1)).thenReturn(Optional.of(testUser));
 
-        User result = userService.getUserById(1);
+        AppUser result = userService.getUserById(1);
 
         assertThat(result.getUserID()).isEqualTo(1);
         assertThat(result.getFullName()).isEqualTo("John Doe");
@@ -121,7 +121,7 @@ class UserServiceImplTest {
     void getAllUsers_ReturnsAllUsers() {
         when(userRepository.findAll()).thenReturn(List.of(testUser));
 
-        List<User> result = userService.getAllUsers();
+        List<AppUser> result = userService.getAllUsers();
 
         assertThat(result).hasSize(1);
         assertThat(result.get(0).getUsername()).isEqualTo("john_doe");
@@ -131,7 +131,7 @@ class UserServiceImplTest {
 
     @Test
     void getAllUsersSorted_ReturnsSortedByUserID() {
-        User user2 = new User();
+        AppUser user2 = new AppUser();
         user2.setUserID(2);
         user2.setUsername("jane_smith");
         user2.setPassword("pass456");
@@ -140,7 +140,7 @@ class UserServiceImplTest {
 
         when(userRepository.findAll()).thenReturn(List.of(user2, testUser));
 
-        TreeSet<User> result = userService.getAllUsersSorted();
+        TreeSet<AppUser> result = userService.getAllUsersSorted();
 
         assertThat(result.first().getUserID()).isEqualTo(1);
         assertThat(result.last().getUserID()).isEqualTo(2);
@@ -150,7 +150,7 @@ class UserServiceImplTest {
 
     @Test
     void updateUser_Success() {
-        User updatedUser = new User();
+        AppUser updatedUser = new AppUser();
         updatedUser.setUserID(1);
         updatedUser.setUsername("john_updated");
         updatedUser.setPassword("newpass123");
@@ -160,9 +160,9 @@ class UserServiceImplTest {
         when(userRepository.findById(1)).thenReturn(Optional.of(testUser));
         when(userRepository.existsByUsername("john_updated")).thenReturn(false);
         when(userRepository.existsByEmail("john.updated@email.com")).thenReturn(false);
-        when(userRepository.save(any(User.class))).thenReturn(updatedUser);
+        when(userRepository.save(any(AppUser.class))).thenReturn(updatedUser);
 
-        User result = userService.updateUser(1, updatedUser);
+        AppUser result = userService.updateUser(1, updatedUser);
 
         assertThat(result.getUsername()).isEqualTo("john_updated");
         assertThat(result.getEmail()).isEqualTo("john.updated@email.com");
@@ -183,7 +183,7 @@ class UserServiceImplTest {
 
     @Test
     void updateUser_DuplicateUsername_ThrowsDuplicateUserException() {
-        User updatedUser = new User();
+        AppUser updatedUser = new AppUser();
         updatedUser.setUsername("jane_smith");
         updatedUser.setEmail("john.doe@email.com");
 

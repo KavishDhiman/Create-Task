@@ -32,12 +32,12 @@ public class Project implements Comparable<Project> {
     @NotNull(message = "User must not be null. Every project must be assigned to a valid registered user.")
     @ManyToOne
     @JoinColumn(name = "UserID")
-    private User user;
+    private AppUser user;
 
     public Project() {}
 
     public Project(Integer projectID, String projectName, String description,
-                   LocalDate startDate, LocalDate endDate, User user) {
+                   LocalDate startDate, LocalDate endDate, AppUser user) {
         this.projectID   = projectID;
         this.projectName = projectName;
         this.description = description;
@@ -51,14 +51,14 @@ public class Project implements Comparable<Project> {
     public String getDescription()     { return description; }
     public LocalDate getStartDate()    { return startDate; }
     public LocalDate getEndDate()      { return endDate; }
-    public User getUser()              { return user; }
+    public AppUser getUser()              { return user; }
 
     public void setProjectID(Integer projectID)        { this.projectID = projectID; }
     public void setProjectName(String projectName)     { this.projectName = projectName; }
     public void setDescription(String description)     { this.description = description; }
     public void setStartDate(LocalDate startDate)      { this.startDate = startDate; }
     public void setEndDate(LocalDate endDate)          { this.endDate = endDate; }
-    public void setUser(User user)                     { this.user = user; }
+    public void setUser(AppUser user)                     { this.user = user; }
 
     @Override
     public boolean equals(Object o) {

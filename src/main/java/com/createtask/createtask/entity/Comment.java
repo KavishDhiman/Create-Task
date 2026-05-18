@@ -31,12 +31,12 @@ public class Comment implements Comparable<Comment> {
     @NotNull
     @ManyToOne
     @JoinColumn(name = "UserID")
-    private User user;
+    private AppUser user;
 
     public Comment() {
     }
 
-    public Comment(int commentID, String text, LocalDateTime createdAt, Task task, User user) {
+    public Comment(int commentID, String text, LocalDateTime createdAt, Task task, AppUser user) {
         this.commentID = commentID;
         this.text = text;
         this.createdAt = createdAt;
@@ -76,11 +76,11 @@ public class Comment implements Comparable<Comment> {
         this.task = task;
     }
 
-    public User getUser() {
+    public AppUser getUser() {
         return user;
     }
 
-    public void setUser(User user) {
+    public void setUser(AppUser user) {
         this.user = user;
     }
 

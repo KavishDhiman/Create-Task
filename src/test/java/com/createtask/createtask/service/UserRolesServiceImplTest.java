@@ -1,6 +1,6 @@
 package com.createtask.createtask.service;
 
-import com.createtask.createtask.entity.User;
+import com.createtask.createtask.entity.AppUser;
 import com.createtask.createtask.entity.UserRole;
 import com.createtask.createtask.entity.UserRoles;
 import com.createtask.createtask.exception.RoleAlreadyAssignedException;
@@ -43,13 +43,13 @@ class UserRolesServiceImplTest {
     @InjectMocks
     private UserRolesServiceImpl userRolesService;
 
-    private User testUser;
+    private AppUser testUser;
     private UserRole testRole;
     private UserRoles.UserRolesId compositeId;
 
     @BeforeEach
     void setUp() {
-        testUser = new User();
+        testUser = new AppUser();
         testUser.setUserID(1);
         testUser.setUsername("john_doe");
         testUser.setPassword("password123");

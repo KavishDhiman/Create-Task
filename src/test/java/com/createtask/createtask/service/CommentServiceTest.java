@@ -4,7 +4,7 @@ import com.createtask.createtask.dto.request.CommentRequestDTO;
 import com.createtask.createtask.dto.response.CommentResponseDTO;
 import com.createtask.createtask.entity.Comment;
 import com.createtask.createtask.entity.Task;
-import com.createtask.createtask.entity.User;
+import com.createtask.createtask.entity.AppUser;
 import com.createtask.createtask.exception.CommentNotFoundException;
 import com.createtask.createtask.repository.CommentRepository;
 import com.createtask.createtask.repository.TaskRepository;
@@ -53,7 +53,7 @@ public class CommentServiceTest {
         Task task = new Task();
         task.setTaskID(1);
 
-        User user = new User();
+        AppUser user = new AppUser();
         user.setUserID(1);
 
         Comment comment = new Comment();
@@ -93,7 +93,7 @@ public class CommentServiceTest {
         Task task = new Task();
         task.setTaskID(1);
 
-        User user = new User();
+        AppUser user = new AppUser();
         user.setUserID(1);
 
         Comment comment = new Comment();
@@ -163,7 +163,7 @@ public class CommentServiceTest {
         Task task = new Task();
         task.setTaskID(1);
 
-        User user = new User();
+        AppUser user = new AppUser();
         user.setUserID(1);
 
         Comment comment = new Comment();
@@ -191,7 +191,7 @@ public class CommentServiceTest {
         Task task = new Task();
         task.setTaskID(1);
 
-        User user = new User();
+        AppUser user = new AppUser();
         user.setUserID(5);
 
         Comment comment = new Comment();
@@ -218,7 +218,7 @@ public class CommentServiceTest {
         Task task = new Task();
         task.setTaskID(1);
 
-        User user = new User();
+        AppUser user = new AppUser();
         user.setUserID(1);
 
         Comment c1 = new Comment();

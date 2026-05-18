@@ -10,7 +10,7 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "User")
-public class User implements Comparable<User> {
+public class AppUser implements Comparable<AppUser> {
 
     @Id
     @Column(name = "UserID")
@@ -56,8 +56,8 @@ public class User implements Comparable<User> {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof User)) return false;
-        User user = (User) o;
+        if (!(o instanceof AppUser)) return false;
+        AppUser user = (AppUser) o;
         return Objects.equals(userID, user.userID);
     }
 
@@ -67,7 +67,7 @@ public class User implements Comparable<User> {
     }
 
     @Override
-    public int compareTo(User other) {
+    public int compareTo(AppUser other) {
         return Integer.compare(this.userID, other.userID);
     }
 

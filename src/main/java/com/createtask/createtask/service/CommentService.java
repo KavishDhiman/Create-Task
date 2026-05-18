@@ -15,5 +15,5 @@ public interface CommentService {
     List<CommentResponseDTO> getCommentsByTaskId(int taskId);
 
     // Deletes a comment using comment ID
-    void deleteComment(int commentId);
+    String deleteComment(int commentId);
 }

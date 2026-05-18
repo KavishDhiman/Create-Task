@@ -82,7 +82,7 @@ public class CommentServiceImpl implements CommentService {
 
     // Deletes a comment using comment ID
     @Override
-    public void deleteComment(int commentId) {
+    public String deleteComment(int commentId) {
 
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() ->
@@ -91,5 +91,7 @@ public class CommentServiceImpl implements CommentService {
                                         + commentId));
 
         commentRepository.delete(comment);
+
+        return "Comment deleted successfully";
     }
 }

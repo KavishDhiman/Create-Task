@@ -40,8 +40,6 @@ public class AttachmentController {
     @DeleteMapping("/attachments/{attachmentId}")
     public String deleteAttachment(@PathVariable int attachmentId) {
 
-        attachmentService.deleteAttachment(attachmentId);
-
-        return "Attachment deleted successfully";
+        return attachmentService.deleteAttachment(attachmentId);
     }
 }

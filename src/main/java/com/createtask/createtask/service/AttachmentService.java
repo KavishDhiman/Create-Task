@@ -15,5 +15,5 @@ public interface AttachmentService {
     List<AttachmentResponseDTO> getAttachmentsByTaskId(int taskId);
 
     // Deletes an attachment using attachment ID
-    void deleteAttachment(int attachmentId);
+    String deleteAttachment(int attachmentId);
 }

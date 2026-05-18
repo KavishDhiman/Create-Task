@@ -70,7 +70,7 @@ public class AttachmentServiceImpl implements AttachmentService {
 
     // Deletes an attachment using attachment ID
     @Override
-    public void deleteAttachment(int attachmentId) {
+    public String deleteAttachment(int attachmentId) {
 
         Attachment attachment = attachmentRepository.findById(attachmentId)
                 .orElseThrow(() ->
@@ -79,5 +79,7 @@ public class AttachmentServiceImpl implements AttachmentService {
                                         + attachmentId));
 
         attachmentRepository.delete(attachment);
+
+        return "Attachment deleted successfully";
     }
 }

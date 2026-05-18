@@ -40,8 +40,6 @@ public class CommentController {
     @DeleteMapping("/comments/{commentId}")
     public String deleteComment(@PathVariable int commentId) {
 
-        commentService.deleteComment(commentId);
-
-        return "Comment deleted successfully";
+        return commentService.deleteComment(commentId);
     }
 }

@@ -30,6 +30,9 @@ public interface UserService {
     /** Updates an existing user's fields. Validates uniqueness of new username and email. */
     User updateUser(Integer userId, User updatedUser);
 
-    /** Deletes a user by ID. Validates existence before deletion. */
-    void deleteUser(Integer userId);
+    /**
+     * Deletes a user by ID and returns true if deletion was successful.
+     * Throws UserNotFoundException if the user does not exist.
+     */
+    boolean deleteUser(Integer userId);
 }

@@ -48,6 +48,7 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new UserNotFoundException(userId));
     }
 
+    /** Returns all users from the database as an unordered list. */
     @Override
     public List<User> getAllUsers() {
         return userRepository.findAll();
@@ -65,7 +66,7 @@ public class UserServiceImpl implements UserService {
     /**
      * Fetches the existing record first to confirm it exists.
      * Skips uniqueness check on username/email if the value has not changed,
-     * to allow a user to update other fields without triggering a false conflict.
+     * to avoid a false conflict when updating other fields only.
      */
     @Override
     public User updateUser(Integer userId, User updatedUser) {
@@ -90,14 +91,16 @@ public class UserServiceImpl implements UserService {
     }
 
     /**
-     * Checks existence before deletion so that a missing ID returns a clear
-     * UserNotFoundException rather than silently doing nothing.
+     * Validates user exists before deletion.
+     * Returns true after successful deletion to confirm the operation completed.
+     * Throws UserNotFoundException if the ID does not exist.
      */
     @Override
-    public void deleteUser(Integer userId) {
+    public boolean deleteUser(Integer userId) {
         if (!userRepository.existsById(userId)) {
             throw new UserNotFoundException(userId);
         }
         userRepository.deleteById(userId);
+        return true;
     }
 }

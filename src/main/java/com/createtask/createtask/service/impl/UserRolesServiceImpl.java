@@ -65,10 +65,11 @@ public class UserRolesServiceImpl implements UserRolesService {
 
     /**
      * Validates user, role, and existing mapping before deletion.
-     * Throws RoleNotFoundException if the mapping does not exist.
+     * Returns true after successful removal to confirm the operation completed.
+     * Throws RoleNotFoundException if the mapping does not currently exist.
      */
     @Override
-    public void removeRoleFromUser(Integer userId, Integer roleId) {
+    public boolean removeRoleFromUser(Integer userId, Integer roleId) {
         userService.getUserById(userId);
         userRoleService.getRoleById(roleId);
 
@@ -81,6 +82,7 @@ public class UserRolesServiceImpl implements UserRolesService {
         }
 
         userRolesRepository.deleteById(compositeId);
+        return true;
     }
 
     /**

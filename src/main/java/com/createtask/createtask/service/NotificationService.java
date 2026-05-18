@@ -18,6 +18,7 @@ public interface NotificationService {
     // Fetch all notifications for a specific user, ordered by newest first
     List<NotificationResponseDTO> getNotificationsByUserId(int userId);
 
-    // Delete a notification by ID — throws NotificationNotFoundException if not found
-    void deleteNotification(int notificationId);
+    // Delete a notification by ID — returns a confirmation message instead of void
+    // Returning String ensures the method always gives a meaningful result (no void methods in service)
+    String deleteNotification(int notificationId);
 }

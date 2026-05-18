@@ -45,13 +45,17 @@ public class UserRolesController {
                 .body("Role " + roleId + " assigned to User " + userId + " successfully.");
     }
 
+    /**
+     * Calls removeRoleFromUser which returns true on success.
+     * Returns a confirmation message to the client with HTTP 200.
+     */
     @Operation(summary = "Remove a role from a user")
     @DeleteMapping("/{userId}/roles/{roleId}")
     public ResponseEntity<String> removeRole(
             @PathVariable Integer userId,
             @PathVariable Integer roleId) {
-        userRolesService.removeRoleFromUser(userId, roleId);
-        return ResponseEntity.ok("Role " + roleId + " removed from User " + userId + " successfully.");
+        boolean removed = userRolesService.removeRoleFromUser(userId, roleId);
+        return ResponseEntity.ok("Role " + roleId + " removed from User " + userId + " successfully. Status: " + removed);
     }
 
     @Operation(summary = "Get all roles assigned to a user")

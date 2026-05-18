@@ -83,10 +83,14 @@ public class UserController {
         return ResponseEntity.ok(toResponse(updated));
     }
 
+    /**
+     * Calls deleteUser which returns true on success.
+     * Returns a confirmation message to the client with HTTP 200.
+     */
     @Operation(summary = "Delete a user by ID")
     @DeleteMapping("/{userId}")
     public ResponseEntity<String> deleteUser(@PathVariable Integer userId) {
-        userService.deleteUser(userId);
-        return ResponseEntity.ok("User with ID " + userId + " deleted successfully.");
+        boolean deleted = userService.deleteUser(userId);
+        return ResponseEntity.ok("User with ID " + userId + " deleted successfully. Status: " + deleted);
     }
 }

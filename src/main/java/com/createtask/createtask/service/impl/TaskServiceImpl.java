@@ -123,12 +123,15 @@ public class TaskServiceImpl implements TaskService {
         return mapToResponseDTO(taskRepository.save(task));
     }
 
-    // Verifies the task exists before deleting — avoids silent no-ops on bad IDs
+    // Captures the task details first, deletes it, then returns the deleted task as DTO
     @Override
-    public void deleteTask(int taskID) {
+    public TaskResponseDTO deleteTask(int taskID) {
         Task task = taskRepository.findById(taskID)
                 .orElseThrow(() -> new ResourceNotFoundException("Task not found with ID: " + taskID));
+        // Map to DTO before deletion so the caller knows what was removed
+        TaskResponseDTO deleted = mapToResponseDTO(task);
         taskRepository.delete(task);
+        return deleted;
     }
 
     // Verifies the project exists, then fetches all tasks under it

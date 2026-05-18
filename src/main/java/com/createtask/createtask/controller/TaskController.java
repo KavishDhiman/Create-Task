@@ -15,23 +15,19 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-// REST controller handling all Task endpoints — base path /api/v1
+// REST controller handling all Task endpoints
 @RestController
 @RequestMapping("/api/v1")
 @Tag(name = "Tasks", description = "Create, read, update, delete and filter tasks")
 public class TaskController {
 
-    // Service layer that handles task business logic
     private final TaskService taskService;
 
-    // Constructor injection for TaskService
     public TaskController(TaskService taskService) {
         this.taskService = taskService;
     }
 
-    // ── TASK CRUD ──────────────────────────────────────────────────────────────
-
-    // Creates a new task and returns it with HTTP 201
+    // Creates a new task
     @Operation(summary = "Create a new task")
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "Task created successfully"),
@@ -43,7 +39,7 @@ public class TaskController {
         return ResponseEntity.status(HttpStatus.CREATED).body(taskService.createTask(requestDTO));
     }
 
-    // Fetches a single task by its ID — returns 404 if not found
+    // Retrieves a task by ID
     @Operation(summary = "Get task by ID")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Task found"),
@@ -55,7 +51,7 @@ public class TaskController {
         return ResponseEntity.ok(taskService.getTaskById(taskId));
     }
 
-    // Returns all tasks in the system
+    // Retrieves all tasks
     @Operation(summary = "Get all tasks")
     @ApiResponse(responseCode = "200", description = "List of all tasks")
     @GetMapping("/tasks")
@@ -63,7 +59,7 @@ public class TaskController {
         return ResponseEntity.ok(taskService.getAllTasks());
     }
 
-    // Updates task fields — returns 404 if the task doesn't exist
+    // Updates an existing task
     @Operation(summary = "Update an existing task")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Task updated successfully"),
@@ -76,22 +72,20 @@ public class TaskController {
         return ResponseEntity.ok(taskService.updateTask(taskId, requestDTO));
     }
 
-    // Deletes a task — returns 204 No Content on success
+    // Deletes a task
     @Operation(summary = "Delete a task")
     @ApiResponses({
-            @ApiResponse(responseCode = "204", description = "Task deleted successfully"),
+            @ApiResponse(responseCode = "200", description = "Task deleted successfully"),
             @ApiResponse(responseCode = "404", description = "Task not found")
     })
     @DeleteMapping("/tasks/{taskId}")
-    public ResponseEntity<Void> deleteTask(
+    public ResponseEntity<TaskResponseDTO> deleteTask(
             @Parameter(description = "ID of the task to delete") @PathVariable int taskId) {
-        taskService.deleteTask(taskId);
-        return ResponseEntity.noContent().build();
+        TaskResponseDTO deleted = taskService.deleteTask(taskId);
+        return ResponseEntity.ok(deleted);
     }
 
-    // ── FILTERING ──────────────────────────────────────────────────────────────
-
-    // Filters tasks by status value (e.g., Pending, In Progress, Completed)
+    // Retrieves tasks by status
     @Operation(summary = "Filter tasks by status", description = "Accepted values: Pending, In Progress, Completed")
     @GetMapping("/tasks/status/{status}")
     public ResponseEntity<List<TaskResponseDTO>> getTasksByStatus(
@@ -99,7 +93,7 @@ public class TaskController {
         return ResponseEntity.ok(taskService.getTasksByStatus(status));
     }
 
-    // Filters tasks by priority value (e.g., High, Medium, Low)
+    // Retrieves tasks by priority
     @Operation(summary = "Filter tasks by priority", description = "Accepted values: High, Medium, Low")
     @GetMapping("/tasks/priority/{priority}")
     public ResponseEntity<List<TaskResponseDTO>> getTasksByPriority(
@@ -107,9 +101,7 @@ public class TaskController {
         return ResponseEntity.ok(taskService.getTasksByPriority(priority));
     }
 
-    // ── NESTED / ASSIGNMENT ENDPOINTS ─────────────────────────────────────────
-
-    // Returns all tasks under a specific project — returns 404 if project not found
+    // Retrieves all tasks under a project
     @Operation(summary = "Get all tasks under a project")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Tasks retrieved"),
@@ -121,7 +113,7 @@ public class TaskController {
         return ResponseEntity.ok(taskService.getTasksByProject(projectId));
     }
 
-    // Returns all tasks assigned to a specific user — returns 404 if user not found
+    // Retrieves all tasks assigned to a user
     @Operation(summary = "Get all tasks assigned to a user")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Tasks retrieved"),

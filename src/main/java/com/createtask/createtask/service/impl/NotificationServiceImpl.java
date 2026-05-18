@@ -1,32 +1,68 @@
 package com.createtask.createtask.service.impl;
 
-import com.createtask.createtask.dto.request.NotificationRequestDTO; // Input DTO from controller
-import com.createtask.createtask.dto.response.NotificationResponseDTO; // Output DTO returned to controller
-import com.createtask.createtask.entity.Notification; // JPA entity for DB operations
-import com.createtask.createtask.entity.User; // User entity needed for recipient lookup
-import com.createtask.createtask.exception.NotificationNotFoundException; // Thrown when notification ID is missing
-import com.createtask.createtask.exception.NotificationRecipientNotFoundException; // Thrown when user is not found
-import com.createtask.createtask.repository.NotificationRepository; // Data access for notifications
-import com.createtask.createtask.repository.UserRepository; // Data access for users
-import com.createtask.createtask.service.NotificationService; // Interface this class implements
-import org.springframework.stereotype.Service; // Marks this as a Spring service bean
-import org.springframework.transaction.annotation.Transactional; // Handles transaction management
+// Input DTO from controller
+import com.createtask.createtask.dto.request.NotificationRequestDTO;
 
-import java.time.LocalDateTime; // Used to set createdAt automatically
-import java.util.List; // Used for returning list of notifications
-import java.util.stream.Collectors; // Used to convert entity list to DTO list
+// Output DTO returned to controller
+import com.createtask.createtask.dto.response.NotificationResponseDTO;
 
-@Service // Registers this class as a Spring-managed service bean
-@Transactional // Runs service methods inside a transaction
+// JPA entity for notification table
+import com.createtask.createtask.entity.Notification;
+
+// User entity needed to link notification with user
+import com.createtask.createtask.entity.User;
+
+// Custom exception thrown when notification is not found
+import com.createtask.createtask.exception.NotificationNotFoundException;
+
+// Custom exception thrown when recipient user is not found
+import com.createtask.createtask.exception.NotificationRecipientNotFoundException;
+
+// Repository used for notification DB operations
+import com.createtask.createtask.repository.NotificationRepository;
+
+// Repository used for user DB operations
+import com.createtask.createtask.repository.UserRepository;
+
+// Service interface implemented by this class
+import com.createtask.createtask.service.NotificationService;
+
+// Marks this class as a Spring service bean
+import org.springframework.stereotype.Service;
+
+// Provides transaction management
+import org.springframework.transaction.annotation.Transactional;
+
+// Used to set current date and time
+import java.time.LocalDateTime;
+
+// Used for returning list of response DTOs
+import java.util.List;
+
+// Used to convert entity list into DTO list
+import java.util.stream.Collectors;
+
+// Registers this class as a service component in Spring container
+@Service
+
+// Makes methods transactional by default
+@Transactional
 public class NotificationServiceImpl implements NotificationService {
 
-    private final NotificationRepository notificationRepository; // Repository for notification database operations
-    private final UserRepository userRepository; // Repository for user database operations
+    // Repository dependency for Notification entity
+    private final NotificationRepository notificationRepository;
 
-    // Constructor injection for required repositories
+    // Repository dependency for User entity
+    private final UserRepository userRepository;
+
+    // Constructor injection for repositories
     public NotificationServiceImpl(NotificationRepository notificationRepository,
                                    UserRepository userRepository) {
+
+        // Assign injected notification repository to field
         this.notificationRepository = notificationRepository;
+
+        // Assign injected user repository to field
         this.userRepository = userRepository;
     }
 
@@ -34,75 +70,145 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public NotificationResponseDTO createNotification(NotificationRequestDTO requestDTO) {
 
+        // Find user by userId from request DTO
         User user = userRepository.findById(requestDTO.getUserId())
+
+                // Throw exception if user does not exist
                 .orElseThrow(() -> new NotificationRecipientNotFoundException(
                         "User with ID " + requestDTO.getUserId() + " not found"));
 
+        // Create new Notification entity object
         Notification notification = new Notification();
 
-        // Since NotificationID is not AUTO_INCREMENT in the given DB schema,
-        // we manually assign the next ID without changing the table.
-        int nextNotificationId = (int) notificationRepository.count() + 1;
-        notification.setNotificationID(nextNotificationId);
+        // Set manually provided notification ID from request DTO
+        notification.setNotificationID(requestDTO.getNotificationID());
 
+        // Set notification text from request DTO
         notification.setText(requestDTO.getText());
+
+        // Set createdAt using current server time
         notification.setCreatedAt(LocalDateTime.now());
+
+        // Link notification with the found user entity
         notification.setUser(user);
 
-        Notification savedNotification = notificationRepository.save(notification);
+        // Save notification entity into database
+        Notification saved = notificationRepository.save(notification);
 
-        return toResponseDTO(savedNotification);
+        // Convert saved entity into response DTO and return it
+        return new NotificationResponseDTO(
+
+                // Return saved notification ID
+                saved.getNotificationID(),
+
+                // Return saved notification text
+                saved.getText(),
+
+                // Return saved creation timestamp
+                saved.getCreatedAt(),
+
+                // Return linked user ID
+                saved.getUser().getUserID(),
+
+                // Return linked user's full name
+                saved.getUser().getFullName()
+        );
     }
 
-    // Gets notification by notification ID
+    // Gets one notification by notification ID
     @Override
+
+    // Marks this method as read-only because it only fetches data
     @Transactional(readOnly = true)
     public NotificationResponseDTO getNotificationById(int notificationId) {
 
+        // Find notification by ID
         Notification notification = notificationRepository.findById(notificationId)
+
+                // Throw exception if notification does not exist
                 .orElseThrow(() -> new NotificationNotFoundException(
                         "Notification with ID " + notificationId + " not found"));
 
-        return toResponseDTO(notification);
+        // Convert found entity into response DTO and return it
+        return new NotificationResponseDTO(
+
+                // Return notification ID
+                notification.getNotificationID(),
+
+                // Return notification text
+                notification.getText(),
+
+                // Return notification creation timestamp
+                notification.getCreatedAt(),
+
+                // Return user ID linked to notification
+                notification.getUser().getUserID(),
+
+                // Return user's full name linked to notification
+                notification.getUser().getFullName()
+        );
     }
 
-    // Gets all notifications for a particular user
+    // Gets all notifications for a specific user
     @Override
+
+    // Marks this method as read-only because it only fetches data
     @Transactional(readOnly = true)
     public List<NotificationResponseDTO> getNotificationsByUserId(int userId) {
 
+        // Check whether user exists before fetching notifications
         if (!userRepository.existsById(userId)) {
+
+            // Throw exception if user does not exist
             throw new NotificationRecipientNotFoundException(
                     "User with ID " + userId + " not found");
         }
 
+        // Fetch notifications by user ID ordered by createdAt descending
         return notificationRepository.findByUser_UserIDOrderByCreatedAtDesc(userId)
+
+                // Convert List into Stream for mapping
                 .stream()
-                .map(this::toResponseDTO)
+
+                // Convert each Notification entity into NotificationResponseDTO
+                .map(n -> new NotificationResponseDTO(
+
+                        // Map notification ID
+                        n.getNotificationID(),
+
+                        // Map notification text
+                        n.getText(),
+
+                        // Map notification creation timestamp
+                        n.getCreatedAt(),
+
+                        // Map linked user ID
+                        n.getUser().getUserID(),
+
+                        // Map linked user's full name
+                        n.getUser().getFullName()
+                ))
+
+                // Collect mapped DTOs into a List
                 .collect(Collectors.toList());
     }
 
     // Deletes notification by notification ID
     @Override
-    public void deleteNotification(int notificationId) {
+    public String deleteNotification(int notificationId) {
 
+        // Check whether notification exists before deleting
         if (!notificationRepository.existsById(notificationId)) {
+
+            // Throw exception if notification does not exist
             throw new NotificationNotFoundException(
                     "Notification with ID " + notificationId + " not found");
         }
 
+        // Delete notification from database by ID
         notificationRepository.deleteById(notificationId);
-    }
 
-    // Converts Notification entity to NotificationResponseDTO
-    private NotificationResponseDTO toResponseDTO(Notification notification) {
-
-        return new NotificationResponseDTO(
-                notification.getNotificationID(),
-                notification.getText(),
-                notification.getCreatedAt(),
-                notification.getUser().getUserID(),
-                notification.getUser().getFullName()
-        );
+        // Return confirmation message
+        return "Notification with ID " + notificationId + " deleted successfully";
     }
 }

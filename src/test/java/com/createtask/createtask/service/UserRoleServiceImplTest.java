@@ -20,11 +20,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
-/**
- * Unit tests for UserRoleServiceImpl.
- * Mocks UserRoleRepository so no real DB connection is required.
- * Tests cover role creation, retrieval, sorting, and not-found scenarios.
- */
 @ExtendWith(MockitoExtension.class)
 class UserRoleServiceImplTest {
 
@@ -34,7 +29,6 @@ class UserRoleServiceImplTest {
     @InjectMocks
     private UserRoleServiceImpl userRoleService;
 
-    /** Reusable test UserRole object set up before each test. */
     private UserRole testRole;
 
     @BeforeEach
@@ -44,8 +38,7 @@ class UserRoleServiceImplTest {
         testRole.setRoleName("Admin");
     }
 
-    // createRole — positive
-
+    // 1. createRole — positive: role saved successfully
     @Test
     void createRole_Success() {
         when(userRoleRepository.existsByRoleName("Admin")).thenReturn(false);
@@ -57,8 +50,18 @@ class UserRoleServiceImplTest {
         verify(userRoleRepository).save(testRole);
     }
 
-    // createRole — negative: duplicate role name
+    // 2. createRole — positive: existsByRoleName called exactly once
+    @Test
+    void createRole_ExistsByRoleNameCalledOnce() {
+        when(userRoleRepository.existsByRoleName("Admin")).thenReturn(false);
+        when(userRoleRepository.save(testRole)).thenReturn(testRole);
 
+        userRoleService.createRole(testRole);
+
+        verify(userRoleRepository, times(1)).existsByRoleName("Admin");
+    }
+
+    // 3. createRole — negative: duplicate role name throws exception
     @Test
     void createRole_DuplicateRoleName_ThrowsDuplicateRoleException() {
         when(userRoleRepository.existsByRoleName("Admin")).thenReturn(true);
@@ -70,8 +73,7 @@ class UserRoleServiceImplTest {
         verify(userRoleRepository, never()).save(any());
     }
 
-    // getAllRoles — positive
-
+    // 4. getAllRoles — positive: returns all roles
     @Test
     void getAllRoles_ReturnsAllRoles() {
         when(userRoleRepository.findAll()).thenReturn(List.of(testRole));
@@ -82,31 +84,48 @@ class UserRoleServiceImplTest {
         assertThat(result.get(0).getRoleName()).isEqualTo("Admin");
     }
 
-    // getAllRolesSorted — positive: TreeSet uses compareTo (sorted by role ID)
+    // 5. getAllRoles — positive: returns empty list when no roles exist
+    @Test
+    void getAllRoles_Empty_ReturnsEmptyList() {
+        when(userRoleRepository.findAll()).thenReturn(List.of());
 
+        List<UserRole> result = userRoleService.getAllRoles();
+
+        assertThat(result).isEmpty();
+    }
+
+    // 6. getAllRolesSorted — positive: sorted by userRoleID via compareTo
     @Test
     void getAllRolesSorted_ReturnsSortedByRoleId() {
 
-        UserRole roleB = new UserRole();
-        roleB.setUserRoleID(2);
-        roleB.setRoleName("User");
+        UserRole roleUser = new UserRole();
+        roleUser.setUserRoleID(2);
+        roleUser.setRoleName("User");
 
-        UserRole roleA = new UserRole();
-        roleA.setUserRoleID(3);
-        roleA.setRoleName("Manager");
+        UserRole roleManager = new UserRole();
+        roleManager.setUserRoleID(3);
+        roleManager.setRoleName("Manager");
 
-        when(userRoleRepository.findAll()).thenReturn(List.of(roleB, testRole, roleA));
+        when(userRoleRepository.findAll())
+                .thenReturn(List.of(roleUser, testRole, roleManager));
 
         TreeSet<UserRole> result = userRoleService.getAllRolesSorted();
-
-        // Sorted by userRoleID:
-
         assertThat(result.first().getRoleName()).isEqualTo("Admin");
         assertThat(result.last().getRoleName()).isEqualTo("Manager");
     }
 
-    // getRoleById — positive
+    // 7. getAllRolesSorted — positive: single role returns correctly in TreeSet
+    @Test
+    void getAllRolesSorted_SingleRole_ReturnsSingleElement() {
+        when(userRoleRepository.findAll()).thenReturn(List.of(testRole));
 
+        TreeSet<UserRole> result = userRoleService.getAllRolesSorted();
+
+        assertThat(result).hasSize(1);
+        assertThat(result.first().getRoleName()).isEqualTo("Admin");
+    }
+
+    // 8. getRoleById — positive: returns correct role
     @Test
     void getRoleById_Success() {
         when(userRoleRepository.findById(1)).thenReturn(Optional.of(testRole));
@@ -117,8 +136,7 @@ class UserRoleServiceImplTest {
         assertThat(result.getRoleName()).isEqualTo("Admin");
     }
 
-    // getRoleById — negative: role not found
-
+    // 9. getRoleById — negative: role not found throws exception
     @Test
     void getRoleById_NotFound_ThrowsRoleNotFoundException() {
         when(userRoleRepository.findById(999)).thenReturn(Optional.empty());
@@ -126,5 +144,15 @@ class UserRoleServiceImplTest {
         assertThatThrownBy(() -> userRoleService.getRoleById(999))
                 .isInstanceOf(RoleNotFoundException.class)
                 .hasMessageContaining("999");
+    }
+
+    // 10. getRoleById — negative: exception message contains the missing ID
+    @Test
+    void getRoleById_NotFound_ExceptionMessageContainsMissingId() {
+        when(userRoleRepository.findById(55)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> userRoleService.getRoleById(55))
+                .isInstanceOf(RoleNotFoundException.class)
+                .hasMessageContaining("55");
     }
 }

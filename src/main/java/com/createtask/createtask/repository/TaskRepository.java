@@ -8,21 +8,33 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-// Repository for Task — standard CRUD comes from JpaRepository, custom filters are added below
+/**
+ * Repository for Task entity.
+ * Standard CRUD comes from JpaRepository.
+ * Custom filters and aggregations added below for task management and reporting.
+ */
 @Repository
 public interface TaskRepository extends JpaRepository<Task, Integer> {
 
-    // Fetches all tasks that belong to a specific project — used by GET /projects/{id}/tasks
+    /** Fetches all tasks that belong to a specific project — GET /projects/{id}/tasks */
     @Query("SELECT t FROM Task t WHERE t.project.projectID = :projectID")
     List<Task> findByProjectID(@Param("projectID") int projectID);
 
-    // Fetches all tasks assigned to a specific user — used by GET /users/{id}/tasks
+    /** Fetches all tasks assigned to a specific user — GET /users/{id}/tasks */
     @Query("SELECT t FROM Task t WHERE t.user.userID = :userID")
     List<Task> findByUserID(@Param("userID") int userID);
 
-    // Filters tasks by their status value — used by GET /tasks/status/{status}
+    /** Filters tasks by status value — GET /tasks/status/{status} */
     List<Task> findByStatus(String status);
 
-    // Filters tasks by their priority value — used by GET /tasks/priority/{priority}
+    /** Filters tasks by priority value — GET /tasks/priority/{priority} */
     List<Task> findByPriority(String priority);
+
+    /** Counts total tasks assigned to a user — used by productivity report */
+    @Query("SELECT COUNT(t) FROM Task t WHERE t.user.userID = :userID")
+    long countByUserID(@Param("userID") int userID);
+
+    /** Counts tasks for a user filtered by a specific status — used by productivity report */
+    @Query("SELECT COUNT(t) FROM Task t WHERE t.user.userID = :userID AND t.status = :status")
+    long countByUserIDAndStatus(@Param("userID") int userID, @Param("status") String status);
 }

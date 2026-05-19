@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login — Task Management</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
+    <style>
+        .login-wrapper {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg);
+            position: relative;
+        }
+        .login-wrapper::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse 60% 60% at 50% 0%, rgba(79,142,247,0.12), transparent);
+            pointer-events: none;
+        }
+        .login-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 2.5rem 2.2rem;
+            width: 100%;
+            max-width: 380px;
+            position: relative;
+            overflow: hidden;
+        }
+        .login-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent), var(--accent2));
+        }
+        .login-badge {
+            display: inline-block;
+            background: var(--tag-bg);
+            border: 1px solid var(--tag-border);
+            color: var(--accent);
+            font-family: 'DM Mono', monospace;
+            font-size: 0.65rem;
+            letter-spacing: 0.12em;
+            padding: 3px 10px;
+            border-radius: 20px;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+        }
+        .login-card h2 {
+            font-family: 'Syne', sans-serif;
+            font-weight: 800;
+            font-size: 1.6rem;
+            letter-spacing: -0.02em;
+            color: var(--text);
+            margin-bottom: 0.3rem;
+        }
+        .login-card .subtitle {
+            color: var(--muted);
+            font-size: 0.82rem;
+            margin-bottom: 1.8rem;
+        }
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        .form-group label {
+            display: block;
+            font-size: 0.75rem;
+            font-family: 'DM Mono', monospace;
+            color: var(--muted);
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            margin-bottom: 0.4rem;
+        }
+        .form-group input {
+            width: 100%;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 0.65rem 1rem;
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.9rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .form-group input:focus {
+            border-color: var(--accent);
+        }
+        .form-group input::placeholder {
+            color: var(--muted);
+        }
+        .login-btn {
+            width: 100%;
+            margin-top: 1.4rem;
+            padding: 0.75rem;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            border: none;
+            border-radius: 10px;
+            color: #fff;
+            font-family: 'Syne', sans-serif;
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: opacity 0.2s, transform 0.2s;
+        }
+        .login-btn:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+        .error-msg {
+            margin-top: 1rem;
+            background: var(--del-bg);
+            border: 1px solid var(--del-border);
+            color: #ff6363;
+            font-size: 0.8rem;
+            padding: 0.6rem 1rem;
+            border-radius: 8px;
+            text-align: center;
+            font-family: 'DM Mono', monospace;
+        }
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-top: 1.2rem;
+            color: var(--muted);
+            font-size: 0.78rem;
+            text-decoration: none;
+            font-family: 'DM Mono', monospace;
+        }
+        .back-link:hover { color: var(--accent); }
+    </style>
+</head>
+<body>
+
+<div class="login-wrapper">
+    <div class="login-card">
+        <div class="login-badge">Task Management</div>
+        <h2>Welcome back</h2>
+        <p class="subtitle">Sign in to access the Notification Module</p>
+
+        <form th:action="@{/login}" method="post">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" placeholder="Enter your username" />
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" placeholder="Enter your password" />
+            </div>
+            <button type="submit" class="login-btn">Sign In →</button>
+        </form>
+
+        <p class="error-msg" th:if="${param.error}">
+            ✕ Invalid username or password. Please try again.
+        </p>
+
+        <a th:href="@{/}" class="back-link">← Back to Homepage</a>
+    </div>
+</div>
+
+</body>
+</html>

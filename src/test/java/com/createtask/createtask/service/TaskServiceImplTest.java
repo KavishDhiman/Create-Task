@@ -46,7 +46,7 @@ class TaskServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        // Build a sample user matching the User entity field names
+        // Build a sample user matching the AppUser entity field names
         testUser = new AppUser();
         testUser.setUserID(1);
         testUser.setUsername("john_doe");

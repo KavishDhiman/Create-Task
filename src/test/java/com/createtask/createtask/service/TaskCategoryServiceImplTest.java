@@ -1,10 +1,10 @@
 package com.createtask.createtask.service;
 
 import com.createtask.createtask.dto.response.CategoryResponseDTO;
+import com.createtask.createtask.entity.AppUser;
 import com.createtask.createtask.entity.Category;
 import com.createtask.createtask.entity.Task;
 import com.createtask.createtask.entity.TaskCategory;
-import com.createtask.createtask.entity.AppUser;
 import com.createtask.createtask.exception.DuplicateResourceException;
 import com.createtask.createtask.exception.ResourceNotFoundException;
 import com.createtask.createtask.repository.CategoryRepository;
@@ -25,22 +25,21 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.*;
 
-// Isolates TaskCategoryServiceImpl — all three repositories are mocked, no DB touched
+// Tests for TaskCategoryServiceImpl — covers assign, remove, and list of task-category links
 @ExtendWith(MockitoExtension.class)
 class TaskCategoryServiceImplTest {
 
-    // Mock repositories — none of these hit the real database
+    // All three repositories are faked — no actual DB calls happen
     @Mock private TaskRepository taskRepository;
     @Mock private CategoryRepository categoryRepository;
     @Mock private TaskCategoryRepository taskCategoryRepository;
 
-    // Inject all three mocks into the real service implementation
+    // Real service wired with the fake repositories
     @InjectMocks private TaskCategoryServiceImpl taskCategoryService;
 
-    // Shared fixtures rebuilt before every test
+    // Shared test data rebuilt before every test
     private Task testTask;
     private Category testCategory;
     private TaskCategory testMapping;
@@ -48,15 +47,15 @@ class TaskCategoryServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        // Build a minimal user needed by the Task entity
+        // Minimal AppUser to satisfy the Task entity — matches renamed entity
         AppUser user = new AppUser();
         user.setUserID(1);
         user.setUsername("john_doe");
         user.setPassword("password123");
-        user.setEmail("john@email.com");
+        user.setEmail("john.doe@email.com");
         user.setFullName("John Doe");
 
-        // Build the task entity used across mapping tests
+        // Task entity — matches Task table row from DB script (TaskID=1)
         testTask = new Task();
         testTask.setTaskID(1);
         testTask.setTaskName("Task One");
@@ -65,140 +64,193 @@ class TaskCategoryServiceImplTest {
         testTask.setStatus("In Progress");
         testTask.setUser(user);
 
-        // Build the category entity used across mapping tests
+        // Category entity — matches DB script (CategoryID=2, Design)
         testCategory = new Category();
         testCategory.setCategoryID(2);
         testCategory.setCategoryName("Design");
 
-        // Build the composite key representing the task-category pairing
+        // Composite primary key for the TaskCategory join table
         compositeKey = new TaskCategory.TaskCategoryId();
         compositeKey.setTaskID(1);
         compositeKey.setCategoryID(2);
 
-        // Build the full mapping entity linking the task and category
+        // Full TaskCategory mapping row — links task 1 to category 2
         testMapping = new TaskCategory();
         testMapping.setId(compositeKey);
         testMapping.setTask(testTask);
         testMapping.setCategory(testCategory);
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // assignCategoryToTask
-    // ─────────────────────────────────────────────────────────────────────────
+    // ══════════════════════════════════════════════════════════════
+    // TEST 1 — assignCategoryToTask: happy path
+    // ══════════════════════════════════════════════════════════════
 
     @Test
-    @DisplayName("assignCategoryToTask — positive: creates mapping and returns success message")
+    @DisplayName("assignCategoryToTask — links category to task and returns success message")
     void assignCategoryToTask_success() {
-        // Arrange: both entities exist and no duplicate mapping is present
+        // Arrange: both exist, no duplicate
         when(taskRepository.findById(1)).thenReturn(Optional.of(testTask));
         when(categoryRepository.findById(2)).thenReturn(Optional.of(testCategory));
         when(taskCategoryRepository.existsByTaskIDAndCategoryID(1, 2)).thenReturn(false);
         when(taskCategoryRepository.save(any(TaskCategory.class))).thenReturn(testMapping);
 
-        // Act: assign category 2 to task 1
+        // Act
         String result = taskCategoryService.assignCategoryToTask(1, 2);
 
-        // Assert: result contains a meaningful confirmation with category name and task ID
+        // Assert: message confirms the category name and task ID
         assertThat(result).contains("Design");
         assertThat(result).contains("1");
 
-        // Verify the mapping row was saved exactly once
+        // Verify: mapping row was saved exactly once
         verify(taskCategoryRepository, times(1)).save(any(TaskCategory.class));
     }
 
+    // ══════════════════════════════════════════════════════════════
+    // TEST 2 — assignCategoryToTask: task not found
+    // ══════════════════════════════════════════════════════════════
+
     @Test
-    @DisplayName("assignCategoryToTask — negative: throws 404 when task does not exist")
+    @DisplayName("assignCategoryToTask — throws 404 when the task does not exist")
     void assignCategoryToTask_taskNotFound() {
-        // Arrange: task lookup returns empty — task 99 does not exist
+        // Arrange: task 99 missing from DB
         when(taskRepository.findById(99)).thenReturn(Optional.empty());
 
-        // Act + Assert: expect 404 with task-specific message
+        // Act + Assert: must throw 404 with task ID in message
         assertThatThrownBy(() -> taskCategoryService.assignCategoryToTask(99, 2))
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessageContaining("Task not found with ID: 99");
 
-        // Save must never fire when the task doesn't exist
+        // Verify: save never fires when task is missing
         verify(taskCategoryRepository, never()).save(any());
     }
 
+    // ══════════════════════════════════════════════════════════════
+    // TEST 3 — assignCategoryToTask: category not found
+    // ══════════════════════════════════════════════════════════════
+
     @Test
-    @DisplayName("assignCategoryToTask — negative: throws 404 when category does not exist")
+    @DisplayName("assignCategoryToTask — throws 404 when the category does not exist")
     void assignCategoryToTask_categoryNotFound() {
-        // Arrange: task exists but category 99 does not
+        // Arrange: task exists but category 99 missing
         when(taskRepository.findById(1)).thenReturn(Optional.of(testTask));
         when(categoryRepository.findById(99)).thenReturn(Optional.empty());
 
-        // Act + Assert: expect 404 with category-specific message
+        // Act + Assert: must throw 404 with category ID in message
         assertThatThrownBy(() -> taskCategoryService.assignCategoryToTask(1, 99))
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessageContaining("Category not found with ID: 99");
 
-        // Save must never fire when the category doesn't exist
+        // Verify: save never fires when category is missing
         verify(taskCategoryRepository, never()).save(any());
     }
 
+    // ══════════════════════════════════════════════════════════════
+    // TEST 4 — assignCategoryToTask: duplicate mapping rejected
+    // ══════════════════════════════════════════════════════════════
+
     @Test
-    @DisplayName("assignCategoryToTask — negative: throws 409 when mapping already exists")
+    @DisplayName("assignCategoryToTask — throws 409 when the mapping already exists")
     void assignCategoryToTask_duplicateMapping() {
-        // Arrange: both entities exist but this exact mapping already exists in DB
+        // Arrange: both exist but this pair is already linked in DB
         when(taskRepository.findById(1)).thenReturn(Optional.of(testTask));
         when(categoryRepository.findById(2)).thenReturn(Optional.of(testCategory));
         when(taskCategoryRepository.existsByTaskIDAndCategoryID(1, 2)).thenReturn(true);
 
-        // Act + Assert: service must throw 409 to prevent duplicate rows
+        // Act + Assert: must throw 409 to prevent duplicate row
         assertThatThrownBy(() -> taskCategoryService.assignCategoryToTask(1, 2))
                 .isInstanceOf(DuplicateResourceException.class)
                 .hasMessageContaining("already assigned");
 
-        // Save must never fire on a duplicate
+        // Verify: save never fires on a duplicate
         verify(taskCategoryRepository, never()).save(any());
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // removeCategoryFromTask
-    // ─────────────────────────────────────────────────────────────────────────
+    // ══════════════════════════════════════════════════════════════
+    // TEST 5 — assignCategoryToTask: save called once on success
+    // ══════════════════════════════════════════════════════════════
 
     @Test
-    @DisplayName("removeCategoryFromTask — positive: deletes mapping and returns confirmation")
+    @DisplayName("assignCategoryToTask — repository save is called exactly once on success")
+    void assignCategoryToTask_saveCalledOnce() {
+        // Arrange: everything valid
+        when(taskRepository.findById(1)).thenReturn(Optional.of(testTask));
+        when(categoryRepository.findById(2)).thenReturn(Optional.of(testCategory));
+        when(taskCategoryRepository.existsByTaskIDAndCategoryID(1, 2)).thenReturn(false);
+        when(taskCategoryRepository.save(any(TaskCategory.class))).thenReturn(testMapping);
+
+        // Act
+        taskCategoryService.assignCategoryToTask(1, 2);
+
+        // Assert: confirms the mapping row was actually persisted
+        verify(taskCategoryRepository, times(1)).save(any(TaskCategory.class));
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // TEST 6 — removeCategoryFromTask: happy path
+    // ══════════════════════════════════════════════════════════════
+
+    @Test
+    @DisplayName("removeCategoryFromTask — removes the mapping and returns a confirmation message")
     void removeCategoryFromTask_success() {
-        // Arrange: the mapping exists and can be found by composite key
+        // Arrange: the mapping row exists in DB
         when(taskCategoryRepository.findById(compositeKey)).thenReturn(Optional.of(testMapping));
 
-        // Act: remove category 2 from task 1
+        // Act
         String result = taskCategoryService.removeCategoryFromTask(1, 2);
 
-        // Assert: result message references both the category and task IDs
+        // Assert: message confirms which category and task were involved
         assertThat(result).contains("2");
         assertThat(result).contains("1");
 
-        // Verify the mapping row was deleted exactly once
+        // Verify: delete was called exactly once
         verify(taskCategoryRepository, times(1)).delete(testMapping);
     }
 
+    // ══════════════════════════════════════════════════════════════
+    // TEST 7 — removeCategoryFromTask: mapping not found
+    // ══════════════════════════════════════════════════════════════
+
     @Test
-    @DisplayName("removeCategoryFromTask — negative: throws 404 when mapping does not exist")
-    void removeCategoryFromTask_mappingNotFound() {
-        // Arrange: the composite key lookup returns empty — mapping was never created
+    @DisplayName("removeCategoryFromTask — throws 404 when the mapping does not exist")
+    void removeCategoryFromTask_notFound() {
+        // Arrange: composite key lookup returns nothing
         when(taskCategoryRepository.findById(any(TaskCategory.TaskCategoryId.class)))
                 .thenReturn(Optional.empty());
 
-        // Act + Assert: deleting a non-existent mapping must throw 404
+        // Act + Assert: must throw 404 — can't remove a non-existent mapping
         assertThatThrownBy(() -> taskCategoryService.removeCategoryFromTask(1, 2))
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessageContaining("Mapping not found");
 
-        // Delete must never be called when the mapping doesn't exist
+        // Verify: delete must never fire when mapping doesn't exist
         verify(taskCategoryRepository, never()).delete(any());
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // getCategoriesForTask
-    // ─────────────────────────────────────────────────────────────────────────
+    // ══════════════════════════════════════════════════════════════
+    // TEST 8 — removeCategoryFromTask: delete called once
+    // ══════════════════════════════════════════════════════════════
 
     @Test
-    @DisplayName("getCategoriesForTask — positive: returns all categories linked to the task")
+    @DisplayName("removeCategoryFromTask — repository delete is called exactly once on success")
+    void removeCategoryFromTask_deleteCalledOnce() {
+        // Arrange: mapping found
+        when(taskCategoryRepository.findById(compositeKey)).thenReturn(Optional.of(testMapping));
+
+        // Act
+        taskCategoryService.removeCategoryFromTask(1, 2);
+
+        // Assert: actual DB row deletion happened exactly once
+        verify(taskCategoryRepository, times(1)).delete(testMapping);
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // TEST 9 — getCategoriesForTask: happy path
+    // ══════════════════════════════════════════════════════════════
+
+    @Test
+    @DisplayName("getCategoriesForTask — returns all categories linked to the task")
     void getCategoriesForTask_success() {
-        // Arrange: task exists and has one category mapping
+        // Arrange: task exists and has one category linked (Design)
         when(taskRepository.existsById(1)).thenReturn(true);
         when(taskCategoryRepository.findByTaskID(1)).thenReturn(List.of(testMapping));
 
@@ -211,32 +263,76 @@ class TaskCategoryServiceImplTest {
         assertThat(result.get(0).getCategoryID()).isEqualTo(2);
     }
 
+    // ══════════════════════════════════════════════════════════════
+    // TEST 10 — getCategoriesForTask: no categories assigned yet
+    // ══════════════════════════════════════════════════════════════
+
     @Test
-    @DisplayName("getCategoriesForTask — positive: returns empty list when task has no categories")
+    @DisplayName("getCategoriesForTask — returns empty list when no categories are assigned")
     void getCategoriesForTask_noCategories() {
-        // Arrange: task exists but no categories have been assigned yet
+        // Arrange: task exists but no category linked
         when(taskRepository.existsById(1)).thenReturn(true);
         when(taskCategoryRepository.findByTaskID(1)).thenReturn(List.of());
 
         // Act
         List<CategoryResponseDTO> result = taskCategoryService.getCategoriesForTask(1);
 
-        // Assert: empty list returned cleanly — not an error condition
+        // Assert: empty list — not an error, just means no categories assigned yet
         assertThat(result).isEmpty();
     }
 
+    // ══════════════════════════════════════════════════════════════
+    // TEST 11 — getCategoriesForTask: task not found
+    // ══════════════════════════════════════════════════════════════
+
     @Test
-    @DisplayName("getCategoriesForTask — negative: throws 404 when task does not exist")
+    @DisplayName("getCategoriesForTask — throws 404 when the task does not exist")
     void getCategoriesForTask_taskNotFound() {
         // Arrange: task 99 does not exist
         when(taskRepository.existsById(99)).thenReturn(false);
 
-        // Act + Assert: service must throw 404 before querying categories
+        // Act + Assert: must throw 404 before even querying categories
         assertThatThrownBy(() -> taskCategoryService.getCategoriesForTask(99))
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessageContaining("Task not found with ID: 99");
 
-        // Category lookup must never fire when the task doesn't exist
+        // Verify: findByTaskID never fires when task doesn't exist
         verify(taskCategoryRepository, never()).findByTaskID(anyInt());
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // TEST 12 — getCategoriesForTask: multiple categories returned
+    // ══════════════════════════════════════════════════════════════
+
+    @Test
+    @DisplayName("getCategoriesForTask — returns multiple categories when task has more than one")
+    void getCategoriesForTask_multipleCategories() {
+        // Build a second category — Testing (matches DB CategoryID=4)
+        Category testing = new Category();
+        testing.setCategoryID(4);
+        testing.setCategoryName("Testing");
+
+        // Build a second mapping for task 1 → category 4
+        TaskCategory.TaskCategoryId secondKey = new TaskCategory.TaskCategoryId();
+        secondKey.setTaskID(1);
+        secondKey.setCategoryID(4);
+
+        TaskCategory secondMapping = new TaskCategory();
+        secondMapping.setId(secondKey);
+        secondMapping.setTask(testTask);
+        secondMapping.setCategory(testing);
+
+        // Arrange: task has two categories linked
+        when(taskRepository.existsById(1)).thenReturn(true);
+        when(taskCategoryRepository.findByTaskID(1))
+                .thenReturn(List.of(testMapping, secondMapping));
+
+        // Act
+        List<CategoryResponseDTO> result = taskCategoryService.getCategoriesForTask(1);
+
+        // Assert: both categories returned with correct names
+        assertThat(result).hasSize(2);
+        assertThat(result.get(0).getCategoryName()).isEqualTo("Design");
+        assertThat(result.get(1).getCategoryName()).isEqualTo("Testing");
     }
 }

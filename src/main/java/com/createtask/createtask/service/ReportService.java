@@ -1,17 +1,20 @@
-package com.createtask.createtask.service;
+    package com.createtask.createtask.service;
 
-import com.createtask.createtask.dto.response.UserProductivityDTO;
+    import com.createtask.createtask.dto.response.ProjectSummaryDTO;
+    import com.createtask.createtask.dto.response.UserProductivityDTO;
 
-import java.util.List;
-
-/**
- * ReportService defines the contract for all high-impact reporting operations.
- * Kept separate from TaskService and UserService to follow single responsibility.
- */
-public interface ReportService {
+    import java.util.List;
 
     /**
-     * Generates a productivity report for every user.
+     * ReportService defines the contract for all high-impact reporting operations.
+     * Kept separate from TaskService and UserService to follow single responsibility.
      */
-    List<UserProductivityDTO> getUserProductivityReport();
-}
+    public interface ReportService {
+
+        /**
+         * Generates a productivity report for every user.
+         */
+        List<UserProductivityDTO> getUserProductivityReport();
+        // Generates a summary dashboard for every project showing task breakdown and progress.
+        List<ProjectSummaryDTO> getProjectSummaryReport();
+    }

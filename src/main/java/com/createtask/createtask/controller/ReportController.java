@@ -1,5 +1,6 @@
 package com.createtask.createtask.controller;
 
+import com.createtask.createtask.dto.response.ProjectSummaryDTO;
 import com.createtask.createtask.dto.response.UserProductivityDTO;
 import com.createtask.createtask.service.ReportService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -12,9 +13,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-/**
- * ReportController exposes all high-impact reporting endpoints.
- */
+// Exposes all reporting endpoints — kept separate from business CRUD controllers.
+// Both endpoints are read-only and return aggregated data for dashboard use.
 @RestController
 @RequestMapping("/api/v1/reports")
 @Tag(name = "Reports", description = "High-impact reporting endpoints for business insights")
@@ -26,11 +26,8 @@ public class ReportController {
         this.reportService = reportService;
     }
 
-    /**
-     * Returns a productivity report for all users showing total, completed,
-     * pending task counts and completion rate percentage.
-     * Results are sorted by userId ascending.
-     */
+    // Returns task completion statistics per user — totalTasks, completedTasks,
+    // pendingTasks and completionRate — sorted by userId ascending.
     @Operation(
             summary = "User Productivity Report",
             description = "Returns task completion statistics per user — totalTasks, completedTasks, pendingTasks, completionRate(%)"
@@ -39,5 +36,17 @@ public class ReportController {
     @GetMapping("/users/productivity")
     public ResponseEntity<List<UserProductivityDTO>> getUserProductivityReport() {
         return ResponseEntity.ok(reportService.getUserProductivityReport());
+    }
+
+    // Returns a health summary per project showing task breakdown and how far
+    // along each project is — simulates a real company project dashboard.
+    @Operation(
+            summary = "Project Summary Dashboard",
+            description = "Returns task breakdown per project — totalTasks, completedTasks, inProgressTasks, pendingTasks, completionPercentage(%)"
+    )
+    @ApiResponse(responseCode = "200", description = "Project summary report generated successfully")
+    @GetMapping("/projects/summary")
+    public ResponseEntity<List<ProjectSummaryDTO>> getProjectSummaryReport() {
+        return ResponseEntity.ok(reportService.getProjectSummaryReport());
     }
 }

@@ -5,11 +5,14 @@ import com.createtask.createtask.entity.UserRole;
 import com.createtask.createtask.entity.UserRoles;
 import com.createtask.createtask.exception.RoleAlreadyAssignedException;
 import com.createtask.createtask.exception.RoleNotFoundException;
+import com.createtask.createtask.exception.UserNotFoundException;
 import com.createtask.createtask.repository.UserRolesRepository;
 import com.createtask.createtask.service.impl.UserRolesServiceImpl;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -20,12 +23,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
-/**
- * Unit tests for UserRolesServiceImpl.
- * Mocks UserRolesRepository, UserService, and UserRoleService
- * so all three dependencies are isolated from real DB and other service logic.
- * Tests cover role assignment, removal, and retrieval scenarios.
- */
 @ExtendWith(MockitoExtension.class)
 class UserRolesServiceImplTest {
 
@@ -49,6 +46,7 @@ class UserRolesServiceImplTest {
 
     @BeforeEach
     void setUp() {
+
         testUser = new AppUser();
         testUser.setUserID(1);
         testUser.setUsername("john_doe");
@@ -65,41 +63,48 @@ class UserRolesServiceImplTest {
         compositeId.setUserRoleID(2);
     }
 
-    // -------------------------------------------------------
-    // assignRoleToUser — positive
-    // -------------------------------------------------------
+    // 1. assignRoleToUser — positive: mapping saved successfully
 
     @Test
     void assignRoleToUser_Success() {
+
         when(userService.getUserById(1)).thenReturn(testUser);
         when(userRoleService.getRoleById(2)).thenReturn(testRole);
-        when(userRolesRepository.existsByUser_UserIDAndUserRole_UserRoleID(1, 2)).thenReturn(false);
+
+        when(userRolesRepository
+                .existsByUser_UserIDAndUserRole_UserRoleID(1, 2))
+                .thenReturn(false);
 
         UserRoles mapping = new UserRoles();
         mapping.setId(compositeId);
         mapping.setUser(testUser);
         mapping.setUserRole(testRole);
 
-        when(userRolesRepository.save(any(UserRoles.class))).thenReturn(mapping);
+        when(userRolesRepository.save(any(UserRoles.class)))
+                .thenReturn(mapping);
 
         UserRoles result = userRolesService.assignRoleToUser(1, 2);
 
         assertThat(result.getUser().getUserID()).isEqualTo(1);
         assertThat(result.getUserRole().getUserRoleID()).isEqualTo(2);
+
         verify(userRolesRepository).save(any(UserRoles.class));
     }
 
-    // -------------------------------------------------------
-    // assignRoleToUser — negative: role already assigned
-    // -------------------------------------------------------
+    // 2. assignRoleToUser — negative: role already assigned
 
     @Test
     void assignRoleToUser_AlreadyAssigned_ThrowsRoleAlreadyAssignedException() {
+
         when(userService.getUserById(1)).thenReturn(testUser);
         when(userRoleService.getRoleById(2)).thenReturn(testRole);
-        when(userRolesRepository.existsByUser_UserIDAndUserRole_UserRoleID(1, 2)).thenReturn(true);
 
-        assertThatThrownBy(() -> userRolesService.assignRoleToUser(1, 2))
+        when(userRolesRepository
+                .existsByUser_UserIDAndUserRole_UserRoleID(1, 2))
+                .thenReturn(true);
+
+        assertThatThrownBy(() ->
+                userRolesService.assignRoleToUser(1, 2))
                 .isInstanceOf(RoleAlreadyAssignedException.class)
                 .hasMessageContaining("1")
                 .hasMessageContaining("2");
@@ -107,75 +112,104 @@ class UserRolesServiceImplTest {
         verify(userRolesRepository, never()).save(any());
     }
 
-    // -------------------------------------------------------
-    // assignRoleToUser — negative: user does not exist
-    // -------------------------------------------------------
+    // 3. assignRoleToUser — negative: user does not exist
 
     @Test
-    void assignRoleToUser_UserNotFound_ThrowsFromUserService() {
-        when(userService.getUserById(999))
-                .thenThrow(new com.createtask.createtask.exception.UserNotFoundException(999));
+    void assignRoleToUser_UserNotFound_ThrowsUserNotFoundException() {
 
-        assertThatThrownBy(() -> userRolesService.assignRoleToUser(999, 2))
-                .isInstanceOf(com.createtask.createtask.exception.UserNotFoundException.class)
+        when(userService.getUserById(999))
+                .thenThrow(new UserNotFoundException(999));
+
+        assertThatThrownBy(() ->
+                userRolesService.assignRoleToUser(999, 2))
+                .isInstanceOf(UserNotFoundException.class)
                 .hasMessageContaining("999");
     }
 
-    // -------------------------------------------------------
-    // assignRoleToUser — negative: role does not exist
-    // -------------------------------------------------------
+    // 4. assignRoleToUser — negative: role does not exist
 
     @Test
-    void assignRoleToUser_RoleNotFound_ThrowsFromUserRoleService() {
+    void assignRoleToUser_RoleNotFound_ThrowsRoleNotFoundException() {
+
         when(userService.getUserById(1)).thenReturn(testUser);
+
         when(userRoleService.getRoleById(999))
                 .thenThrow(new RoleNotFoundException(999));
 
-        assertThatThrownBy(() -> userRolesService.assignRoleToUser(1, 999))
+        assertThatThrownBy(() ->
+                userRolesService.assignRoleToUser(1, 999))
                 .isInstanceOf(RoleNotFoundException.class)
                 .hasMessageContaining("999");
     }
 
-    // -------------------------------------------------------
-    // removeRoleFromUser — positive
-    // -------------------------------------------------------
+    // 5. removeRoleFromUser — positive: returns true on success
 
     @Test
     void removeRoleFromUser_Success_ReturnsTrue() {
+
         when(userService.getUserById(1)).thenReturn(testUser);
         when(userRoleService.getRoleById(2)).thenReturn(testRole);
-        when(userRolesRepository.existsById(any(UserRoles.UserRolesId.class))).thenReturn(true);
-        doNothing().when(userRolesRepository).deleteById(any(UserRoles.UserRolesId.class));
+
+        when(userRolesRepository
+                .existsById(any(UserRoles.UserRolesId.class)))
+                .thenReturn(true);
+
+        doNothing().when(userRolesRepository)
+                .deleteById(any(UserRoles.UserRolesId.class));
 
         boolean result = userRolesService.removeRoleFromUser(1, 2);
 
         assertThat(result).isTrue();
-        verify(userRolesRepository).deleteById(any(UserRoles.UserRolesId.class));
+
+        verify(userRolesRepository)
+                .deleteById(any(UserRoles.UserRolesId.class));
     }
 
-    // -------------------------------------------------------
-    // removeRoleFromUser — negative: mapping does not exist
-    // -------------------------------------------------------
+    // 6. removeRoleFromUser — negative: mapping not found throws exception
 
     @Test
     void removeRoleFromUser_MappingNotFound_ThrowsRoleNotFoundException() {
+
         when(userService.getUserById(1)).thenReturn(testUser);
         when(userRoleService.getRoleById(2)).thenReturn(testRole);
-        when(userRolesRepository.existsById(any(UserRoles.UserRolesId.class))).thenReturn(false);
 
-        assertThatThrownBy(() -> userRolesService.removeRoleFromUser(1, 2))
+        when(userRolesRepository
+                .existsById(any(UserRoles.UserRolesId.class)))
+                .thenReturn(false);
+
+        assertThatThrownBy(() ->
+                userRolesService.removeRoleFromUser(1, 2))
                 .isInstanceOf(RoleNotFoundException.class)
                 .hasMessageContaining("2");
 
         verify(userRolesRepository, never()).deleteById(any());
     }
 
-    // -------------------------------------------------------
-    // getRolesOfUser — positive
-    // -------------------------------------------------------
+    // 7. removeRoleFromUser — negative: deleteById never called when mapping missing
+
+    @Test
+    void removeRoleFromUser_MappingNotFound_DeleteNeverCalled() {
+
+        when(userService.getUserById(1)).thenReturn(testUser);
+        when(userRoleService.getRoleById(2)).thenReturn(testRole);
+
+        when(userRolesRepository
+                .existsById(any(UserRoles.UserRolesId.class)))
+                .thenReturn(false);
+
+        assertThatThrownBy(() ->
+                userRolesService.removeRoleFromUser(1, 2))
+                .isInstanceOf(RoleNotFoundException.class);
+
+        verify(userRolesRepository, times(0))
+                .deleteById(any());
+    }
+
+    // 8. getRolesOfUser — positive: returns sorted roles for user
 
     @Test
     void getRolesOfUser_Success_ReturnsSortedRoles() {
+
         when(userService.getUserById(1)).thenReturn(testUser);
 
         UserRoles mapping = new UserRoles();
@@ -183,7 +217,8 @@ class UserRolesServiceImplTest {
         mapping.setUser(testUser);
         mapping.setUserRole(testRole);
 
-        when(userRolesRepository.findByUser_UserID(1)).thenReturn(List.of(mapping));
+        when(userRolesRepository.findByUser_UserID(1))
+                .thenReturn(List.of(mapping));
 
         List<UserRole> result = userRolesService.getRolesOfUser(1);
 
@@ -191,17 +226,32 @@ class UserRolesServiceImplTest {
         assertThat(result.get(0).getRoleName()).isEqualTo("User");
     }
 
-    // -------------------------------------------------------
-    // getRolesOfUser — positive: returns empty list if no roles assigned
-    // -------------------------------------------------------
+    // 9. getRolesOfUser — positive: returns empty list when no roles assigned
 
     @Test
     void getRolesOfUser_NoRolesAssigned_ReturnsEmptyList() {
+
         when(userService.getUserById(1)).thenReturn(testUser);
-        when(userRolesRepository.findByUser_UserID(1)).thenReturn(List.of());
+
+        when(userRolesRepository.findByUser_UserID(1))
+                .thenReturn(List.of());
 
         List<UserRole> result = userRolesService.getRolesOfUser(1);
 
         assertThat(result).isEmpty();
+    }
+
+    // 10. getRolesOfUser — negative: user not found throws exception
+
+    @Test
+    void getRolesOfUser_UserNotFound_ThrowsUserNotFoundException() {
+
+        when(userService.getUserById(999))
+                .thenThrow(new UserNotFoundException(999));
+
+        assertThatThrownBy(() ->
+                userRolesService.getRolesOfUser(999))
+                .isInstanceOf(UserNotFoundException.class)
+                .hasMessageContaining("999");
     }
 }

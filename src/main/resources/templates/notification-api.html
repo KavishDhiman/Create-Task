@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Notifications — Task Management</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
+    <style>
+        /* ── Page header ── */
+        .page-header {
+            padding: 2rem 2rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+            background: linear-gradient(180deg, #0e1220 0%, var(--bg) 100%);
+            position: relative;
+        }
+        .page-header::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse 60% 80% at 50% -10%, rgba(79,142,247,0.10), transparent);
+            pointer-events: none;
+        }
+        .page-header .back-link {
+            display: inline-block;
+            color: var(--muted);
+            font-family: 'DM Mono', monospace;
+            font-size: 0.75rem;
+            text-decoration: none;
+            margin-bottom: 0.8rem;
+        }
+        .page-header .back-link:hover { color: var(--accent); }
+        .page-header h1 {
+            font-family: 'Syne', sans-serif;
+            font-weight: 800;
+            font-size: clamp(1.5rem, 4vw, 2.2rem);
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, #e8ecf4 30%, #4f8ef7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.3rem;
+        }
+        .page-header p { color: var(--muted); font-size: 0.85rem; }
+
+        /* ── API panels ── */
+        .api-section { padding: 2rem; }
+        .api-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1.2rem;
+        }
+        .api-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+            transition: border-color 0.2s;
+        }
+        .api-card:hover { border-color: rgba(79,142,247,0.3); }
+
+        /* ── Card header: method + title + url ── */
+        .api-card-header {
+            padding: 0.9rem 1.2rem;
+            border-bottom: 1px solid var(--border);
+            background: rgba(255,255,255,0.02);
+        }
+        .api-card-header .header-top {
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+            margin-bottom: 0.5rem;
+        }
+        .api-card-header .method {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.65rem;
+            font-weight: 500;
+            padding: 3px 9px;
+            border-radius: 5px;
+            letter-spacing: 0.04em;
+            flex-shrink: 0;
+        }
+        .api-card-header .endpoint-title {
+            font-family: 'Syne', sans-serif;
+            font-weight: 700;
+            font-size: 0.85rem;
+            color: var(--text);
+        }
+        /* Swagger-style URL row */
+        .api-card-header .endpoint-url {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 7px;
+            padding: 0.35rem 0.75rem;
+        }
+        .api-card-header .url-method-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        .dot-get    { background: #36c9a7; }
+        .dot-post   { background: #9f82ff; }
+        .dot-delete { background: #ff6363; }
+        .dot-put    { background: #ffb347; }
+
+        .api-card-header .url-path {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.72rem;
+            color: var(--text);
+            word-break: break-all;
+        }
+        .api-card-header .url-path .path-param {
+            color: var(--accent);
+        }
+
+        /* ── Card body ── */
+        .api-card-body { padding: 1.2rem; }
+        .input-group { margin-bottom: 0.75rem; }
+        .input-group label {
+            display: block;
+            font-family: 'DM Mono', monospace;
+            font-size: 0.65rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 0.35rem;
+        }
+        .input-group input {
+            width: 100%;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0.5rem 0.85rem;
+            color: var(--text);
+            font-family: 'DM Mono', monospace;
+            font-size: 0.78rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .input-group input:focus { border-color: var(--accent); }
+        .input-group input::placeholder { color: var(--muted); }
+
+        .send-btn {
+            width: 100%;
+            margin-top: 0.5rem;
+            padding: 0.55rem;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Syne', sans-serif;
+            font-weight: 700;
+            font-size: 0.82rem;
+            cursor: pointer;
+            transition: opacity 0.2s, transform 0.15s;
+        }
+        .send-btn:hover { opacity: 0.88; transform: translateY(-1px); }
+        .btn-get    { background: var(--get-bg);  border: 1px solid var(--get-border);  color: #36c9a7; }
+        .btn-post   { background: var(--post-bg); border: 1px solid var(--post-border); color: #9f82ff; }
+        .btn-delete { background: var(--del-bg);  border: 1px solid var(--del-border);  color: #ff6363; }
+
+        /* ── Response box ── */
+        .response-section { padding: 0 2rem 3rem; }
+        .response-header {
+            font-family: 'Syne', sans-serif;
+            font-weight: 700;
+            font-size: 1rem;
+            color: var(--text);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+        .response-status {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.7rem;
+            padding: 2px 10px;
+            border-radius: 10px;
+            display: none;
+        }
+        .status-ok  { background: var(--get-bg);  border: 1px solid var(--get-border);  color: #36c9a7; }
+        .status-err { background: var(--del-bg);  border: 1px solid var(--del-border);  color: #ff6363; }
+
+        .response-box {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .response-empty {
+            padding: 2rem;
+            text-align: center;
+            color: var(--muted);
+            font-family: 'DM Mono', monospace;
+            font-size: 0.8rem;
+        }
+        .resp-table {
+            width: 100%;
+            border-collapse: collapse;
+            display: none;
+        }
+        .resp-table thead tr {
+            background: rgba(255,255,255,0.03);
+            border-bottom: 1px solid var(--border);
+        }
+        .resp-table th {
+            padding: 0.6rem 1rem;
+            font-family: 'DM Mono', monospace;
+            font-size: 0.68rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--muted);
+            text-align: left;
+            font-weight: 500;
+        }
+        .resp-table td {
+            padding: 0.6rem 1rem;
+            font-family: 'DM Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--text);
+            border-bottom: 1px solid var(--border);
+        }
+        .resp-table tbody tr:last-child td { border-bottom: none; }
+        .resp-table tbody tr:hover { background: rgba(255,255,255,0.02); }
+    </style>
+</head>
+<body>
+
+<!-- ── PAGE HEADER ── -->
+<div class="page-header">
+
+    <!-- LOGOUT BUTTON -->
+    <form th:action="@{/logout}" method="post">
+        <button type="submit" class="logout-btn">Sign Out →</button>
+    </form>
+</div>
+
+</div>
+<div class="page-header">
+    <a th:href="@{/}" class="back-link">← Back to Homepage</a>
+    <h1>Notification APIs</h1>
+    <p>Test all notification endpoints — responses appear in the table below</p>
+</div>
+
+<!-- ── API CARDS ── -->
+<div class="api-section">
+    <div class="api-grid">
+
+        <!-- POST Create Notification -->
+        <div class="api-card">
+            <div class="api-card-header">
+                <div class="header-top">
+                    <span class="method POST">POST</span>
+                    <span class="endpoint-title">Create Notification</span>
+                </div>
+                <div class="endpoint-url">
+                    <span class="url-method-dot dot-post"></span>
+                    <span class="url-path">/api/v1/notifications</span>
+                </div>
+            </div>
+            <div class="api-card-body">
+                <div class="input-group">
+                    <label>Notification ID</label>
+                    <input id="postNotificationId" placeholder="e.g. 101" />
+                </div>
+                <div class="input-group">
+                    <label>User ID</label>
+                    <input id="postUserId" placeholder="e.g. 5" />
+                </div>
+                <div class="input-group">
+                    <label>Notification Text</label>
+                    <input id="postText" placeholder="e.g. Your task is due soon" />
+                </div>
+                <button class="send-btn btn-post" onclick="createNotification()">Send POST →</button>
+            </div>
+        </div>
+
+        <!-- GET by ID -->
+        <div class="api-card">
+            <div class="api-card-header">
+                <div class="header-top">
+                    <span class="method GET">GET</span>
+                    <span class="endpoint-title">Get Notification by ID</span>
+                </div>
+                <div class="endpoint-url">
+                    <span class="url-method-dot dot-get"></span>
+                    <span class="url-path">/api/v1/notifications/<span class="path-param">{notificationId}</span></span>
+                </div>
+            </div>
+            <div class="api-card-body">
+                <div class="input-group">
+                    <label>Notification ID</label>
+                    <input id="getId" placeholder="e.g. 101" />
+                </div>
+                <button class="send-btn btn-get" onclick="getNotification()">Send GET →</button>
+            </div>
+        </div>
+
+        <!-- GET by User -->
+        <div class="api-card">
+            <div class="api-card-header">
+                <div class="header-top">
+                    <span class="method GET">GET</span>
+                    <span class="endpoint-title">Get Notifications by User</span>
+                </div>
+                <div class="endpoint-url">
+                    <span class="url-method-dot dot-get"></span>
+                    <span class="url-path">/api/v1/users/<span class="path-param">{userId}</span>/notifications</span>
+                </div>
+            </div>
+            <div class="api-card-body">
+                <div class="input-group">
+                    <label>User ID</label>
+                    <input id="userId" placeholder="e.g. 5" />
+                </div>
+                <button class="send-btn btn-get" onclick="getUserNotifications()">Send GET →</button>
+            </div>
+        </div>
+
+        <!-- DELETE -->
+        <div class="api-card">
+            <div class="api-card-header">
+                <div class="header-top">
+                    <span class="method DELETE">DELETE</span>
+                    <span class="endpoint-title">Delete Notification</span>
+                </div>
+                <div class="endpoint-url">
+                    <span class="url-method-dot dot-delete"></span>
+                    <span class="url-path">/api/v1/notifications/<span class="path-param">{notificationId}</span></span>
+                </div>
+            </div>
+            <div class="api-card-body">
+                <div class="input-group">
+                    <label>Notification ID</label>
+                    <input id="deleteId" placeholder="e.g. 101" />
+                </div>
+                <button class="send-btn btn-delete" onclick="deleteNotification()">Send DELETE →</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- ── RESPONSE ── -->
+<div class="response-section">
+    <div class="response-header">
+        Response
+        <span class="response-status" id="statusBadge"></span>
+    </div>
+    <div class="response-box">
+        <div class="response-empty" id="emptyMsg">No request sent yet — use a card above to test an endpoint</div>
+        <table class="resp-table" id="respTable">
+            <thead id="tableHead"></thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    function showTable(data, ok) {
+        document.getElementById("emptyMsg").style.display = "none";
+
+        const table = document.getElementById("respTable");
+        const head  = document.getElementById("tableHead");
+        const body  = document.getElementById("tableBody");
+        const badge = document.getElementById("statusBadge");
+
+        table.style.display = "table";
+        badge.style.display = "inline-block";
+        badge.textContent   = ok ? "200 OK" : "Error";
+        badge.className     = "response-status " + (ok ? "status-ok" : "status-err");
+
+        head.innerHTML = "";
+        body.innerHTML = "";
+
+        if (!Array.isArray(data)) data = [data];
+        if (data.length === 0) {
+            body.innerHTML = "<tr><td>No data found</td></tr>";
+            return;
+        }
+
+        const keys = Object.keys(data[0]);
+        head.innerHTML = "<tr>" + keys.map(k => `<th>${k}</th>`).join("") + "</tr>";
+        body.innerHTML = data.map(row =>
+            "<tr>" + keys.map(k => `<td>${row[k] ?? "—"}</td>`).join("") + "</tr>"
+        ).join("");
+    }
+
+    function createNotification() {
+        fetch("/api/v1/notifications", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                notificationID: document.getElementById("postNotificationId").value,
+                userId: document.getElementById("postUserId").value,
+                text: document.getElementById("postText").value
+            })
+        })
+            .then(res => res.json())
+            .then(data => showTable(data, true))
+            .catch(() => showTable({ error: "Request failed" }, false));
+    }
+
+    function getNotification() {
+        const id = document.getElementById("getId").value;
+        fetch("/api/v1/notifications/" + id)
+            .then(res => res.json())
+            .then(data => showTable(data, true))
+            .catch(() => showTable({ error: "Request failed" }, false));
+    }
+
+    function getUserNotifications() {
+        const userId = document.getElementById("userId").value;
+        fetch("/api/v1/users/" + userId + "/notifications")
+            .then(res => res.json())
+            .then(data => showTable(data, true))
+            .catch(() => showTable({ error: "Request failed" }, false));
+    }
+
+    function deleteNotification() {
+        const id = document.getElementById("deleteId").value;
+        fetch("/api/v1/notifications/" + id, { method: "DELETE" })
+            .then(() => showTable({ message: "Notification deleted successfully", notificationId: id }, true))
+            .catch(() => showTable({ error: "Request failed" }, false));
+    }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Task Management</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
+</head>
+<body>
+
+<!-- ── HEADER ── -->
+<header>
+    <div class="badge">Spring Boot + Thymeleaf</div>
+    <h1>Task Management</h1>
+    <p>HomePage</p>
+    <div class="base-url">Base URL: http://localhost:8080</div>
+</header>
+<!-- ── PROJECT DESCRIPTION ── -->
+<div class="project-desc-section">
+
+    <div class="project-desc-card">
+
+        <!-- th:text pulls the value from model.addAttribute() -->
+        <h2 th:text="${projectTitle}">Task Management System</h2>
+
+        <p th:text="${projectDesc}">Loading description...</p>
+
+        <div class="feature-list">
+            <!-- th:each loops over the features List from the controller -->
+            <span class="feature-chip" th:each="feature : ${features}" th:text="${feature}">Feature</span>
+        </div>
+
+        <!-- th:href builds a dynamic link
+        <a th:href="@{/api/v1/tasks}" class="api-link">
+            → View Tasks API
+        </a>-->
+
+    </div>
+
+</div>
+<!-- ── TEAM CARDS ── -->
+<div class="section-title">Our Team <span>Click a member to see their endpoints</span></div>
+<div class="team-grid">
+
+    <!--
+      HOW TO ADD A REAL PHOTO:
+      1. Put teammate1.jpg inside src/main/resources/static/images/
+      2. Replace the .member-initials div with:
+         <img th:src="@{/images/teammate1.jpg}" class="member-avatar" alt="Alice" />
+    -->
+
+    <div class="member-card" onclick="show('kaviya')" id="card-kaviya">
+        <div class="member-initials">SP</div>
+        <div class="member-name">Kaviya </div>
+        <!--        <div class="member-role">Backend Lead</div>-->
+        <span class="member-tag">Users &amp; Roles</span>
+    </div>
+
+    <div class="member-card" onclick="show('kavish')" id="card-kavish">
+        <div class="member-initials">D</div>
+        <div class="member-name">Kavish</div>
+        <!--        <div class="member-role">API Developer</div>-->
+        <span class="member-tag">Projects</span>
+    </div>
+
+    <div class="member-card" onclick="show('jayanti')" id="card-jayanti">
+        <div class="member-initials">M</div>
+        <div class="member-name">Jayanthi</div>
+        <!--        <div class="member-role">Full Stack Dev</div>-->
+        <span class="member-tag">Tasks &amp; Categories</span>
+    </div>
+
+    <div class="member-card" onclick="show('srihari')" id="card-srihari">
+        <div class="member-initials">V</div>
+        <div class="member-name">Srihari</div>
+        <!--        <div class="member-role">Backend Dev</div>-->
+        <span class="member-tag">Comments &amp; Files</span>
+    </div>
+
+    <div class="member-card" onclick="show('meenakshi')" id="card-meenakshi">
+        <div class="member-initials">K</div>
+        <div class="member-name">Meenakshi</div>
+        <!--        <div class="member-role">Data Engineer</div>-->
+        <span class="member-tag">Thymeleaf &amp; Notifications</span>
+    </div>
+
+</div>
+
+<!-- ── ENDPOINTS ── -->
+<div class="endpoints-section">
+
+    <!-- Default state -->
+    <div id="panel-default" class="placeholder">
+        👆 Click a teammate's card above to explore their API endpoints
+    </div>
+
+
+    <div id="panel-kaviya" style="display:none">
+        <div class="endpoints-header">
+            <span class="who">Kaviya S.P</span> — Users &amp; Roles
+            <span class="count">11 endpoints</span>
+        </div>
+        <div class="group-grid">
+            <div class="endpoint-group">
+                <div class="group-label">User Management</div>
+                <div class="endpoint-row"><span class="method POST">POST</span><span class="path">/users</span></div>
+                <div class="endpoint-row"><span class="method GET">GET</span><span class="path">/users/<span class="path-param">{userId}</span></span></div>
+                <div class="endpoint-row"><span class="method GET">GET</span><span class="path">/users</span></div>
+                <div class="endpoint-row"><span class="method PUT">PUT</span><span class="path">/users/<span class="path-param">{userId}</span></span></div>
+                <div class="endpoint-row"><span class="method DELETE">DELETE</span><span class="path">/users/<span class="path-param">{userId}</span></span></div>
+            </div>
+            <div class="endpoint-group">
+                <div class="group-label">Roles</div>
+                <div class="endpoint-row"><span class="method POST">POST</span><span class="path">/roles</span></div>
+                <div class="endpoint-row"><span class="method GET">GET</span><span class="path">/roles</span></div>
+            </div>
+            <div class="endpoint-group">
+                <div class="group-label">User–Role Mapping</div>
+                <div class="endpoint-row"><span class="method POST">POST</span><span class="path">/users/<span class="path-param">{userId}</span>/roles/<span class="path-param">{roleId}</span></span></div>
+                <div class="endpoint-row"><span class="method DELETE">DELETE</span><span class="path">/users/<span class="path-param">{userId}</span>/roles/<span class="path-param">{roleId}</span></span></div>
+                <div class="endpoint-row"><span class="method GET">GET</span><span class="path">/users/<span class="path-param">{userId}</span>/roles</span></div>
+            </div>
+            <div class="endpoint-group">
+                <div class="group-label">Reporting</div>
+                <div class="endpoint-row"><span class="method GET">GET</span><span class="path">/reports/users/productivity</span></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="panel-kavish" style="display:none">
+        <div class="endpoints-header">
+            <span class="who">Kavish D</span> — Project Management
+            <span class="count">7 endpoints</span>
+        </div>
+        <div class="group-grid">
+            <div class="endpoint-group">
+                <div class="group-label">Projects</div>
+                <div class="endpoint-row"><span class="method POST">POST</span><span class="path">/projects</span></div>
+                <div class="endpoint-row"><span class="method GET">GET</span><span class="path">/projects/<span class="path-param">{projectId}</span></span></div>
+                <div class="endpoint-row"><span class="method GET">GET</span><span class="path">/projects</span></div>
+                <div class="endpoint-row"><span class="method PUT">PUT</span><span class="path">/projects/<span class="path-param">{projectId}</span></span></div>
+                <div class="endpoint-row"><span class="method DELETE">DELETE</span><span class="path">/projects/<span class="path-param">{projectId}</span></span></div>
+            </div>
+            <div class="endpoint-group">
+                <div class="group-label">Project Ownership</div>
+                <div class="endpoint-row"><span class="method GET">GET</span><span class="path">/users/<span class="path-param">{userId}</span>/projects</span></div>
+            </div>
+            <div class="endpoint-group">
+                <div class="group-label">Reporting</div>
+                <div class="endpoint-row"><span class="method GET">GET</span><span class="path">/reports/projects/summary</span></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="panel-jayanti" style="display:none">
+        <div class="endpoints-header">
+            <span class="who">Jayanthi M</span> — Tasks &amp; Categories
+            <span class="count">15 endpoints</span>
+        </div>
+        <div class="group-grid">
+            <div class="endpoint-group">
+                <div class="group-label">Task CRUD</div>
+                <div class="endpoint-row"><span class="method POST">POST</span><span class="path">/tasks</span></div>
+                <div class="endpoint-row"><span class="method GET">GET</span><span class="path">/tasks/<span class="path-param">{taskId}</span></span></div>
+                <div class="endpoint-row"><span class="method GET">GET</span><span class="path">/tasks</span></div>
+                <div class="endpoint-row"><span class="method PUT">PUT</span><span class="path">/tasks/<span class="path-param">{taskId}</span></span></div>
+                <div class="endpoint-row"><span class="method DELETE">DELETE</span><span class="path">/tasks/<span class="path-param">{taskId}</span></span></div>
+            </div>
+            <div class="endpoint-group">
+                <div class="group-label">Task Filtering</div>
+                <div class="endpoint-row"><span class="method GET">GET</span><span class="path">/projects/<span class="path-param">{projectId}</span>/tasks</span></div>
+                <div class="endpoint-row"><span class="method GET">GET</span><span class="path">/users/<span class="path-param">{userId}</span>/tasks</span></div>
+                <div class="endpoint-row"><span class="method GET">GET</span><span class="path">/tasks/status/<span class="path-param">{status}</span></span></div>
+                <div class="endpoint-row"><span class="method GET">GET</span><span class="path">/tasks/priority/<span class="path-param">{priority}</span></span></div>
+            </div>
+            <div class="endpoint-group">
+                <div class="group-label">Categories</div>
+                <div class="endpoint-row"><span class="method POST">POST</span><span class="path">/categories</span></div>
+                <div class="endpoint-row"><span class="method GET">GET</span><span class="path">/categories</span></div>
+                <div class="endpoint-row"><span class="method POST">POST</span><span class="path">/tasks/<span class="path-param">{taskId}</span>/categories/<span class="path-param">{catId}</span></span></div>
+                <div class="endpoint-row"><span class="method DELETE">DELETE</span><span class="path">/tasks/<span class="path-param">{taskId}</span>/categories/<span class="path-param">{catId}</span></span></div>
+                <div class="endpoint-row"><span class="method GET">GET</span><span class="path">/tasks/<span class="path-param">{taskId}</span>/categories</span></div>
+            </div>
+            <div class="endpoint-group">
+                <div class="group-label">Reporting</div>
+                <div class="endpoint-row"><span class="method GET">GET</span><span class="path">/reports/tasks/overdue?days=7</span></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="panel-srihari" style="display:none">
+        <div class="endpoints-header">
+            <span class="who">Srihari V</span> — Comments &amp; Attachments
+            <span class="count">6 endpoints</span>
+        </div>
+        <div class="group-grid">
+            <div class="endpoint-group">
+                <div class="group-label">Comments</div>
+                <div class="endpoint-row"><span class="method POST">POST</span><span class="path">/tasks/<span class="path-param">{taskId}</span>/comments</span></div>
+                <div class="endpoint-row"><span class="method GET">GET</span><span class="path">/tasks/<span class="path-param">{taskId}</span>/comments</span></div>
+                <div class="endpoint-row"><span class="method DELETE">DELETE</span><span class="path">/comments/<span class="path-param">{commentId}</span></span></div>
+            </div>
+            <div class="endpoint-group">
+                <div class="group-label">Attachments</div>
+                <div class="endpoint-row"><span class="method POST">POST</span><span class="path">/tasks/<span class="path-param">{taskId}</span>/attachments</span></div>
+                <div class="endpoint-row"><span class="method GET">GET</span><span class="path">/tasks/<span class="path-param">{taskId}</span>/attachments</span></div>
+                <div class="endpoint-row"><span class="method DELETE">DELETE</span><span class="path">/attachments/<span class="path-param">{attachmentId}</span></span></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="panel-meenakshi" style="display:none">
+        <div class="endpoints-header">
+            <span class="who">Meenakshi</span> — Thymeleaf & Notifications
+            <span class="count">6 endpoints</span>
+        </div>
+
+        <div class="group-grid">
+
+            <div class="endpoint-group">
+
+                <div class="group-label">Notifications</div>
+
+                <!-- CREATE -->
+                <div class="endpoint-row">
+                    <span class="method POST">POST</span>
+
+                    <a th:href="@{/notifications-ui}"
+                       class="path">
+                        /notifications
+                    </a>
+                </div>
+
+                <!-- GET BY ID -->
+                <div class="endpoint-row">
+                    <span class="method GET">GET</span>
+
+                    <a th:href="@{/notifications-ui}"
+                       class="path">
+                        /notifications/{id}
+                    </a>
+                </div>
+
+                <!-- GET BY USER -->
+                <div class="endpoint-row">
+                    <span class="method GET">GET</span>
+
+                    <a th:href="@{/notifications-ui}"
+                       class="path">
+                        /users/{userId}/notifications
+                    </a>
+                </div>
+
+                <!-- DELETE -->
+                <div class="endpoint-row">
+                    <span class="method DELETE">DELETE</span>
+
+                    <a th:href="@{/notifications-ui}"
+                       class="path">
+                        /notifications/{id}
+                    </a>
+                </div>
+
+                <!-- UNREAD -->
+                <div class="endpoint-row">
+                    <span class="method GET">GET</span>
+
+                    <a th:href="@{/notifications-ui}"
+                       class="path">
+                        /users/{userId}/notifications/unread
+                    </a>
+                </div>
+
+                <!-- MARK READ -->
+                <div class="endpoint-row">
+                    <span class="method PUT">PUT</span>
+
+                    <a th:href="@{/notifications-ui}"
+                       class="path">
+                        /notifications/{id}/read
+                    </a>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+<!-- ── FOOTER ── -->
+<footer>
+    <span>Task Management</span>
+    <div class="tech-stack">
+        <span class="chip">Spring Boot</span>
+        <span class="chip">Thymeleaf</span>
+        <!--        <span class="chip">REST API</span>-->
+        <!--        <span class="chip">JPA</span>-->
+    </div>
+</footer>
+
+<script>
+    const members = ['kavish','kaviya','meenakshi','srihari','jayanti'];
+    let current = null;
+
+    function show(id) {
+        members.forEach(m => {
+            document.getElementById('panel-' + m).style.display = 'none';
+            document.getElementById('card-' + m).classList.remove('active');
+        });
+        document.getElementById('panel-default').style.display = 'none';
+
+        if (current === id) {
+            document.getElementById('panel-default').style.display = 'block';
+            current = null;
+        } else {
+            document.getElementById('panel-' + id).style.display = 'block';
+            document.getElementById('card-' + id).classList.add('active');
+            current = id;
+        }
+    }
+</script>
+
+</body>
+</html>

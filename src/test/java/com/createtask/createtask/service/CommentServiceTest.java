@@ -2,9 +2,9 @@ package com.createtask.createtask.service;
 
 import com.createtask.createtask.dto.request.CommentRequestDTO;
 import com.createtask.createtask.dto.response.CommentResponseDTO;
+import com.createtask.createtask.entity.AppUser;
 import com.createtask.createtask.entity.Comment;
 import com.createtask.createtask.entity.Task;
-import com.createtask.createtask.entity.AppUser;
 import com.createtask.createtask.exception.CommentNotFoundException;
 import com.createtask.createtask.repository.CommentRepository;
 import com.createtask.createtask.repository.TaskRepository;
@@ -238,5 +238,161 @@ public class CommentServiceTest {
                 commentService.getCommentsByTaskId(1);
 
         assertEquals(1, response.get(0).getCommentID());
+    }
+
+    // Tests comment task ID mapping
+    @Test
+    void testCommentTaskIdMapping() {
+
+        Task task = new Task();
+        task.setTaskID(10);
+
+        AppUser user = new AppUser();
+        user.setUserID(1);
+
+        Comment comment = new Comment();
+        comment.setCommentID(1);
+        comment.setTask(task);
+        comment.setUser(user);
+
+        when(commentRepository.findAll())
+                .thenReturn(List.of(comment));
+
+        List<CommentResponseDTO> response =
+                commentService.getCommentsByTaskId(10);
+
+        assertEquals(
+                10,
+                response.get(0).getTaskID()
+        );
+    }
+
+    // Tests filtering comments by task ID
+    @Test
+    void testCommentFilteringByTaskId() {
+
+        Task task1 = new Task();
+        task1.setTaskID(1);
+
+        Task task2 = new Task();
+        task2.setTaskID(2);
+
+        AppUser user = new AppUser();
+        user.setUserID(1);
+
+        Comment c1 = new Comment();
+        c1.setCommentID(1);
+        c1.setTask(task1);
+        c1.setUser(user);
+
+        Comment c2 = new Comment();
+        c2.setCommentID(2);
+        c2.setTask(task2);
+        c2.setUser(user);
+
+        when(commentRepository.findAll())
+                .thenReturn(Arrays.asList(c1, c2));
+
+        List<CommentResponseDTO> response =
+                commentService.getCommentsByTaskId(1);
+
+        assertEquals(1, response.size());
+    }
+
+    // Tests comment creation with different text
+    @Test
+    void testAddCommentDifferentText() {
+
+        Task task = new Task();
+        task.setTaskID(1);
+
+        AppUser user = new AppUser();
+        user.setUserID(1);
+
+        Comment comment = new Comment();
+        comment.setCommentID(25);
+        comment.setText("New Comment");
+        comment.setCreatedAt(LocalDateTime.now());
+        comment.setTask(task);
+        comment.setUser(user);
+
+        CommentRequestDTO requestDTO =
+                new CommentRequestDTO(
+                        25,
+                        "New Comment",
+                        1
+                );
+
+        when(taskRepository.findById(1))
+                .thenReturn(Optional.of(task));
+
+        when(userRepository.findById(1))
+                .thenReturn(Optional.of(user));
+
+        when(commentRepository.save(any(Comment.class)))
+                .thenReturn(comment);
+
+        CommentResponseDTO response =
+                commentService.addComment(1, requestDTO);
+
+        assertEquals(
+                "New Comment",
+                response.getText()
+        );
+    }
+
+    // Tests comment deletion repository invocation
+    @Test
+    void testCommentDeleteInvocation() {
+
+        Comment comment = new Comment();
+        comment.setCommentID(1);
+
+        when(commentRepository.findById(1))
+                .thenReturn(Optional.of(comment));
+
+        commentService.deleteComment(1);
+
+        verify(commentRepository, times(1))
+                .delete(comment);
+    }
+
+    // Tests comment response is not null
+    @Test
+    void testCommentResponseNotNull() {
+
+        Task task = new Task();
+        task.setTaskID(1);
+
+        AppUser user = new AppUser();
+        user.setUserID(1);
+
+        Comment comment = new Comment();
+        comment.setCommentID(50);
+        comment.setText("Hello");
+        comment.setCreatedAt(LocalDateTime.now());
+        comment.setTask(task);
+        comment.setUser(user);
+
+        CommentRequestDTO requestDTO =
+                new CommentRequestDTO(
+                        50,
+                        "Hello",
+                        1
+                );
+
+        when(taskRepository.findById(1))
+                .thenReturn(Optional.of(task));
+
+        when(userRepository.findById(1))
+                .thenReturn(Optional.of(user));
+
+        when(commentRepository.save(any(Comment.class)))
+                .thenReturn(comment);
+
+        CommentResponseDTO response =
+                commentService.addComment(1, requestDTO);
+
+        assertNotNull(response);
     }
 }

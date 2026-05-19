@@ -29,6 +29,7 @@ public class AttachmentServiceTest {
     void setUp() {
 
         attachmentRepository = Mockito.mock(AttachmentRepository.class);
+
         taskRepository = Mockito.mock(TaskRepository.class);
 
         attachmentService =
@@ -209,5 +210,136 @@ public class AttachmentServiceTest {
                 attachmentService.getAttachmentsByTaskId(1);
 
         assertEquals(1, response.get(0).getAttachmentID());
+    }
+
+    // Tests attachment task ID mapping
+    @Test
+    void testAttachmentTaskIdMapping() {
+
+        Task task = new Task();
+        task.setTaskID(10);
+
+        Attachment attachment = new Attachment();
+        attachment.setAttachmentID(1);
+        attachment.setTask(task);
+
+        when(attachmentRepository.findAll())
+                .thenReturn(List.of(attachment));
+
+        List<AttachmentResponseDTO> response =
+                attachmentService.getAttachmentsByTaskId(10);
+
+        assertEquals(
+                10,
+                response.get(0).getTaskID()
+        );
+    }
+
+    // Tests filtering attachments by task ID
+    @Test
+    void testAttachmentFilteringByTaskId() {
+
+        Task task1 = new Task();
+        task1.setTaskID(1);
+
+        Task task2 = new Task();
+        task2.setTaskID(2);
+
+        Attachment a1 = new Attachment();
+        a1.setAttachmentID(1);
+        a1.setTask(task1);
+
+        Attachment a2 = new Attachment();
+        a2.setAttachmentID(2);
+        a2.setTask(task2);
+
+        when(attachmentRepository.findAll())
+                .thenReturn(Arrays.asList(a1, a2));
+
+        List<AttachmentResponseDTO> response =
+                attachmentService.getAttachmentsByTaskId(1);
+
+        assertEquals(1, response.size());
+    }
+
+    // Tests attachment creation with different file name
+    @Test
+    void testAddAttachmentDifferentFile() {
+
+        Task task = new Task();
+        task.setTaskID(1);
+
+        Attachment attachment = new Attachment();
+        attachment.setAttachmentID(22);
+        attachment.setFileName("Notes.docx");
+        attachment.setFilePath("/docs/Notes.docx");
+        attachment.setTask(task);
+
+        AttachmentRequestDTO requestDTO =
+                new AttachmentRequestDTO(
+                        22,
+                        "Notes.docx",
+                        "/docs/Notes.docx"
+                );
+
+        when(taskRepository.findById(1))
+                .thenReturn(Optional.of(task));
+
+        when(attachmentRepository.save(any(Attachment.class)))
+                .thenReturn(attachment);
+
+        AttachmentResponseDTO response =
+                attachmentService.addAttachment(1, requestDTO);
+
+        assertEquals(
+                "Notes.docx",
+                response.getFileName()
+        );
+    }
+
+    // Tests attachment deletion repository invocation
+    @Test
+    void testAttachmentDeleteInvocation() {
+
+        Attachment attachment = new Attachment();
+        attachment.setAttachmentID(1);
+
+        when(attachmentRepository.findById(1))
+                .thenReturn(Optional.of(attachment));
+
+        attachmentService.deleteAttachment(1);
+
+        verify(attachmentRepository, times(1))
+                .delete(attachment);
+    }
+
+    // Tests attachment response is not null
+    @Test
+    void testAttachmentResponseNotNull() {
+
+        Task task = new Task();
+        task.setTaskID(1);
+
+        Attachment attachment = new Attachment();
+        attachment.setAttachmentID(30);
+        attachment.setTask(task);
+
+        AttachmentRequestDTO requestDTO =
+                new AttachmentRequestDTO(
+                        30,
+                        "abc.pdf",
+                        "/docs/abc.pdf"
+                );
+
+        when(taskRepository.findById(1))
+                .thenReturn(Optional.of(task));
+
+        when(attachmentRepository.save(any(Attachment.class)))
+                .thenReturn(attachment);
+
+        AttachmentResponseDTO response =
+                attachmentService.addAttachment(1, requestDTO);
+
+        assertNotNull(response);
     }
 }

@@ -2,10 +2,11 @@ package com.createtask.createtask.controller;
 
 import com.createtask.createtask.dto.response.CategoryResponseDTO;
 import com.createtask.createtask.service.TaskCategoryService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.util.List;
 
@@ -21,6 +22,11 @@ public class TaskCategoryController {
     }
 
     // Assigns a category to a specific task
+    @Operation(
+            summary = "Assign category to task",
+            description = "Assigns an existing category to a specific task"
+    )
+    @ApiResponse(responseCode = "200", description = "Category assigned to task successfully")
     @PostMapping("/{taskId}/categories/{categoryId}")
     public ResponseEntity<Void> assignCategoryToTask(@PathVariable int taskId,
                                                      @PathVariable int categoryId) {
@@ -29,6 +35,11 @@ public class TaskCategoryController {
     }
 
     // Removes a category from a specific task
+    @Operation(
+            summary = "Remove category from task",
+            description = "Removes an assigned category from a specific task"
+    )
+    @ApiResponse(responseCode = "204", description = "Category removed from task successfully")
     @DeleteMapping("/{taskId}/categories/{categoryId}")
     public ResponseEntity<Void> removeCategoryFromTask(@PathVariable int taskId,
                                                        @PathVariable int categoryId) {
@@ -37,6 +48,11 @@ public class TaskCategoryController {
     }
 
     // Fetches all categories assigned to a specific task
+    @Operation(
+            summary = "Get categories for task",
+            description = "Fetches all categories assigned to a specific task"
+    )
+    @ApiResponse(responseCode = "200", description = "Categories fetched successfully")
     @GetMapping("/{taskId}/categories")
     public ResponseEntity<List<CategoryResponseDTO>> getCategoriesForTask(@PathVariable int taskId) {
         List<CategoryResponseDTO> categories = taskCategoryService.getCategoriesForTask(taskId);

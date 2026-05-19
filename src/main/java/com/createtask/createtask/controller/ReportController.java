@@ -1,5 +1,6 @@
 package com.createtask.createtask.controller;
 
+import com.createtask.createtask.dto.response.OverdueTaskDTO;
 import com.createtask.createtask.dto.response.ProjectSummaryDTO;
 import com.createtask.createtask.dto.response.UserProductivityDTO;
 import com.createtask.createtask.service.ReportService;
@@ -7,14 +8,14 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-// Exposes all reporting endpoints — kept separate from business CRUD controllers.
-// Both endpoints are read-only and return aggregated data for dashboard use.
+/**
+ * Exposes all reporting endpoints — kept separate from business CRUD controllers.
+ * Both endpoints are read-only and return aggregated data for dashboard use.
+ */
 @RestController
 @RequestMapping("/api/v1/reports")
 @Tag(name = "Reports", description = "High-impact reporting endpoints for business insights")
@@ -22,12 +23,12 @@ public class ReportController {
 
     private final ReportService reportService;
 
+    // Creates the report controller.
     public ReportController(ReportService reportService) {
         this.reportService = reportService;
     }
 
-    // Returns task completion statistics per user — totalTasks, completedTasks,
-    // pendingTasks and completionRate — sorted by userId ascending.
+    /** Returns task completion statistics per user. */
     @Operation(
             summary = "User Productivity Report",
             description = "Returns task completion statistics per user — totalTasks, completedTasks, pendingTasks, completionRate(%)"
@@ -38,8 +39,7 @@ public class ReportController {
         return ResponseEntity.ok(reportService.getUserProductivityReport());
     }
 
-    // Returns a health summary per project showing task breakdown and how far
-    // along each project is — simulates a real company project dashboard.
+    /** Returns a health summary per project showing task breakdown and progress. */
     @Operation(
             summary = "Project Summary Dashboard",
             description = "Returns task breakdown per project — totalTasks, completedTasks, inProgressTasks, pendingTasks, completionPercentage(%)"
@@ -48,5 +48,17 @@ public class ReportController {
     @GetMapping("/projects/summary")
     public ResponseEntity<List<ProjectSummaryDTO>> getProjectSummaryReport() {
         return ResponseEntity.ok(reportService.getProjectSummaryReport());
+    }
+
+    /** Returns tasks that are overdue by the requested threshold. */
+    @Operation(
+            summary = "Overdue Tasks Report",
+            description = "Returns tasks that are overdue beyond the requested number of days"
+    )
+    @ApiResponse(responseCode = "200", description = "Overdue tasks report generated successfully")
+    @GetMapping("/tasks/overdue")
+    public ResponseEntity<List<OverdueTaskDTO>> getOverdueTasksReport(
+            @RequestParam(defaultValue = "7") int days) {
+        return ResponseEntity.ok(reportService.getOverdueTasksReport(days));
     }
 }

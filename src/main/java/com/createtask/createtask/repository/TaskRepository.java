@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.List;
 
 /**
@@ -37,4 +38,8 @@ public interface TaskRepository extends JpaRepository<Task, Integer> {
     /** Counts tasks for a user filtered by a specific status — used by productivity report */
     @Query("SELECT COUNT(t) FROM Task t WHERE t.user.userID = :userID AND t.status = :status")
     long countByUserIDAndStatus(@Param("userID") int userID, @Param("status") String status);
+
+    /** Fetches overdue tasks before a cutoff date — used by overdue task report */
+    @Query("SELECT t FROM Task t WHERE t.dueDate IS NOT NULL AND t.dueDate < :cutoffDate AND COALESCE(LOWER(t.status), '') <> 'completed'")
+    List<Task> findOverdueTasks(@Param("cutoffDate") LocalDate cutoffDate);
 }

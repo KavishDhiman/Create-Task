@@ -126,7 +126,14 @@
         .team-row { display: flex; gap: 1.5rem; justify-content: center; }
         .team-row-top .member-card { flex: 0 0 320px; min-width: 320px; }
         .team-row-bottom .member-card { flex: 0 0 280px; min-width: 280px; }
-
+        .path a, a.path {
+            color: var(--text);
+            text-decoration: none;
+        }
+        .path a:hover, a.path:hover {
+            color: var(--accent);
+            text-decoration: underline;
+        }
         .member-card {
             background: var(--card);
             border: 1px solid var(--border);
@@ -338,6 +345,7 @@
     </div>
 
     <!-- ── KAVIYA ── -->
+    <!-- ── KAVIYA ── -->
     <div id="panel-kaviya" style="display:none">
         <div class="endpoints-header">
             <span class="who">Kaviya S.P</span> — Users &amp; Roles
@@ -347,57 +355,68 @@
             <div class="endpoint-group">
                 <div class="group-label">User Management</div>
                 <div class="endpoint-row">
-                    <div class="endpoint-main"><span class="method POST">POST</span><span class="path">/api/v1/users</span></div>
+                    <div class="endpoint-main"><span class="method POST">POST</span>
+                        <a th:href="@{/users-ui}" class="path">/api/v1/users</a></div>
                     <div class="endpoint-desc">Create a new user account</div>
                 </div>
                 <div class="endpoint-row">
-                    <div class="endpoint-main"><span class="method GET">GET</span><span class="path">/api/v1/users/<span class="path-param">{userId}</span></span></div>
+                    <div class="endpoint-main"><span class="method GET">GET</span>
+                        <a th:href="@{/users-ui}" class="path">/api/v1/users/<span class="path-param">{userId}</span></a></div>
                     <div class="endpoint-desc">Get details of a specific user</div>
                 </div>
                 <div class="endpoint-row">
-                    <div class="endpoint-main"><span class="method GET">GET</span><span class="path">/api/v1/users</span></div>
+                    <div class="endpoint-main"><span class="method GET">GET</span>
+                        <a th:href="@{/users-ui}" class="path">/api/v1/users</a></div>
                     <div class="endpoint-desc">List all registered users</div>
                 </div>
                 <div class="endpoint-row">
-                    <div class="endpoint-main"><span class="method PUT">PUT</span><span class="path">/api/v1/users/<span class="path-param">{userId}</span></span></div>
+                    <div class="endpoint-main"><span class="method PUT">PUT</span>
+                        <a th:href="@{/users-ui}" class="path">/api/v1/users/<span class="path-param">{userId}</span></a></div>
                     <div class="endpoint-desc">Update user profile information</div>
                 </div>
                 <div class="endpoint-row">
-                    <div class="endpoint-main"><span class="method DELETE">DELETE</span><span class="path">/api/v1/users/<span class="path-param">{userId}</span></span></div>
+                    <div class="endpoint-main"><span class="method DELETE">DELETE</span>
+                        <a th:href="@{/users-ui}" class="path">/api/v1/users/<span class="path-param">{userId}</span></a></div>
                     <div class="endpoint-desc">Deactivate or delete a user</div>
                 </div>
             </div>
             <div class="endpoint-group">
                 <div class="group-label">Roles</div>
                 <div class="endpoint-row">
-                    <div class="endpoint-main"><span class="method POST">POST</span><span class="path">/api/v1/roles</span></div>
+                    <div class="endpoint-main"><span class="method POST">POST</span>
+                        <a th:href="@{/users-ui}" class="path">/api/v1/roles</a></div>
                     <div class="endpoint-desc">Create a new role</div>
                 </div>
                 <div class="endpoint-row">
-                    <div class="endpoint-main"><span class="method GET">GET</span><span class="path">/api/v1/roles</span></div>
+                    <div class="endpoint-main"><span class="method GET">GET</span>
+                        <a th:href="@{/users-ui}" class="path">/api/v1/roles</a></div>
                     <div class="endpoint-desc">List all available roles</div>
                 </div>
             </div>
             <div class="endpoint-group">
                 <div class="group-label">User–Role Mapping</div>
                 <div class="endpoint-row">
-                    <div class="endpoint-main"><span class="method POST">POST</span><span class="path">/api/v1/users/<span class="path-param">{userId}</span>/roles/<span class="path-param">{roleId}</span></span></div>
+                    <div class="endpoint-main"><span class="method POST">POST</span>
+                        <a th:href="@{/users-ui}" class="path">/api/v1/users/<span class="path-param">{userId}</span>/roles/<span class="path-param">{roleId}</span></a></div>
                     <div class="endpoint-desc">Assign a role to a user</div>
                 </div>
                 <div class="endpoint-row">
-                    <div class="endpoint-main"><span class="method DELETE">DELETE</span><span class="path">/api/v1/users/<span class="path-param">{userId}</span>/roles/<span class="path-param">{roleId}</span></span></div>
+                    <div class="endpoint-main"><span class="method DELETE">DELETE</span>
+                        <a th:href="@{/users-ui}" class="path">/api/v1/users/<span class="path-param">{userId}</span>/roles/<span class="path-param">{roleId}</span></a></div>
                     <div class="endpoint-desc">Remove a role from a user</div>
                 </div>
                 <div class="endpoint-row">
-                    <div class="endpoint-main"><span class="method GET">GET</span><span class="path">/api/v1/users/<span class="path-param">{userId}</span>/roles</span></div>
+                    <div class="endpoint-main"><span class="method GET">GET</span>
+                        <a th:href="@{/users-ui}" class="path">/api/v1/users/<span class="path-param">{userId}</span>/roles</a></div>
                     <div class="endpoint-desc">Get all roles assigned to a user</div>
                 </div>
             </div>
             <div class="endpoint-group">
                 <div class="group-label">Reporting</div>
                 <div class="endpoint-row">
-                    <div class="endpoint-main"><span class="method GET">GET</span><span class="path">/api/v1/reports/users/productivity</span></div>
-                    <div class="endpoint-desc">User productivity report — tasks completed vs pending per user</div>
+                    <div class="endpoint-main"><span class="method GET">GET</span>
+                        <a th:href="@{/users-ui}" class="path">/api/v1/reports/users/productivity</a></div>
+                    <div class="endpoint-desc">User productivity report</div>
                 </div>
             </div>
         </div>

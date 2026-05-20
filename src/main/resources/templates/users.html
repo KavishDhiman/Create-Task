@@ -305,12 +305,38 @@
                     <span class="url-path">/api/v1/users</span>
                 </div>
             </div>
+
             <div class="api-card-body">
+
                 <div class="input-group">
-                    <label>JSON Body</label>
-                    <textarea id="createUserBody" rows="4" placeholder='{"username":"john","email":"john@example.com","password":"pass123"}'></textarea>
+                    <label>User ID</label>
+                    <input id="createUserId" placeholder="Enter user ID" />
                 </div>
-                <button class="send-btn btn-post" onclick="createUser()">Send POST →</button>
+
+                <div class="input-group">
+                    <label>Username</label>
+                    <input id="createUsername" placeholder="Enter username" />
+                </div>
+
+                <div class="input-group">
+                    <label>Password</label>
+                    <input id="createPassword" placeholder="Enter password" />
+                </div>
+
+                <div class="input-group">
+                    <label>Email</label>
+                    <input id="createEmail" placeholder="Enter email" />
+                </div>
+
+                <div class="input-group">
+                    <label>Full Name</label>
+                    <input id="createFullName" placeholder="Enter full name" />
+                </div>
+
+                <button class="send-btn btn-post" onclick="createUser()">
+                    Send POST →
+                </button>
+
             </div>
         </div>
 
@@ -364,16 +390,38 @@
                     <span class="url-path">/api/v1/users/<span class="path-param">{userId}</span></span>
                 </div>
             </div>
+
             <div class="api-card-body">
+
                 <div class="input-group">
                     <label>User ID</label>
                     <input id="updateUserId" placeholder="e.g. 1" />
                 </div>
+
                 <div class="input-group">
-                    <label>JSON Body</label>
-                    <textarea id="updateUserBody" rows="3" placeholder='{"username":"john_updated","email":"new@example.com"}'></textarea>
+                    <label>Username</label>
+                    <input id="updateUsername" placeholder="Enter username" />
                 </div>
-                <button class="send-btn btn-put" onclick="updateUser()">Send PUT →</button>
+
+                <div class="input-group">
+                    <label>Password</label>
+                    <input id="updatePassword" placeholder="Enter password" />
+                </div>
+
+                <div class="input-group">
+                    <label>Email</label>
+                    <input id="updateEmail" placeholder="Enter email" />
+                </div>
+
+                <div class="input-group">
+                    <label>Full Name</label>
+                    <input id="updateFullName" placeholder="Enter full name" />
+                </div>
+
+                <button class="send-btn btn-put" onclick="updateUser()">
+                    Send PUT →
+                </button>
+
             </div>
         </div>
 
@@ -423,12 +471,23 @@
                     <span class="url-path">/api/v1/roles</span>
                 </div>
             </div>
+
             <div class="api-card-body">
+
                 <div class="input-group">
-                    <label>JSON Body</label>
-                    <textarea id="createRoleBody" rows="3" placeholder='{"roleName":"ADMIN"}'></textarea>
+                    <label>Role ID</label>
+                    <input id="createRoleId" placeholder="Enter role ID" />
                 </div>
-                <button class="send-btn btn-post" onclick="createRole()">Send POST →</button>
+
+                <div class="input-group">
+                    <label>Role Name</label>
+                    <input id="createRoleName" placeholder="Enter role name" />
+                </div>
+
+                <button class="send-btn btn-post" onclick="createRole()">
+                    Send POST →
+                </button>
+
             </div>
         </div>
 
@@ -580,9 +639,13 @@
     const BASE = "/api/v1";
 
     function openResponse(data) {
-        const encoded = encodeURIComponent(JSON.stringify(data));
-        window.open('/response-view?data=' + encoded, '_blank');
-    }
+    const encoded = encodeURIComponent(JSON.stringify(data));
+
+    window.open(
+        '/response-view?data=' + encoded + '&module=' + encodeURIComponent('User & Role Service'),
+        '_blank'
+    );
+}
 
     function handleErr() {
         openResponse({ error: "Request failed" });
@@ -590,15 +653,27 @@
 
     // ── User APIs ──
     function createUser() {
-        fetch(`${BASE}/users`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: document.getElementById("createUserBody").value
+
+    const body = {
+        userID: document.getElementById("createUserId").value,
+        username: document.getElementById("createUsername").value,
+        password: document.getElementById("createPassword").value,
+        email: document.getElementById("createEmail").value,
+        fullName: document.getElementById("createFullName").value
+    };
+
+    fetch(`${BASE}/users`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body)
+    })
+        .then(r => r.json())
+        .then(d => {
+            d.message = "User created successfully";
+            openResponse(d);
         })
-            .then(r => r.json())
-            .then(d => openResponse(d))
-            .catch(handleErr);
-    }
+        .catch(handleErr);
+}
 
     function getAllUsers() {
         fetch(`${BASE}/users`)
@@ -616,53 +691,78 @@
     }
 
     function updateUser() {
-        const id = document.getElementById("updateUserId").value;
-        fetch(`${BASE}/users/${id}`, {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: document.getElementById("updateUserBody").value
+
+    const id = document.getElementById("updateUserId").value;
+
+    const body = {
+        userID: id,
+        username: document.getElementById("updateUsername").value,
+        password: document.getElementById("updatePassword").value,
+        email: document.getElementById("updateEmail").value,
+        fullName: document.getElementById("updateFullName").value
+    };
+
+    fetch(`${BASE}/users/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body)
+    })
+        .then(r => r.json())
+        .then(d => {
+            d.message = "User updated successfully";
+            openResponse(d);
         })
-            .then(r => r.json())
-            .then(d => openResponse(d))
-            .catch(handleErr);
-    }
+        .catch(handleErr);
+}
 
     function deleteUser() {
         const id = document.getElementById("deleteUserId").value;
         fetch(`${BASE}/users/${id}`, { method: "DELETE" })
-            .then(() => openResponse({ message: "User deleted", userId: id }))
+            .then(() => openResponse({ message: "User deleted successfully", userId: id }))
             .catch(handleErr);
     }
 
     // ── Role APIs ──
     function createRole() {
-        fetch(`${BASE}/roles`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: document.getElementById("createRoleBody").value
+
+    const body = {
+        userRoleID: document.getElementById("createRoleId").value,
+        roleName: document.getElementById("createRoleName").value
+    };
+
+    fetch(`${BASE}/roles`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body)
+    })
+        .then(r => r.json())
+        .then(d => {
+            d.message = "Role created successfully";
+            openResponse(d);
         })
-            .then(r => r.json())
-            .then(d => openResponse(d))
-            .catch(handleErr);
-    }
-
-    function getAllRoles() {
-        fetch(`${BASE}/roles`)
-            .then(r => r.json())
-            .then(d => openResponse(d))
-            .catch(handleErr);
-    }
-
+        .catch(handleErr);
+}
+function getAllRoles() {
+    fetch(`${BASE}/roles`)
+        .then(r => r.json())
+        .then(d => openResponse(d))
+        .catch(handleErr);
+}
     // ── User-Role Mapping ──
     function assignRole() {
-        const uid = document.getElementById("assignUserId").value;
-        const rid = document.getElementById("assignRoleId").value;
+    const uid = document.getElementById("assignUserId").value;
+    const rid = document.getElementById("assignRoleId").value;
 
-        fetch(`${BASE}/users/${uid}/roles/${rid}`, { method: "POST" })
-            .then(r => r.json())
-            .then(d => openResponse(d))
-            .catch(handleErr);
-    }
+    fetch(`${BASE}/users/${uid}/roles/${rid}`, {
+        method: "POST"
+    })
+        .then(() => openResponse({
+            message: "Role assigned successfully",
+            userId: uid,
+            roleId: rid
+        }))
+        .catch(handleErr);
+}
 
     function removeRole() {
         const uid = document.getElementById("removeUserId").value;
@@ -670,7 +770,7 @@
 
         fetch(`${BASE}/users/${uid}/roles/${rid}`, { method: "DELETE" })
             .then(() => openResponse({
-                message: "Role removed",
+                message: "Role removed successfully",
                 userId: uid,
                 roleId: rid
             }))

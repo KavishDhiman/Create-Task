@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Access Denied</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+    <style>
+        .denied-wrapper {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg);
+        }
+        .denied-card {
+            background: var(--card);
+            border: 1px solid var(--del-border);
+            border-radius: 20px;
+            padding: 3rem 2.5rem;
+            text-align: center;
+            max-width: 420px;
+            border-top: 3px solid #ff6363;
+        }
+        .denied-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        .denied-card h2 {
+            font-family: 'Syne', sans-serif;
+            font-weight: 800;
+            font-size: 1.6rem;
+            color: #ff6363;
+            margin-bottom: 0.75rem;
+        }
+        .denied-card p {
+            color: var(--muted);
+            font-size: 0.9rem;
+            line-height: 1.7;
+            margin-bottom: 1.5rem;
+        }
+        .home-btn {
+            display: inline-block;
+            background: var(--tag-bg);
+            border: 1px solid var(--tag-border);
+            color: var(--accent);
+            font-family: 'DM Mono', monospace;
+            font-size: 0.82rem;
+            padding: 8px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            margin-right: 0.5rem;
+        }
+        .logout-link {
+            display: inline-block;
+            background: var(--del-bg);
+            border: 1px solid var(--del-border);
+            color: #ff6363;
+            font-family: 'DM Mono', monospace;
+            font-size: 0.82rem;
+            padding: 8px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+<div class="denied-wrapper">
+    <div class="denied-card">
+        <div class="denied-icon">🔒</div>
+        <h2>Access Denied</h2>
+        <p>You don't have permission to view this page.<br/>
+            Please log in with the correct account to access this module.</p>
+        <a th:href="@{/}" class="home-btn">← Back to Homepage</a>
+        <form th:action="@{/logout}" method="post" style="display:inline">
+            <button type="submit" class="logout-link">Switch Account</button>
+        </form>
+    </div>
+</div>
+</body>
+</html>

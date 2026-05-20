@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>User APIs — Task Management</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
+    <style>
+        .page-header {
+            padding: 2rem 2.5rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+            background: linear-gradient(180deg, #0e1220 0%, var(--bg) 100%);
+            position: relative;
+        }
+        .page-header::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse 60% 80% at 50% -10%, rgba(79,142,247,0.10), transparent);
+            pointer-events: none;
+        }
+        .header-top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        .page-header .back-link {
+            color: var(--muted);
+            font-family: 'DM Mono', monospace;
+            font-size: 0.82rem;
+            text-decoration: none;
+        }
+        .page-header .back-link:hover { color: var(--accent); }
+        .page-header h1 {
+            font-family: 'Syne', sans-serif;
+            font-weight: 800;
+            font-size: clamp(1.8rem, 4vw, 2.6rem);
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, #e8ecf4 30%, #4f8ef7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.4rem;
+        }
+        .page-header p { color: var(--muted); font-size: 0.95rem; }
+        .logout-btn {
+            background: var(--del-bg);
+            border: 1px solid var(--del-border);
+            color: #ff6363;
+            font-family: 'DM Mono', monospace;
+            font-size: 0.78rem;
+            padding: 7px 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        .logout-btn:hover { opacity: 0.8; }
+
+        /* ── Section titles ── */
+        .section-heading {
+            font-family: 'Syne', sans-serif;
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--text);
+            padding: 2rem 2.5rem 1rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+        .section-heading .section-badge {
+            background: var(--tag-bg);
+            border: 1px solid var(--tag-border);
+            color: var(--accent);
+            font-family: 'DM Mono', monospace;
+            font-size: 0.68rem;
+            padding: 2px 10px;
+            border-radius: 20px;
+        }
+
+        /* ── API grid — 2 columns ── */
+        .api-section { padding: 1.5rem 2.5rem; }
+        .api-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+        }
+        @media (max-width: 700px) {
+            .api-grid { grid-template-columns: 1fr; }
+        }
+
+        .api-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+            transition: border-color 0.2s;
+        }
+        .api-card:hover { border-color: rgba(79,142,247,0.3); }
+
+        .api-card-header {
+            padding: 1.1rem 1.4rem;
+            border-bottom: 1px solid var(--border);
+            background: rgba(255,255,255,0.02);
+        }
+        .api-card-header .header-top {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            margin-bottom: 0.6rem;
+        }
+        .api-card-header .method {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 5px;
+            letter-spacing: 0.04em;
+            flex-shrink: 0;
+        }
+        .api-card-header .endpoint-title {
+            font-family: 'Syne', sans-serif;
+            font-weight: 700;
+            font-size: 1rem;
+            color: var(--text);
+        }
+        .api-card-header .endpoint-url {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0.45rem 1rem;
+        }
+        .url-method-dot {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        .dot-get    { background: #36c9a7; }
+        .dot-post   { background: #9f82ff; }
+        .dot-delete { background: #ff6363; }
+        .dot-put    { background: #ffb347; }
+        .api-card-header .url-path {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.82rem;
+            color: var(--text);
+            word-break: break-all;
+        }
+        .api-card-header .url-path .path-param { color: var(--accent); }
+
+        .api-card-body { padding: 1.4rem; }
+        .input-group { margin-bottom: 1rem; }
+        .input-group label {
+            display: block;
+            font-family: 'DM Mono', monospace;
+            font-size: 0.72rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 0.4rem;
+        }
+        .input-group input, .input-group textarea {
+            width: 100%;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0.65rem 1rem;
+            color: var(--text);
+            font-family: 'DM Mono', monospace;
+            font-size: 0.85rem;
+            outline: none;
+            transition: border-color 0.2s;
+            resize: vertical;
+        }
+        .input-group input:focus,
+        .input-group textarea:focus { border-color: var(--accent); }
+        .input-group input::placeholder,
+        .input-group textarea::placeholder { color: var(--muted); }
+
+        .send-btn {
+            width: 100%;
+            margin-top: 0.6rem;
+            padding: 0.7rem;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Syne', sans-serif;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: opacity 0.2s, transform 0.15s;
+        }
+        .send-btn:hover { opacity: 0.88; transform: translateY(-1px); }
+        .btn-get    { background: var(--get-bg);  border: 1px solid var(--get-border);  color: #36c9a7; }
+        .btn-post   { background: var(--post-bg); border: 1px solid var(--post-border); color: #9f82ff; }
+        .btn-put    { background: var(--put-bg);  border: 1px solid var(--put-border);  color: #ffb347; }
+        .btn-delete { background: var(--del-bg);  border: 1px solid var(--del-border);  color: #ff6363; }
+
+        /* ── Response ── */
+        .response-section { padding: 0 2.5rem 3rem; }
+        .response-header {
+            font-family: 'Syne', sans-serif;
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: var(--text);
+            margin-bottom: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+        .response-status {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.78rem;
+            padding: 3px 12px;
+            border-radius: 10px;
+            display: none;
+        }
+        .status-ok  { background: var(--get-bg);  border: 1px solid var(--get-border);  color: #36c9a7; }
+        .status-err { background: var(--del-bg);  border: 1px solid var(--del-border);  color: #ff6363; }
+        .response-box {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            overflow-x: auto;
+            min-height: 200px;
+        }
+        .response-empty {
+            padding: 3rem;
+            text-align: center;
+            color: var(--muted);
+            font-family: 'DM Mono', monospace;
+            font-size: 0.9rem;
+        }
+        .resp-table {
+            width: 100%;
+            border-collapse: collapse;
+            display: none;
+        }
+        .resp-table thead tr {
+            background: rgba(255,255,255,0.04);
+            border-bottom: 2px solid var(--border);
+        }
+        .resp-table th {
+            padding: 1rem 1.5rem;
+            font-family: 'DM Mono', monospace;
+            font-size: 0.78rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--accent);
+            text-align: left;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        .resp-table td {
+            padding: 1rem 1.5rem;
+            font-family: 'DM Mono', monospace;
+            font-size: 0.88rem;
+            color: var(--text);
+            border-bottom: 1px solid var(--border);
+            white-space: nowrap;
+        }
+        .resp-table tbody tr:last-child td { border-bottom: none; }
+        .resp-table tbody tr:hover { background: rgba(255,255,255,0.03); }
+    </style>
+</head>
+<body>
+
+<!-- ── PAGE HEADER ── -->
+<div class="page-header">
+    <div class="header-top-bar">
+        <a th:href="@{/}" class="back-link">← Back to Homepage</a>
+        <form th:action="@{/logout}" method="post">
+            <button type="submit" class="logout-btn">Sign Out →</button>
+        </form>
+    </div>
+    <h1>User & Role APIs</h1>
+    <p>Test all user and role management endpoints — responses appear in the table below</p>
+</div>
+
+<!-- ══════════════════════════════════════
+     USER MANAGEMENT
+═══════════════════════════════════════ -->
+<div class="section-heading">
+    User Management
+    <span class="section-badge">5 endpoints</span>
+</div>
+<div class="api-section">
+    <div class="api-grid">
+
+        <!-- POST Create User -->
+        <div class="api-card">
+            <div class="api-card-header">
+                <div class="header-top">
+                    <span class="method POST">POST</span>
+                    <span class="endpoint-title">Create User</span>
+                </div>
+                <div class="endpoint-url">
+                    <span class="url-method-dot dot-post"></span>
+                    <span class="url-path">/api/v1/users</span>
+                </div>
+            </div>
+            <div class="api-card-body">
+                <div class="input-group">
+                    <label>JSON Body</label>
+                    <textarea id="createUserBody" rows="4" placeholder='{"username":"john","email":"john@example.com","password":"pass123"}'></textarea>
+                </div>
+                <button class="send-btn btn-post" onclick="createUser()">Send POST →</button>
+            </div>
+        </div>
+
+        <!-- GET All Users -->
+        <div class="api-card">
+            <div class="api-card-header">
+                <div class="header-top">
+                    <span class="method GET">GET</span>
+                    <span class="endpoint-title">List All Users</span>
+                </div>
+                <div class="endpoint-url">
+                    <span class="url-method-dot dot-get"></span>
+                    <span class="url-path">/api/v1/users</span>
+                </div>
+            </div>
+            <div class="api-card-body">
+                <button class="send-btn btn-get" onclick="getAllUsers()">Send GET →</button>
+            </div>
+        </div>
+
+        <!-- GET User by ID -->
+        <div class="api-card">
+            <div class="api-card-header">
+                <div class="header-top">
+                    <span class="method GET">GET</span>
+                    <span class="endpoint-title">Get User by ID</span>
+                </div>
+                <div class="endpoint-url">
+                    <span class="url-method-dot dot-get"></span>
+                    <span class="url-path">/api/v1/users/<span class="path-param">{userId}</span></span>
+                </div>
+            </div>
+            <div class="api-card-body">
+                <div class="input-group">
+                    <label>User ID</label>
+                    <input id="getUserId" placeholder="e.g. 1" />
+                </div>
+                <button class="send-btn btn-get" onclick="getUserById()">Send GET →</button>
+            </div>
+        </div>
+
+        <!-- PUT Update User -->
+        <div class="api-card">
+            <div class="api-card-header">
+                <div class="header-top">
+                    <span class="method PUT">PUT</span>
+                    <span class="endpoint-title">Update User</span>
+                </div>
+                <div class="endpoint-url">
+                    <span class="url-method-dot dot-put"></span>
+                    <span class="url-path">/api/v1/users/<span class="path-param">{userId}</span></span>
+                </div>
+            </div>
+            <div class="api-card-body">
+                <div class="input-group">
+                    <label>User ID</label>
+                    <input id="updateUserId" placeholder="e.g. 1" />
+                </div>
+                <div class="input-group">
+                    <label>JSON Body</label>
+                    <textarea id="updateUserBody" rows="3" placeholder='{"username":"john_updated","email":"new@example.com"}'></textarea>
+                </div>
+                <button class="send-btn btn-put" onclick="updateUser()">Send PUT →</button>
+            </div>
+        </div>
+
+        <!-- DELETE User -->
+        <div class="api-card">
+            <div class="api-card-header">
+                <div class="header-top">
+                    <span class="method DELETE">DELETE</span>
+                    <span class="endpoint-title">Delete User</span>
+                </div>
+                <div class="endpoint-url">
+                    <span class="url-method-dot dot-delete"></span>
+                    <span class="url-path">/api/v1/users/<span class="path-param">{userId}</span></span>
+                </div>
+            </div>
+            <div class="api-card-body">
+                <div class="input-group">
+                    <label>User ID</label>
+                    <input id="deleteUserId" placeholder="e.g. 1" />
+                </div>
+                <button class="send-btn btn-delete" onclick="deleteUser()">Send DELETE →</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     ROLE MANAGEMENT
+═══════════════════════════════════════ -->
+<div class="section-heading">
+    Role Management
+    <span class="section-badge">2 endpoints</span>
+</div>
+<div class="api-section">
+    <div class="api-grid">
+
+        <!-- POST Create Role -->
+        <div class="api-card">
+            <div class="api-card-header">
+                <div class="header-top">
+                    <span class="method POST">POST</span>
+                    <span class="endpoint-title">Create Role</span>
+                </div>
+                <div class="endpoint-url">
+                    <span class="url-method-dot dot-post"></span>
+                    <span class="url-path">/api/v1/roles</span>
+                </div>
+            </div>
+            <div class="api-card-body">
+                <div class="input-group">
+                    <label>JSON Body</label>
+                    <textarea id="createRoleBody" rows="3" placeholder='{"roleName":"ADMIN"}'></textarea>
+                </div>
+                <button class="send-btn btn-post" onclick="createRole()">Send POST →</button>
+            </div>
+        </div>
+
+        <!-- GET All Roles -->
+        <div class="api-card">
+            <div class="api-card-header">
+                <div class="header-top">
+                    <span class="method GET">GET</span>
+                    <span class="endpoint-title">List All Roles</span>
+                </div>
+                <div class="endpoint-url">
+                    <span class="url-method-dot dot-get"></span>
+                    <span class="url-path">/api/v1/roles</span>
+                </div>
+            </div>
+            <div class="api-card-body">
+                <button class="send-btn btn-get" onclick="getAllRoles()">Send GET →</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     USER–ROLE MAPPING
+═══════════════════════════════════════ -->
+<div class="section-heading">
+    User–Role Mapping
+    <span class="section-badge">3 endpoints</span>
+</div>
+<div class="api-section">
+    <div class="api-grid">
+
+        <!-- POST Assign Role -->
+        <div class="api-card">
+            <div class="api-card-header">
+                <div class="header-top">
+                    <span class="method POST">POST</span>
+                    <span class="endpoint-title">Assign Role to User</span>
+                </div>
+                <div class="endpoint-url">
+                    <span class="url-method-dot dot-post"></span>
+                    <span class="url-path">/api/v1/users/<span class="path-param">{userId}</span>/roles/<span class="path-param">{roleId}</span></span>
+                </div>
+            </div>
+            <div class="api-card-body">
+                <div class="input-group">
+                    <label>User ID</label>
+                    <input id="assignUserId" placeholder="e.g. 1" />
+                </div>
+                <div class="input-group">
+                    <label>Role ID</label>
+                    <input id="assignRoleId" placeholder="e.g. 2" />
+                </div>
+                <button class="send-btn btn-post" onclick="assignRole()">Send POST →</button>
+            </div>
+        </div>
+
+        <!-- DELETE Remove Role -->
+        <div class="api-card">
+            <div class="api-card-header">
+                <div class="header-top">
+                    <span class="method DELETE">DELETE</span>
+                    <span class="endpoint-title">Remove Role from User</span>
+                </div>
+                <div class="endpoint-url">
+                    <span class="url-method-dot dot-delete"></span>
+                    <span class="url-path">/api/v1/users/<span class="path-param">{userId}</span>/roles/<span class="path-param">{roleId}</span></span>
+                </div>
+            </div>
+            <div class="api-card-body">
+                <div class="input-group">
+                    <label>User ID</label>
+                    <input id="removeUserId" placeholder="e.g. 1" />
+                </div>
+                <div class="input-group">
+                    <label>Role ID</label>
+                    <input id="removeRoleId" placeholder="e.g. 2" />
+                </div>
+                <button class="send-btn btn-delete" onclick="removeRole()">Send DELETE →</button>
+            </div>
+        </div>
+
+        <!-- GET Roles of User -->
+        <div class="api-card">
+            <div class="api-card-header">
+                <div class="header-top">
+                    <span class="method GET">GET</span>
+                    <span class="endpoint-title">Get Roles of User</span>
+                </div>
+                <div class="endpoint-url">
+                    <span class="url-method-dot dot-get"></span>
+                    <span class="url-path">/api/v1/users/<span class="path-param">{userId}</span>/roles</span>
+                </div>
+            </div>
+            <div class="api-card-body">
+                <div class="input-group">
+                    <label>User ID</label>
+                    <input id="getRolesUserId" placeholder="e.g. 1" />
+                </div>
+                <button class="send-btn btn-get" onclick="getUserRoles()">Send GET →</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+<!-- ══════════════════════════════════════
+     REPORTING
+═══════════════════════════════════════ -->
+<div class="section-heading">
+    Reporting
+    <span class="section-badge">1 endpoint</span>
+</div>
+
+<div class="api-section">
+    <div class="api-grid">
+
+        <!-- GET User Productivity Report -->
+        <div class="api-card">
+            <div class="api-card-header">
+                <div class="header-top">
+                    <span class="method GET">GET</span>
+                    <span class="endpoint-title">
+                        User Productivity Report
+                    </span>
+                </div>
+
+                <div class="endpoint-url">
+                    <span class="url-method-dot dot-get"></span>
+                    <span class="url-path">
+                        /api/v1/reports/users/productivity
+                    </span>
+                </div>
+            </div>
+
+            <div class="api-card-body">
+                <button class="send-btn btn-get"
+                        onclick="getUserProductivityReport()">
+                    Send GET →
+                </button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<script>
+    const BASE = "/api/v1";
+
+    function openResponse(data) {
+        const encoded = encodeURIComponent(JSON.stringify(data));
+        window.open('/response-view?data=' + encoded, '_blank');
+    }
+
+    function handleErr() {
+        openResponse({ error: "Request failed" });
+    }
+
+    // ── User APIs ──
+    function createUser() {
+        fetch(`${BASE}/users`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: document.getElementById("createUserBody").value
+        })
+            .then(r => r.json())
+            .then(d => openResponse(d))
+            .catch(handleErr);
+    }
+
+    function getAllUsers() {
+        fetch(`${BASE}/users`)
+            .then(r => r.json())
+            .then(d => openResponse(d))
+            .catch(handleErr);
+    }
+
+    function getUserById() {
+        const id = document.getElementById("getUserId").value;
+        fetch(`${BASE}/users/${id}`)
+            .then(r => r.json())
+            .then(d => openResponse(d))
+            .catch(handleErr);
+    }
+
+    function updateUser() {
+        const id = document.getElementById("updateUserId").value;
+        fetch(`${BASE}/users/${id}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: document.getElementById("updateUserBody").value
+        })
+            .then(r => r.json())
+            .then(d => openResponse(d))
+            .catch(handleErr);
+    }
+
+    function deleteUser() {
+        const id = document.getElementById("deleteUserId").value;
+        fetch(`${BASE}/users/${id}`, { method: "DELETE" })
+            .then(() => openResponse({ message: "User deleted", userId: id }))
+            .catch(handleErr);
+    }
+
+    // ── Role APIs ──
+    function createRole() {
+        fetch(`${BASE}/roles`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: document.getElementById("createRoleBody").value
+        })
+            .then(r => r.json())
+            .then(d => openResponse(d))
+            .catch(handleErr);
+    }
+
+    function getAllRoles() {
+        fetch(`${BASE}/roles`)
+            .then(r => r.json())
+            .then(d => openResponse(d))
+            .catch(handleErr);
+    }
+
+    // ── User-Role Mapping ──
+    function assignRole() {
+        const uid = document.getElementById("assignUserId").value;
+        const rid = document.getElementById("assignRoleId").value;
+
+        fetch(`${BASE}/users/${uid}/roles/${rid}`, { method: "POST" })
+            .then(r => r.json())
+            .then(d => openResponse(d))
+            .catch(handleErr);
+    }
+
+    function removeRole() {
+        const uid = document.getElementById("removeUserId").value;
+        const rid = document.getElementById("removeRoleId").value;
+
+        fetch(`${BASE}/users/${uid}/roles/${rid}`, { method: "DELETE" })
+            .then(() => openResponse({
+                message: "Role removed",
+                userId: uid,
+                roleId: rid
+            }))
+            .catch(handleErr);
+    }
+
+    function getUserRoles() {
+        const uid = document.getElementById("getRolesUserId").value;
+
+        fetch(`${BASE}/users/${uid}/roles`)
+            .then(r => r.json())
+            .then(d => openResponse(d))
+            .catch(handleErr);
+    }
+
+    // ── Reporting Endpoints ──
+    function getUserProductivityReport() {
+        fetch(`${BASE}/reports/users/productivity`)
+            .then(r => r.json())
+            .then(d => openResponse(d))
+            .catch(handleErr);
+    }
+</script>
+
+</body>
+</html>

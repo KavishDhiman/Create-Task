@@ -30,4 +30,8 @@ public class HomeController {
     public String responsePage() {
         return "response-view";
     }
+    @GetMapping("/access-denied")
+    public String accessDenied() {
+        return "access-denied";
+    }
 }

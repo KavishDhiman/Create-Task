@@ -329,51 +329,118 @@
 </div>
 
 <script>
-    document.getElementById('timestamp').textContent = new Date().toLocaleString();
+
+    document.getElementById('timestamp').textContent =
+        new Date().toLocaleString();
 
     function render(raw) {
-        let data;
-        try { data = JSON.parse(decodeURIComponent(raw)); }
-        catch { data = { error: 'Could not parse response data' }; }
 
-        const isError = data && data.error;
-        const pill = document.getElementById('statusPill');
-        if (isError) { pill.textContent = 'Error'; pill.className = 'status-pill err'; }
+        let response;
 
-        if (data.message) {
-    document.getElementById('successMessage').style.display = 'block';
-    document.getElementById('successMessage').textContent = data.message;
+        try {
 
-    delete data.message;
-}
+            response =
+                JSON.parse(decodeURIComponent(raw));
 
-if (!Array.isArray(data)) data = [data];
-        if (data.length === 0 || Object.keys(data[0]).length === 0) return;
+        } catch {
+
+            response = {
+                error: 'Could not parse response data'
+            };
+        }
+
+        const pill =
+            document.getElementById('statusPill');
+
+        if (response.error) {
+
+            pill.textContent = 'Error';
+            pill.className = 'status-pill err';
+        }
+
+        let data = response;
+
+        if (response.message) {
+
+            document.getElementById('successMessage').style.display = 'block';
+
+            document.getElementById('successMessage').textContent =
+                response.message;
+        }
+
+        if (response.data) {
+
+            data = response.data;
+        }
+
+        if (!Array.isArray(data)) {
+
+            data = [data];
+        }
+
+        if (
+            data.length === 0 ||
+            Object.keys(data[0]).length === 0
+        ) {
+            return;
+        }
 
         document.getElementById('emptyState').style.display = 'none';
-        const table = document.getElementById('dataTable');
+
+        const table =
+            document.getElementById('dataTable');
+
         table.style.display = 'table';
 
         document.getElementById('rowCount').textContent =
-            data.length === 1 ? '1 record' : data.length + ' records';
+            data.length === 1
+                ? '1 record'
+                : data.length + ' records';
 
-        const keys = Object.keys(data[0]);
+        const keys =
+            Object.keys(data[0]);
+
         document.getElementById('thead').innerHTML =
-            '<tr>' + keys.map(k => `<th>${k}</th>`).join('') + '</tr>';
+            '<tr>' +
+            keys.map(k => `<th>${k}</th>`).join('') +
+            '</tr>';
 
-        document.getElementById('tbody').innerHTML = data.map(row =>
-            '<tr>' + keys.map(k => `<td>${row[k] ?? '—'}</td>`).join('') + '</tr>'
-        ).join('');
+        document.getElementById('tbody').innerHTML =
+            data.map(row =>
+
+                '<tr>' +
+
+                keys.map(k =>
+
+                    `<td>${row[k] ?? '—'}</td>`
+
+                ).join('') +
+
+                '</tr>'
+
+            ).join('');
     }
 
-    const params = new URLSearchParams(window.location.search);
-    const raw = params.get('data');
-    const module = params.get('module');
+    const params =
+        new URLSearchParams(window.location.search);
+
+    const raw =
+        params.get('data');
+
+    const module =
+        params.get('module');
+
     if (module) {
-    document.getElementById('moduleTitle').textContent = module;
+
+        document.getElementById('moduleTitle').textContent =
+            module;
     }
 
-if (raw) render(raw);
+    if (raw) {
+
+        render(raw);
+    }
+
 </script>
 </body>
 </html>

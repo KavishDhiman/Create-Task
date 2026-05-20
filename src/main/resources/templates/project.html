@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Project APIs</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+
+    <link
+            href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap"
+            rel="stylesheet"
+    />
+
+    <style>
+
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+        }
+
+        :root{
+
+            --bg:#0b0f1a;
+            --card:#141b2d;
+            --surface:#101726;
+            --border:rgba(255,255,255,0.08);
+
+            --text:#e8ecf4;
+            --muted:#6d7a99;
+
+            --get-bg:rgba(54,201,167,0.10);
+            --get-border:rgba(54,201,167,0.28);
+
+            --post-bg:rgba(124,92,252,0.10);
+            --post-border:rgba(124,92,252,0.28);
+
+            --put-bg:rgba(255,179,71,0.10);
+            --put-border:rgba(255,179,71,0.28);
+
+            --delete-bg:rgba(255,99,99,0.10);
+            --delete-border:rgba(255,99,99,0.28);
+        }
+
+        body{
+
+            background:var(--bg);
+            color:var(--text);
+
+            font-family:'DM Sans',sans-serif;
+
+            min-height:100vh;
+
+            padding:40px;
+        }
+
+        h1{
+
+            font-family:'Syne',sans-serif;
+
+            font-size:3rem;
+
+            margin-bottom:10px;
+        }
+
+        .subtitle{
+
+            color:var(--muted);
+
+            margin-bottom:40px;
+        }
+
+        .grid{
+
+            display:grid;
+
+            grid-template-columns:repeat(auto-fit,minmax(350px,1fr));
+
+            gap:25px;
+        }
+
+        .card{
+
+            background:var(--card);
+
+            border:1px solid var(--border);
+
+            border-radius:18px;
+
+            overflow:hidden;
+        }
+
+        .card-header{
+
+            padding:20px;
+
+            border-bottom:1px solid var(--border);
+        }
+
+        .method{
+
+            display:inline-block;
+
+            padding:5px 12px;
+
+            border-radius:8px;
+
+            font-family:'DM Mono',monospace;
+
+            font-size:0.75rem;
+
+            margin-bottom:12px;
+        }
+
+        .POST{
+
+            background:var(--post-bg);
+
+            border:1px solid var(--post-border);
+
+            color:#9f82ff;
+        }
+
+        .GET{
+
+            background:var(--get-bg);
+
+            border:1px solid var(--get-border);
+
+            color:#36c9a7;
+        }
+
+        .PUT{
+
+            background:var(--put-bg);
+
+            border:1px solid var(--put-border);
+
+            color:#ffb347;
+        }
+
+        .DELETE{
+
+            background:var(--delete-bg);
+
+            border:1px solid var(--delete-border);
+
+            color:#ff6363;
+        }
+
+        .title{
+
+            font-size:1.2rem;
+
+            font-weight:700;
+
+            margin-bottom:10px;
+        }
+
+        .path{
+
+            background:var(--surface);
+
+            border:1px solid var(--border);
+
+            border-radius:10px;
+
+            padding:12px;
+
+            font-family:'DM Mono',monospace;
+
+            font-size:0.82rem;
+        }
+
+        .body{
+
+            padding:20px;
+        }
+
+        input{
+
+            width:100%;
+
+            padding:14px;
+
+            background:var(--surface);
+
+            border:1px solid var(--border);
+
+            border-radius:10px;
+
+            color:white;
+
+            margin-bottom:15px;
+
+            outline:none;
+        }
+
+        button{
+
+            width:100%;
+
+            padding:14px;
+
+            border:none;
+
+            border-radius:10px;
+
+            cursor:pointer;
+
+            font-family:'Syne',sans-serif;
+
+            font-weight:700;
+
+            font-size:0.95rem;
+        }
+
+        .btn-post{
+
+            background:var(--post-bg);
+
+            border:1px solid var(--post-border);
+
+            color:#9f82ff;
+        }
+
+        .btn-get{
+
+            background:var(--get-bg);
+
+            border:1px solid var(--get-border);
+
+            color:#36c9a7;
+        }
+
+        .btn-put{
+
+            background:var(--put-bg);
+
+            border:1px solid var(--put-border);
+
+            color:#ffb347;
+        }
+
+        .btn-delete{
+
+            background:var(--delete-bg);
+
+            border:1px solid var(--delete-border);
+
+            color:#ff6363;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<h1>Project APIs</h1>
+
+<p class="subtitle">
+    Test all project management endpoints
+</p>
+
+<div class="grid">
+
+    <!-- CREATE PROJECT -->
+
+    <div class="card">
+
+        <div class="card-header">
+
+            <div class="method POST">POST</div>
+
+            <div class="title">
+                Create Project
+            </div>
+
+            <div class="path">
+                /api/v1/projects
+            </div>
+
+        </div>
+
+        <div class="body">
+
+            <input id="createProjectID" placeholder="Project ID">
+
+            <input id="createProjectName" placeholder="Project Name">
+
+            <input id="createDescription" placeholder="Description">
+
+            <input id="createStartDate" placeholder="Start Date">
+
+            <input id="createEndDate" placeholder="End Date">
+
+            <input id="createUserID" placeholder="User ID">
+
+            <button
+                    type="button"
+                    class="btn-post"
+                    onclick="createProject()">
+                Send POST →
+            </button>
+
+        </div>
+
+    </div>
+
+    <!-- GET ALL PROJECTS -->
+
+    <div class="card">
+
+        <div class="card-header">
+
+            <div class="method GET">GET</div>
+
+            <div class="title">
+                Get All Projects
+            </div>
+
+            <div class="path">
+                /api/v1/projects
+            </div>
+
+        </div>
+
+        <div class="body">
+
+            <button
+                    type="button"
+                    class="btn-get"
+                    onclick="getProjects()">
+                Send GET →
+            </button>
+
+        </div>
+
+    </div>
+
+    <!-- GET PROJECT BY ID -->
+
+    <div class="card">
+
+        <div class="card-header">
+
+            <div class="method GET">GET</div>
+
+            <div class="title">
+                Get Project By ID
+            </div>
+
+            <div class="path">
+                /api/v1/projects/{projectId}
+            </div>
+
+        </div>
+
+        <div class="body">
+
+            <input id="getProjectId" placeholder="Project ID">
+
+            <button
+                    type="button"
+                    class="btn-get"
+                    onclick="getProjectById()">
+                Send GET →
+            </button>
+
+        </div>
+
+    </div>
+
+    <!-- UPDATE PROJECT -->
+
+    <div class="card">
+
+        <div class="card-header">
+
+            <div class="method PUT">PUT</div>
+
+            <div class="title">
+                Update Project
+            </div>
+
+            <div class="path">
+                /api/v1/projects/{projectId}
+            </div>
+
+        </div>
+
+        <div class="body">
+
+            <input id="updateProjectId" placeholder="Project ID">
+
+            <input id="updateProjectName" placeholder="Updated Project Name">
+
+            <input id="updateDescription" placeholder="Updated Description">
+
+            <input id="updateStartDate" placeholder="Updated Start Date">
+
+            <input id="updateEndDate" placeholder="Updated End Date">
+
+            <input id="updateUserID" placeholder="Updated User ID">
+
+            <button
+                    type="button"
+                    class="btn-put"
+                    onclick="updateProject()">
+                Send PUT →
+            </button>
+
+        </div>
+
+    </div>
+
+    <!-- DELETE PROJECT -->
+
+    <div class="card">
+
+        <div class="card-header">
+
+            <div class="method DELETE">DELETE</div>
+
+            <div class="title">
+                Delete Project
+            </div>
+
+            <div class="path">
+                /api/v1/projects/{projectId}
+            </div>
+
+        </div>
+
+        <div class="body">
+
+            <input id="deleteProjectId" placeholder="Project ID">
+
+            <button
+                    type="button"
+                    class="btn-delete"
+                    onclick="deleteProject()">
+                Send DELETE →
+            </button>
+
+        </div>
+
+    </div>
+
+    <!-- GET USER PROJECTS -->
+
+    <div class="card">
+
+        <div class="card-header">
+
+            <div class="method GET">GET</div>
+
+            <div class="title">
+                Get User Projects
+            </div>
+
+            <div class="path">
+                /api/v1/users/{userId}/projects
+            </div>
+
+        </div>
+
+        <div class="body">
+
+            <input id="getUserProjectId" placeholder="User ID">
+
+            <button
+                    type="button"
+                    class="btn-get"
+                    onclick="getUserProjects()">
+                Send GET →
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+    const BASE = "/api/v1";
+
+    function openResponse(data){
+
+        const encoded =
+            encodeURIComponent(
+                JSON.stringify(data)
+            );
+
+        window.open(
+            '/response-view?data='
+            + encoded
+            + '&module='
+            + encodeURIComponent('Project Service'),
+            '_blank'
+        );
+    }
+
+    async function createProject(){
+
+        try{
+
+            const body = {
+
+                projectID:
+                    parseInt(document.getElementById("createProjectID").value),
+
+                projectName:
+                    document.getElementById("createProjectName").value,
+
+                description:
+                    document.getElementById("createDescription").value,
+
+                startDate:
+                    document.getElementById("createStartDate").value,
+
+                endDate:
+                    document.getElementById("createEndDate").value,
+
+                userID:
+                    parseInt(document.getElementById("createUserID").value)
+            };
+
+            const response = await fetch(`${BASE}/projects`,{
+
+                method:"POST",
+
+                headers:{
+                    "Content-Type":"application/json"
+                },
+
+                body:JSON.stringify(body)
+            });
+
+            const data = await response.json();
+
+            openResponse({
+                message:"Project created successfully",
+                data:data
+            });
+
+        }catch(error){
+
+            openResponse({
+                error:"Failed to create project"
+            });
+        }
+    }
+
+    async function getProjects(){
+
+        try{
+
+            const response =
+                await fetch(`${BASE}/projects`);
+
+            const data =
+                await response.json();
+
+            openResponse({
+                message:"Projects fetched successfully",
+                data:data
+            });
+
+        }catch(error){
+
+            openResponse({
+                error:"Failed to fetch projects"
+            });
+        }
+    }
+
+    async function getProjectById(){
+
+        try{
+
+            const id =
+                document.getElementById("getProjectId").value;
+
+            const response =
+                await fetch(`${BASE}/projects/${id}`);
+
+            const data =
+                await response.json();
+
+            openResponse({
+                message:"Project fetched successfully",
+                data:data
+            });
+
+        }catch(error){
+
+            openResponse({
+                error:"Failed to fetch project"
+            });
+        }
+    }
+
+    async function updateProject(){
+
+        try{
+
+            const id =
+                document.getElementById("updateProjectId").value;
+
+            const body = {
+
+                projectID: parseInt(id),
+
+                projectName:
+                    document.getElementById("updateProjectName").value,
+
+                description:
+                    document.getElementById("updateDescription").value,
+
+                startDate:
+                    document.getElementById("updateStartDate").value,
+
+                endDate:
+                    document.getElementById("updateEndDate").value,
+
+                userID:
+                    parseInt(document.getElementById("updateUserID").value)
+            };
+
+            const response = await fetch(`${BASE}/projects/${id}`,{
+
+                method:"PUT",
+
+                headers:{
+                    "Content-Type":"application/json"
+                },
+
+                body:JSON.stringify(body)
+            });
+
+            const data = await response.json();
+
+            openResponse({
+                message:"Project updated successfully",
+                data:data
+            });
+
+        }catch(error){
+
+            openResponse({
+                error:"Failed to update project"
+            });
+        }
+    }
+
+    async function deleteProject(){
+
+        try{
+
+            const id =
+                document.getElementById("deleteProjectId").value;
+
+            const response = await fetch(`${BASE}/projects/${id}`,{
+                method:"DELETE"
+            });
+
+            const data = await response.text();
+
+            openResponse({
+                message:data
+            });
+
+        }catch(error){
+
+            openResponse({
+                error:"Failed to delete project"
+            });
+        }
+    }
+
+    async function getUserProjects(){
+
+        try{
+
+            const userId =
+                document.getElementById("getUserProjectId").value;
+
+            const response =
+                await fetch(`${BASE}/users/${userId}/projects`);
+
+            const data =
+                await response.json();
+
+            openResponse({
+                message:"User projects fetched successfully",
+                data:data
+            });
+
+        }catch(error){
+
+            openResponse({
+                error:"Failed to fetch user projects"
+            });
+        }
+    }
+
+</script>
+
+</body>
+</html>

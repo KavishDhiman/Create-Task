@@ -16,7 +16,6 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    // =========================================
     // Meenakshi Credentials
     // =========================================
 
@@ -98,15 +97,24 @@ public class SecurityConfig {
                                 "/api/v1/users/*/projects"
                         ).hasRole("PROJECT")
 
-                        // =========================================
-                        // Users & Roles Module
-                        // =========================================
+                        // PROJECT USER ROUTE MUST COME BEFORE /api/v1/users/**
+                        .requestMatchers(
+                                "/api/v1/users/*/projects"
+                        ).hasRole("PROJECT")
 
+                        //NOTIFICATION USER ROUTE MUST COME BEFORE /api/v1/users/**
+                        .requestMatchers(
+                                "/api/v1/users/*/notifications"
+                        ).hasRole("NOTIFICATION")
+
+                        // Users & Roles Module
                         .requestMatchers(
                                 "/users-ui/**",
                                 "/comments-ui/**",
+                                "/reports-ui/**",
                                 "/api/v1/users/**",
-                                "/api/v1/roles/**"
+                                "/api/v1/roles/**",
+                                "/api/v1/reports/**"
                         ).hasRole("USER_MANAGEMENT")
 
                         // =========================================
@@ -115,10 +123,10 @@ public class SecurityConfig {
 
                         .requestMatchers(
                                 "/projects-ui/**",
-                                "/reports-ui/**",
-                                "/api/v1/projects/**",
-                                "/api/v1/reports/**"
+                                "/api/v1/projects/**"
                         ).hasRole("PROJECT")
+
+
 
                         // =========================================
                         // Everything Else

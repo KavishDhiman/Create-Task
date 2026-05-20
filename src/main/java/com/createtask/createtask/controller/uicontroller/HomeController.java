@@ -1,4 +1,4 @@
-package com.createtask.createtask.controller;
+package com.createtask.createtask.controller.uicontroller;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;

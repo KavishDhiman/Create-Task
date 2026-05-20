@@ -289,7 +289,7 @@
 
     <!-- Hero -->
     <div class="hero">
-        <div class="hero-eyebrow">Notification Service</div>
+        <div class="hero-eyebrow" id="moduleTitle">API Service</div>
         <h1>Response</h1>
         <div class="hero-meta">
             <span class="status-pill ok" id="statusPill">200 OK</span>
@@ -298,6 +298,22 @@
     </div>
 
     <!-- Table -->
+    <div id="successMessage"
+         style="
+        display:none;
+        width:100%;
+        max-width:1100px;
+        margin-bottom:1rem;
+        padding:1rem 1.4rem;
+        border-radius:14px;
+        background: rgba(54,201,167,0.08);
+        border:1px solid rgba(54,201,167,0.25);
+        color:#36c9a7;
+        font-family:'DM Mono', monospace;
+        font-size:0.9rem;
+">
+    </div>
+
     <div class="table-wrapper" id="tableWrapper">
         <div class="empty-state" id="emptyState">
             <div class="icon">◌</div>
@@ -324,7 +340,14 @@
         const pill = document.getElementById('statusPill');
         if (isError) { pill.textContent = 'Error'; pill.className = 'status-pill err'; }
 
-        if (!Array.isArray(data)) data = [data];
+        if (data.message) {
+    document.getElementById('successMessage').style.display = 'block';
+    document.getElementById('successMessage').textContent = data.message;
+
+    delete data.message;
+}
+
+if (!Array.isArray(data)) data = [data];
         if (data.length === 0 || Object.keys(data[0]).length === 0) return;
 
         document.getElementById('emptyState').style.display = 'none';
@@ -345,7 +368,12 @@
 
     const params = new URLSearchParams(window.location.search);
     const raw = params.get('data');
-    if (raw) render(raw);
+    const module = params.get('module');
+    if (module) {
+    document.getElementById('moduleTitle').textContent = module;
+    }
+
+if (raw) render(raw);
 </script>
 </body>
 </html>

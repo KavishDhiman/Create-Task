@@ -16,12 +16,20 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    // ── Loaded from Vault ──
+    // =========================================
+    // Meenakshi Credentials
+    // =========================================
+
     @Value("${meenakshi.username}")
     private String meenakshiUsername;
 
     @Value("${meenakshi.password}")
     private String meenakshiPassword;
+
+
+    // =========================================
+    // Kaviya Credentials
+    // =========================================
 
     @Value("${kaviya.username}")
     private String kaviyaUsername;
@@ -29,80 +37,157 @@ public class SecurityConfig {
     @Value("${kaviya.password}")
     private String kaviyaPassword;
 
+
+    // =========================================
+    // Kavish Credentials
+    // =========================================
+
+    @Value("${kavish.username}")
+    private String kavishUsername;
+
+    @Value("${kavish.password}")
+    private String kavishPassword;
+
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+
         http
+
                 .csrf(csrf -> csrf.disable())
 
                 .authorizeHttpRequests(auth -> auth
 
-                        // ── Public — no login needed ──
+                        // =========================================
+                        // Public Routes
+                        // =========================================
+
                         .requestMatchers(
                                 "/",
                                 "/login",
                                 "/css/**",
                                 "/js/**",
-                                "/images/**",
+                                "/images/**"
+                        ).permitAll()
+
+                        // =========================================
+                        // Swagger Routes
+                        // =========================================
+
+                        .requestMatchers(
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
                                 "/v3/api-docs/**"
-                        ).permitAll()
+                        ).authenticated()
 
-                        // ── Kaviya: Users & Roles only ──
-                        .requestMatchers(
-                                "/users-ui",
-                                "/users-ui/**",
-                                "/api/v1/users/**",
-                                "/api/v1/roles/**"
-                        ).hasRole("USERS")
+                        // =========================================
+                        // Notification Module
+                        // =========================================
 
-                        // ── Meenakshi: Notifications only ──
                         .requestMatchers(
-                                "/notifications-ui",
                                 "/notifications-ui/**",
                                 "/api/v1/notifications/**"
                         ).hasRole("NOTIFICATION")
 
-                        // ── Everything else needs login ──
+                        // =========================================
+                        // PROJECT USER ROUTE
+                        // MUST COME BEFORE /api/v1/users/**
+                        // =========================================
+
+                        .requestMatchers(
+                                "/api/v1/users/*/projects"
+                        ).hasRole("PROJECT")
+
+                        // =========================================
+                        // Users & Roles Module
+                        // =========================================
+
+                        .requestMatchers(
+                                "/users-ui/**",
+                                "/comments-ui/**",
+                                "/api/v1/users/**",
+                                "/api/v1/roles/**"
+                        ).hasRole("USER_MANAGEMENT")
+
+                        // =========================================
+                        // Projects Module
+                        // =========================================
+
+                        .requestMatchers(
+                                "/projects-ui/**",
+                                "/reports-ui/**",
+                                "/api/v1/projects/**",
+                                "/api/v1/reports/**"
+                        ).hasRole("PROJECT")
+
+                        // =========================================
+                        // Everything Else
+                        // =========================================
+
                         .anyRequest().authenticated()
                 )
 
+                // =========================================
+                // Login Configuration
+                // =========================================
+
                 .formLogin(form -> form
                         .loginPage("/login")
-                        .defaultSuccessUrl("/", false)  // ← false means go to where they came from
+                        .defaultSuccessUrl("/", false)
                         .permitAll()
                 )
 
+                // =========================================
+                // Logout Configuration
+                // =========================================
+
                 .logout(logout -> logout
                         .logoutUrl("/logout")
-                        .logoutSuccessUrl("/")
+                        .logoutSuccessUrl("/login?logout")
                         .permitAll()
                 )
+
+                // =========================================
+                // Access Denied Page
+                // =========================================
+
                 .exceptionHandling(ex -> ex
                         .accessDeniedPage("/access-denied")
                 );
 
         return http.build();
-
     }
 
+
+    // =========================================
+    // In-Memory Users
+    // =========================================
+
     @Bean
-    public UserDetailsService userDetailsService(PasswordEncoder passwordEncoder) {
+    public UserDetailsService userDetailsService(PasswordEncoder encoder) {
+
         return new InMemoryUserDetailsManager(
 
-                // Meenakshi — can only access /notifications-ui
+                // Meenakshi
                 User.withUsername(meenakshiUsername)
-                        .password(passwordEncoder.encode(meenakshiPassword))
+                        .password(encoder.encode(meenakshiPassword))
                         .roles("NOTIFICATION")
                         .build(),
 
-                // Kaviya — can only access /users-ui
+                // Kaviya
                 User.withUsername(kaviyaUsername)
-                        .password(passwordEncoder.encode(kaviyaPassword))
-                        .roles("USERS")
+                        .password(encoder.encode(kaviyaPassword))
+                        .roles("USER_MANAGEMENT")
+                        .build(),
+
+                // Kavish
+                User.withUsername(kavishUsername)
+                        .password(encoder.encode(kavishPassword))
+                        .roles("PROJECT")
                         .build()
         );
     }
+
 
     @Bean
     public PasswordEncoder passwordEncoder() {

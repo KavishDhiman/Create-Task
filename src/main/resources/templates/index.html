@@ -423,50 +423,143 @@
     </div>
 
     <!-- ── KAVISH ── -->
+    <!-- ── KAVISH ── -->
     <div id="panel-kavish" style="display:none">
+
         <div class="endpoints-header">
             <span class="who">Kavish D</span> — Project Management
             <span class="count">7 endpoints</span>
         </div>
+
         <div class="group-grid">
+
+            <!-- PROJECTS -->
             <div class="endpoint-group">
-                <div class="group-label">Projects</div>
-                <div class="endpoint-row">
-                    <div class="endpoint-main"><span class="method POST">POST</span><span class="path">/api/v1/projects</span></div>
-                    <div class="endpoint-desc">Create a new project</div>
+
+                <div class="group-label">
+                    Projects
                 </div>
+
                 <div class="endpoint-row">
-                    <div class="endpoint-main"><span class="method GET">GET</span><span class="path">/api/v1/projects/<span class="path-param">{projectId}</span></span></div>
-                    <div class="endpoint-desc">Get details of a specific project</div>
+                    <div class="endpoint-main">
+                        <span class="method POST">POST</span>
+
+                        <a th:href="@{/projects-ui}" class="path">
+                            /api/v1/projects
+                        </a>
+                    </div>
+
+                    <div class="endpoint-desc">
+                        Create a new project
+                    </div>
                 </div>
+
                 <div class="endpoint-row">
-                    <div class="endpoint-main"><span class="method GET">GET</span><span class="path">/api/v1/projects</span></div>
-                    <div class="endpoint-desc">List all projects</div>
+                    <div class="endpoint-main">
+                        <span class="method GET">GET</span>
+
+                        <a th:href="@{/projects-ui}" class="path">
+                            /api/v1/projects/<span class="path-param">{projectId}</span>
+                        </a>
+                    </div>
+
+                    <div class="endpoint-desc">
+                        Get details of a specific project
+                    </div>
                 </div>
+
                 <div class="endpoint-row">
-                    <div class="endpoint-main"><span class="method PUT">PUT</span><span class="path">/api/v1/projects/<span class="path-param">{projectId}</span></span></div>
-                    <div class="endpoint-desc">Update project details</div>
+                    <div class="endpoint-main">
+                        <span class="method GET">GET</span>
+
+                        <a th:href="@{/projects-ui}" class="path">
+                            /api/v1/projects
+                        </a>
+                    </div>
+
+                    <div class="endpoint-desc">
+                        List all projects
+                    </div>
                 </div>
+
                 <div class="endpoint-row">
-                    <div class="endpoint-main"><span class="method DELETE">DELETE</span><span class="path">/api/v1/projects/<span class="path-param">{projectId}</span></span></div>
-                    <div class="endpoint-desc">Close or delete a project</div>
+                    <div class="endpoint-main">
+                        <span class="method PUT">PUT</span>
+
+                        <a th:href="@{/projects-ui}" class="path">
+                            /api/v1/projects/<span class="path-param">{projectId}</span>
+                        </a>
+                    </div>
+
+                    <div class="endpoint-desc">
+                        Update project details
+                    </div>
                 </div>
+
+                <div class="endpoint-row">
+                    <div class="endpoint-main">
+                        <span class="method DELETE">DELETE</span>
+
+                        <a th:href="@{/projects-ui}" class="path">
+                            /api/v1/projects/<span class="path-param">{projectId}</span>
+                        </a>
+                    </div>
+
+                    <div class="endpoint-desc">
+                        Delete a project
+                    </div>
+                </div>
+
             </div>
+
+            <!-- OWNERSHIP -->
             <div class="endpoint-group">
-                <div class="group-label">Project Ownership</div>
-                <div class="endpoint-row">
-                    <div class="endpoint-main"><span class="method GET">GET</span><span class="path">/api/v1/users/<span class="path-param">{userId}</span>/projects</span></div>
-                    <div class="endpoint-desc">Get all projects owned by a user</div>
+
+                <div class="group-label">
+                    Project Ownership
                 </div>
+
+                <div class="endpoint-row">
+                    <div class="endpoint-main">
+                        <span class="method GET">GET</span>
+
+                        <a th:href="@{/projects-ui}" class="path">
+                            /api/v1/users/<span class="path-param">{userId}</span>/projects
+                        </a>
+                    </div>
+
+                    <div class="endpoint-desc">
+                        Get projects owned by a user
+                    </div>
+                </div>
+
             </div>
+
+            <!-- REPORTING -->
             <div class="endpoint-group">
-                <div class="group-label">Reporting</div>
-                <div class="endpoint-row">
-                    <div class="endpoint-main"><span class="method GET">GET</span><span class="path">/api/v1/reports/projects/summary</span></div>
-                    <div class="endpoint-desc">Project summary dashboard — completion %, tasks by status per project</div>
+
+                <div class="group-label">
+                    Reporting
                 </div>
+
+                <div class="endpoint-row">
+                    <div class="endpoint-main">
+                        <span class="method GET">GET</span>
+
+                        <a th:href="@{/projects-ui}" class="path">
+                            /api/v1/reports/projects/summary
+                        </a>
+                    </div>
+
+                    <div class="endpoint-desc">
+                        Project completion dashboard
+                    </div>
+                </div>
+
             </div>
+
         </div>
+
     </div>
 
     <!-- ── JAYANTHI ── -->

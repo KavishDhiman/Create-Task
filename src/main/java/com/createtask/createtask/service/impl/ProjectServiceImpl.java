@@ -32,14 +32,24 @@ public class ProjectServiceImpl implements ProjectService {
 
     // Converts a Project entity into a response DTO — keeps entity internals away from the client.
     private ProjectResponseDTO toResponseDTO(Project project) {
+
+        Integer userId = null;
+        String username = null;
+
+        if (project.getUser() != null) {
+
+            userId = project.getUser().getUserID();
+            username = project.getUser().getUsername();
+        }
+
         return new ProjectResponseDTO(
                 project.getProjectID(),
                 project.getProjectName(),
                 project.getDescription(),
                 project.getStartDate(),
                 project.getEndDate(),
-                project.getUser().getUserID(),
-                project.getUser().getUsername()
+                userId,
+                username
         );
     }
 

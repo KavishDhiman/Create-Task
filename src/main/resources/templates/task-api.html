@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tasks &amp; Categories — Task Management</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" th:href="@{/css/style.css}" />
+  <style>
+    /* ── Page header — same as users.html ── */
+    .page-header {
+        padding: 2rem 2.5rem 1.5rem;
+        border-bottom: 1px solid var(--border);
+        background: linear-gradient(180deg, #0e1220 0%, var(--bg) 100%);
+        position: relative;
+    }
+    .page-header::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(ellipse 60% 80% at 50% -10%, rgba(79,142,247,0.10), transparent);
+        pointer-events: none;
+    }
+    .header-top-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+    .page-header .back-link {
+        color: var(--muted);
+        font-family: 'DM Mono', monospace;
+        font-size: 0.82rem;
+        text-decoration: none;
+    }
+    .page-header .back-link:hover { color: var(--accent); }
+    .page-header h1 {
+        font-family: 'Syne', sans-serif;
+        font-weight: 800;
+        font-size: clamp(1.8rem, 4vw, 2.6rem);
+        letter-spacing: -0.02em;
+        background: linear-gradient(135deg, #e8ecf4 30%, #4f8ef7);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 0.4rem;
+    }
+    .page-header p { color: var(--muted); font-size: 0.95rem; }
+
+    /* ── Section heading — same as users.html ── */
+    .section-heading {
+        font-family: 'Syne', sans-serif;
+        font-weight: 700;
+        font-size: 1.1rem;
+        color: var(--text);
+        padding: 2rem 2.5rem 1rem;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+    }
+    .section-heading .section-badge {
+        background: var(--tag-bg);
+        border: 1px solid var(--tag-border);
+        color: var(--accent);
+        font-family: 'DM Mono', monospace;
+        font-size: 0.68rem;
+        padding: 2px 10px;
+        border-radius: 20px;
+    }
+
+    /* ── API grid — 2 columns, same as users.html ── */
+    .api-section { padding: 1.5rem 2.5rem; }
+    .api-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+    }
+    @media (max-width: 700px) {
+        .api-grid { grid-template-columns: 1fr; }
+        .api-section { padding: 1rem; }
+    }
+
+    /* ── API card — same as users.html ── */
+    .api-card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        overflow: hidden;
+        transition: border-color 0.2s;
+    }
+    .api-card:hover { border-color: rgba(79,142,247,0.3); }
+
+    .api-card-header {
+        padding: 1.1rem 1.4rem;
+        border-bottom: 1px solid var(--border);
+        background: rgba(255,255,255,0.02);
+    }
+    .api-card-header .header-top {
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+        margin-bottom: 0.6rem;
+    }
+    .api-card-header .method {
+        font-family: 'DM Mono', monospace;
+        font-size: 0.75rem;
+        font-weight: 600;
+        padding: 4px 12px;
+        border-radius: 5px;
+        letter-spacing: 0.04em;
+        flex-shrink: 0;
+    }
+    .api-card-header .endpoint-title {
+        font-family: 'Syne', sans-serif;
+        font-weight: 700;
+        font-size: 1rem;
+        color: var(--text);
+    }
+    .api-card-header .endpoint-url {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 0.45rem 1rem;
+    }
+    .url-method-dot {
+        width: 8px; height: 8px;
+        border-radius: 50%; flex-shrink: 0;
+    }
+    .dot-get    { background: #36c9a7; }
+    .dot-post   { background: #9f82ff; }
+    .dot-delete { background: #ff6363; }
+    .dot-put    { background: #ffb347; }
+    .api-card-header .url-path {
+        font-family: 'DM Mono', monospace;
+        font-size: 0.82rem;
+        color: var(--text);
+        word-break: break-all;
+    }
+    .api-card-header .url-path .path-param { color: var(--accent); }
+
+    /* ── Card body — same as users.html ── */
+    .api-card-body { padding: 1.4rem; }
+    .input-group { margin-bottom: 1rem; }
+    .input-group label {
+        display: block;
+        font-family: 'DM Mono', monospace;
+        font-size: 0.72rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--muted);
+        margin-bottom: 0.4rem;
+    }
+    .input-group input, .input-group select {
+        width: 100%;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 0.65rem 1rem;
+        color: var(--text);
+        font-family: 'DM Mono', monospace;
+        font-size: 0.85rem;
+        outline: none;
+        transition: border-color 0.2s;
+    }
+    .input-group input:focus,
+    .input-group select:focus { border-color: var(--accent); }
+    .input-group input::placeholder { color: var(--muted); }
+    .input-group select option { background: var(--card); color: var(--text); }
+
+    /* ── Send buttons — same as users.html ── */
+    .send-btn {
+        width: 100%;
+        margin-top: 0.6rem;
+        padding: 0.7rem;
+        border: none;
+        border-radius: 8px;
+        font-family: 'Syne', sans-serif;
+        font-weight: 700;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: opacity 0.2s, transform 0.15s;
+    }
+    .send-btn:hover { opacity: 0.88; transform: translateY(-1px); }
+    .btn-get    { background: var(--get-bg);  border: 1px solid var(--get-border);  color: #36c9a7; }
+    .btn-post   { background: var(--post-bg); border: 1px solid var(--post-border); color: #9f82ff; }
+    .btn-put    { background: var(--put-bg);  border: 1px solid var(--put-border);  color: #ffb347; }
+    .btn-delete { background: var(--del-bg);  border: 1px solid var(--del-border);  color: #ff6363; }
+  </style>
+</head>
+<body>
+
+<!-- ── PAGE HEADER ── -->
+<div class="page-header">
+  <div class="header-top-bar">
+    <a th:href="@{/}" class="back-link">← Back to Homepage</a>
+    <form th:action="@{/logout}" method="post">
+      <button type="submit" class="logout-btn">Sign Out →</button>
+    </form>
+  </div>
+  <h1>Tasks &amp; Categories APIs</h1>
+  <p>Test all task and category endpoints</p>
+</div>
+
+<!-- ── TASK MANAGEMENT ── -->
+<div class="section-heading">
+  Task Management
+  <span class="section-badge">5 endpoints</span>
+</div>
+<div class="api-section">
+  <div class="api-grid">
+
+    <div class="api-card">
+      <div class="api-card-header">
+        <div class="header-top">
+          <span class="method POST">POST</span>
+          <span class="endpoint-title">Create Task</span>
+        </div>
+        <div class="endpoint-url">
+          <span class="url-method-dot dot-post"></span>
+          <span class="url-path">/api/v1/tasks</span>
+        </div>
+      </div>
+      <div class="api-card-body">
+        <div class="input-group">
+          <label>Task ID</label>
+          <input id="createTaskId" placeholder="e.g. 11" />
+        </div>
+        <div class="input-group">
+          <label>Task Name</label>
+          <input id="createTaskName" placeholder="e.g. Design Login Page" />
+        </div>
+        <div class="input-group">
+          <label>Description</label>
+          <input id="createTaskDesc" placeholder="e.g. Create UI for login" />
+        </div>
+        <div class="input-group">
+          <label>Due Date (YYYY-MM-DD)</label>
+          <input id="createTaskDue" placeholder="e.g. 2022-06-30" />
+        </div>
+        <div class="input-group">
+          <label>Priority</label>
+          <select id="createTaskPriority">
+            <option value="">-- Select Priority --</option>
+            <option value="High">High</option>
+            <option value="Medium">Medium</option>
+            <option value="Low">Low</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <label>Status</label>
+          <select id="createTaskStatus">
+            <option value="">-- Select Status --</option>
+            <option value="Pending">Pending</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Completed">Completed</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <label>Project ID</label>
+          <input id="createTaskProjectId" placeholder="e.g. 1" />
+        </div>
+        <div class="input-group">
+          <label>User ID</label>
+          <input id="createTaskUserId" placeholder="e.g. 1" />
+        </div>
+        <button class="send-btn btn-post" onclick="createTask()">Send POST →</button>
+      </div>
+    </div>
+
+    <div class="api-card">
+      <div class="api-card-header">
+        <div class="header-top">
+          <span class="method GET">GET</span>
+          <span class="endpoint-title">Get Task by ID</span>
+        </div>
+        <div class="endpoint-url">
+          <span class="url-method-dot dot-get"></span>
+          <span class="url-path">/api/v1/tasks/<span class="path-param">{taskId}</span></span>
+        </div>
+      </div>
+      <div class="api-card-body">
+        <div class="input-group">
+          <label>Task ID</label>
+          <input id="getTaskId" placeholder="e.g. 1" />
+        </div>
+        <button class="send-btn btn-get" onclick="getTaskById()">Send GET →</button>
+      </div>
+    </div>
+
+    <div class="api-card">
+      <div class="api-card-header">
+        <div class="header-top">
+          <span class="method GET">GET</span>
+          <span class="endpoint-title">List All Tasks</span>
+        </div>
+        <div class="endpoint-url">
+          <span class="url-method-dot dot-get"></span>
+          <span class="url-path">/api/v1/tasks</span>
+        </div>
+      </div>
+      <div class="api-card-body">
+        <button class="send-btn btn-get" onclick="getAllTasks()">Send GET →</button>
+      </div>
+    </div>
+
+    <div class="api-card">
+      <div class="api-card-header">
+        <div class="header-top">
+          <span class="method PUT">PUT</span>
+          <span class="endpoint-title">Update Task</span>
+        </div>
+        <div class="endpoint-url">
+          <span class="url-method-dot dot-put"></span>
+          <span class="url-path">/api/v1/tasks/<span class="path-param">{taskId}</span></span>
+        </div>
+      </div>
+      <div class="api-card-body">
+        <div class="input-group">
+          <label>Task ID (URL)</label>
+          <input id="updateTaskId" placeholder="e.g. 1" />
+        </div>
+        <div class="input-group">
+          <label>New Task Name</label>
+          <input id="updateTaskName" placeholder="e.g. Updated Task Name" />
+        </div>
+        <div class="input-group">
+          <label>New Description</label>
+          <input id="updateTaskDesc" placeholder="e.g. Updated description" />
+        </div>
+        <div class="input-group">
+          <label>New Due Date (YYYY-MM-DD)</label>
+          <input id="updateTaskDue" placeholder="e.g. 2022-07-15" />
+        </div>
+        <div class="input-group">
+          <label>New Priority</label>
+          <select id="updateTaskPriority">
+            <option value="">-- Select Priority --</option>
+            <option value="High">High</option>
+            <option value="Medium">Medium</option>
+            <option value="Low">Low</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <label>New Status</label>
+          <select id="updateTaskStatus">
+            <option value="">-- Select Status --</option>
+            <option value="Pending">Pending</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Completed">Completed</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <label>New Project ID</label>
+          <input id="updateTaskProjectId" placeholder="e.g. 2" />
+        </div>
+        <div class="input-group">
+          <label>New User ID</label>
+          <input id="updateTaskUserId" placeholder="e.g. 3" />
+        </div>
+        <button class="send-btn btn-put" onclick="updateTask()">Send PUT →</button>
+      </div>
+    </div>
+
+    <div class="api-card">
+      <div class="api-card-header">
+        <div class="header-top">
+          <span class="method DELETE">DELETE</span>
+          <span class="endpoint-title">Delete Task</span>
+        </div>
+        <div class="endpoint-url">
+          <span class="url-method-dot dot-delete"></span>
+          <span class="url-path">/api/v1/tasks/<span class="path-param">{taskId}</span></span>
+        </div>
+      </div>
+      <div class="api-card-body">
+        <div class="input-group">
+          <label>Task ID</label>
+          <input id="deleteTaskId" placeholder="e.g. 1" />
+        </div>
+        <button class="send-btn btn-delete" onclick="deleteTask()">Send DELETE →</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── TASK FILTERING ── -->
+<div class="section-heading">
+  Task Filtering
+  <span class="section-badge">4 endpoints</span>
+</div>
+<div class="api-section">
+  <div class="api-grid">
+
+    <div class="api-card">
+      <div class="api-card-header">
+        <div class="header-top">
+          <span class="method GET">GET</span>
+          <span class="endpoint-title">Tasks by Project</span>
+        </div>
+        <div class="endpoint-url">
+          <span class="url-method-dot dot-get"></span>
+          <span class="url-path">/api/v1/projects/<span class="path-param">{projectId}</span>/tasks</span>
+        </div>
+      </div>
+      <div class="api-card-body">
+        <div class="input-group">
+          <label>Project ID</label>
+          <input id="filterProjectId" placeholder="e.g. 1" />
+        </div>
+        <button class="send-btn btn-get" onclick="getTasksByProject()">Send GET →</button>
+      </div>
+    </div>
+
+    <div class="api-card">
+      <div class="api-card-header">
+        <div class="header-top">
+          <span class="method GET">GET</span>
+          <span class="endpoint-title">Tasks by User</span>
+        </div>
+        <div class="endpoint-url">
+          <span class="url-method-dot dot-get"></span>
+          <span class="url-path">/api/v1/users/<span class="path-param">{userId}</span>/tasks</span>
+        </div>
+      </div>
+      <div class="api-card-body">
+        <div class="input-group">
+          <label>User ID</label>
+          <input id="filterUserId" placeholder="e.g. 1" />
+        </div>
+        <button class="send-btn btn-get" onclick="getTasksByUser()">Send GET →</button>
+      </div>
+    </div>
+
+    <div class="api-card">
+      <div class="api-card-header">
+        <div class="header-top">
+          <span class="method GET">GET</span>
+          <span class="endpoint-title">Tasks by Status</span>
+        </div>
+        <div class="endpoint-url">
+          <span class="url-method-dot dot-get"></span>
+          <span class="url-path">/api/v1/tasks/status/<span class="path-param">{status}</span></span>
+        </div>
+      </div>
+      <div class="api-card-body">
+        <div class="input-group">
+          <label>Status</label>
+          <select id="filterStatus">
+            <option value="">-- Select Status --</option>
+            <option value="Pending">Pending</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Completed">Completed</option>
+          </select>
+        </div>
+        <button class="send-btn btn-get" onclick="getTasksByStatus()">Send GET →</button>
+      </div>
+    </div>
+
+    <div class="api-card">
+      <div class="api-card-header">
+        <div class="header-top">
+          <span class="method GET">GET</span>
+          <span class="endpoint-title">Tasks by Priority</span>
+        </div>
+        <div class="endpoint-url">
+          <span class="url-method-dot dot-get"></span>
+          <span class="url-path">/api/v1/tasks/priority/<span class="path-param">{priority}</span></span>
+        </div>
+      </div>
+      <div class="api-card-body">
+        <div class="input-group">
+          <label>Priority</label>
+          <select id="filterPriority">
+            <option value="">-- Select Priority --</option>
+            <option value="High">High</option>
+            <option value="Medium">Medium</option>
+            <option value="Low">Low</option>
+          </select>
+        </div>
+        <button class="send-btn btn-get" onclick="getTasksByPriority()">Send GET →</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── CATEGORIES ── -->
+<div class="section-heading">
+  Categories
+  <span class="section-badge">2 endpoints</span>
+</div>
+<div class="api-section">
+  <div class="api-grid">
+
+    <div class="api-card">
+      <div class="api-card-header">
+        <div class="header-top">
+          <span class="method POST">POST</span>
+          <span class="endpoint-title">Create Category</span>
+        </div>
+        <div class="endpoint-url">
+          <span class="url-method-dot dot-post"></span>
+          <span class="url-path">/api/v1/categories</span>
+        </div>
+      </div>
+      <div class="api-card-body">
+        <div class="input-group">
+          <label>Category ID</label>
+          <input id="createCatId" placeholder="e.g. 11" />
+        </div>
+        <div class="input-group">
+          <label>Category Name</label>
+          <input id="createCatName" placeholder="e.g. Backend" />
+        </div>
+        <button class="send-btn btn-post" onclick="createCategory()">Send POST →</button>
+      </div>
+    </div>
+
+    <div class="api-card">
+      <div class="api-card-header">
+        <div class="header-top">
+          <span class="method GET">GET</span>
+          <span class="endpoint-title">List All Categories</span>
+        </div>
+        <div class="endpoint-url">
+          <span class="url-method-dot dot-get"></span>
+          <span class="url-path">/api/v1/categories</span>
+        </div>
+      </div>
+      <div class="api-card-body">
+        <button class="send-btn btn-get" onclick="getAllCategories()">Send GET →</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── TASK–CATEGORY MAPPING ── -->
+<div class="section-heading">
+  Task–Category Mapping
+  <span class="section-badge">3 endpoints</span>
+</div>
+<div class="api-section">
+  <div class="api-grid">
+
+    <div class="api-card">
+      <div class="api-card-header">
+        <div class="header-top">
+          <span class="method POST">POST</span>
+          <span class="endpoint-title">Assign Category to Task</span>
+        </div>
+        <div class="endpoint-url">
+          <span class="url-method-dot dot-post"></span>
+          <span class="url-path">/api/v1/tasks/<span class="path-param">{taskId}</span>/categories/<span class="path-param">{categoryId}</span></span>
+        </div>
+      </div>
+      <div class="api-card-body">
+        <div class="input-group">
+          <label>Task ID</label>
+          <input id="assignTaskId" placeholder="e.g. 1" />
+        </div>
+        <div class="input-group">
+          <label>Category ID</label>
+          <input id="assignCatId" placeholder="e.g. 2" />
+        </div>
+        <button class="send-btn btn-post" onclick="assignCategory()">Send POST →</button>
+      </div>
+    </div>
+
+    <div class="api-card">
+      <div class="api-card-header">
+        <div class="header-top">
+          <span class="method DELETE">DELETE</span>
+          <span class="endpoint-title">Remove Category from Task</span>
+        </div>
+        <div class="endpoint-url">
+          <span class="url-method-dot dot-delete"></span>
+          <span class="url-path">/api/v1/tasks/<span class="path-param">{taskId}</span>/categories/<span class="path-param">{categoryId}</span></span>
+        </div>
+      </div>
+      <div class="api-card-body">
+        <div class="input-group">
+          <label>Task ID</label>
+          <input id="removeCatTaskId" placeholder="e.g. 1" />
+        </div>
+        <div class="input-group">
+          <label>Category ID</label>
+          <input id="removeCatId" placeholder="e.g. 2" />
+        </div>
+        <button class="send-btn btn-delete" onclick="removeCategory()">Send DELETE →</button>
+      </div>
+    </div>
+
+    <div class="api-card">
+      <div class="api-card-header">
+        <div class="header-top">
+          <span class="method GET">GET</span>
+          <span class="endpoint-title">Get Categories of Task</span>
+        </div>
+        <div class="endpoint-url">
+          <span class="url-method-dot dot-get"></span>
+          <span class="url-path">/api/v1/tasks/<span class="path-param">{taskId}</span>/categories</span>
+        </div>
+      </div>
+      <div class="api-card-body">
+        <div class="input-group">
+          <label>Task ID</label>
+          <input id="getCatTaskId" placeholder="e.g. 1" />
+        </div>
+        <button class="send-btn btn-get" onclick="getCategoriesForTask()">Send GET →</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── REPORTS ── -->
+<div class="section-heading">
+  Reports
+  <span class="section-badge">1 endpoint</span>
+</div>
+<div class="api-section">
+  <div class="api-grid">
+
+    <div class="api-card">
+      <div class="api-card-header">
+        <div class="header-top">
+          <span class="method GET">GET</span>
+          <span class="endpoint-title">Overdue Tasks Report</span>
+        </div>
+        <div class="endpoint-url">
+          <span class="url-method-dot dot-get"></span>
+          <span class="url-path">/api/v1/reports/tasks/overdue?days=7</span>
+        </div>
+      </div>
+      <div class="api-card-body">
+        <div class="input-group">
+          <label>Days</label>
+          <input id="overdueDays" placeholder="e.g. 7" value="7" />
+        </div>
+        <button class="send-btn btn-get" onclick="getOverdueTasksReport()">Send GET →</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  const BASE = "/api/v1";
+  const MODULE_TITLE = "Tasks & Categories";
+
+  function openResponseTab(payload, title = MODULE_TITLE) {
+    localStorage.setItem("apiResponsePayload", JSON.stringify({
+      module: title,
+      ...payload
+    }));
+    window.open("/response-view", "_blank");
+  }
+
+  function openErrorTab(message, title = MODULE_TITLE) {
+    localStorage.setItem("apiResponsePayload", JSON.stringify({
+      module: title,
+      error: message
+    }));
+    window.open("/response-view", "_blank");
+  }
+
+function createTask() {
+  fetch(BASE + "/tasks", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      taskID: parseInt(document.getElementById("createTaskId").value),
+      taskName: document.getElementById("createTaskName").value,
+      description: document.getElementById("createTaskDesc").value,
+      dueDate: document.getElementById("createTaskDue").value,
+      priority: document.getElementById("createTaskPriority").value,
+      status: document.getElementById("createTaskStatus").value,
+      projectID: parseInt(document.getElementById("createTaskProjectId").value),
+      userID: parseInt(document.getElementById("createTaskUserId").value)
+    })
+  })
+  .then(res => res.json())
+  .then(data => openResponseTab({
+      message: "Task created successfully",
+      data: data
+  }))
+  .catch(() => openErrorTab("Failed to create task"));
+}
+
+  function getTaskById() {
+    const id = document.getElementById("getTaskId").value;
+    fetch(BASE + "/tasks/" + id)
+      .then(res => res.json())
+      .then(data => openResponseTab({ data }))
+      .catch(() => openErrorTab("Request failed"));
+  }
+
+  function getAllTasks() {
+    fetch(BASE + "/tasks")
+      .then(res => res.json())
+      .then(data => openResponseTab({ data }))
+      .catch(() => openErrorTab("Request failed"));
+  }
+
+function updateTask() {
+  const id = document.getElementById("updateTaskId").value;
+
+  fetch(BASE + "/tasks/" + id, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      taskID: parseInt(id),
+      taskName: document.getElementById("updateTaskName").value,
+      description: document.getElementById("updateTaskDesc").value,
+      dueDate: document.getElementById("updateTaskDue").value,
+      priority: document.getElementById("updateTaskPriority").value,
+      status: document.getElementById("updateTaskStatus").value,
+      projectID: parseInt(document.getElementById("updateTaskProjectId").value),
+      userID: parseInt(document.getElementById("updateTaskUserId").value)
+    })
+  })
+  .then(res => res.json())
+  .then(data => openResponseTab({
+      message: "Task updated successfully",
+      data: data
+  }))
+  .catch(() => openErrorTab("Failed to update task"));
+}
+
+function deleteTask() {
+  const id = document.getElementById("deleteTaskId").value;
+
+  fetch(BASE + "/tasks/" + id, {
+    method: "DELETE"
+  })
+  .then(() => openResponseTab({
+      message: "Task deleted successfully"
+  }))
+  .catch(() => openErrorTab("Failed to delete task"));
+}
+
+  function getTasksByProject() {
+    const id = document.getElementById("filterProjectId").value;
+    fetch(BASE + "/projects/" + id + "/tasks")
+      .then(res => res.json())
+      .then(data => openResponseTab({ data }))
+      .catch(() => openErrorTab("Request failed"));
+  }
+
+  function getTasksByUser() {
+    const id = document.getElementById("filterUserId").value;
+    fetch(BASE + "/users/" + id + "/tasks")
+      .then(res => res.json())
+      .then(data => openResponseTab({ data }))
+      .catch(() => openErrorTab("Request failed"));
+  }
+
+  function getTasksByStatus() {
+    const status = document.getElementById("filterStatus").value;
+    fetch(BASE + "/tasks/status/" + encodeURIComponent(status))
+      .then(res => res.json())
+      .then(data => openResponseTab({ data }))
+      .catch(() => openErrorTab("Request failed"));
+  }
+
+  function getTasksByPriority() {
+    const priority = document.getElementById("filterPriority").value;
+    fetch(BASE + "/tasks/priority/" + encodeURIComponent(priority))
+      .then(res => res.json())
+      .then(data => openResponseTab({ data }))
+      .catch(() => openErrorTab("Request failed"));
+  }
+
+function createCategory() {
+  fetch(BASE + "/categories", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      categoryID: parseInt(document.getElementById("createCatId").value),
+      categoryName: document.getElementById("createCatName").value
+    })
+  })
+  .then(res => res.json())
+  .then(data => openResponseTab({
+      message: "Category created successfully",
+      data: data
+  }))
+  .catch(() => openErrorTab("Failed to create category"));
+}
+
+  function getAllCategories() {
+    fetch(BASE + "/categories")
+      .then(res => res.json())
+      .then(data => openResponseTab({ data }))
+      .catch(() => openErrorTab("Request failed"));
+  }
+
+function assignCategory() {
+  const taskId = document.getElementById("assignTaskId").value;
+  const catId = document.getElementById("assignCatId").value;
+
+  fetch(BASE + "/tasks/" + taskId + "/categories/" + catId, {
+    method: "POST"
+  })
+  .then(() => openResponseTab({
+      message: "Category assigned to task successfully"
+  }))
+  .catch(() => openErrorTab("Failed to assign category"));
+}
+
+function removeCategory() {
+  const taskId = document.getElementById("removeCatTaskId").value;
+  const catId = document.getElementById("removeCatId").value;
+
+  fetch(BASE + "/tasks/" + taskId + "/categories/" + catId, {
+    method: "DELETE"
+  })
+  .then(() => openResponseTab({
+      message: "Category removed from task successfully"
+  }))
+  .catch(() => openErrorTab("Failed to remove category"));
+}
+
+  function getCategoriesForTask() {
+    const taskId = document.getElementById("getCatTaskId").value;
+    fetch(BASE + "/tasks/" + taskId + "/categories")
+      .then(res => res.json())
+      .then(data => openResponseTab({ data }))
+      .catch(() => openErrorTab("Request failed"));
+  }
+
+  function getOverdueTasksReport() {
+    const days = document.getElementById("overdueDays").value || 7;
+    fetch(BASE + "/reports/tasks/overdue?days=" + encodeURIComponent(days))
+      .then(res => res.json())
+      .then(data => openResponseTab({ data }, " Overdue Tasks Report"))
+      .catch(() => openErrorTab("Request failed", "Overdue Tasks Report"));
+  }
+</script>
+</body>
+</html>

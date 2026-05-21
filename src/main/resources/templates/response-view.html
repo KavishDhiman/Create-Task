@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -10,17 +10,17 @@
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
         :root {
-            --bg:       #0b0e1a;
-            --surface:  #111526;
-            --card:     #141829;
-            --border:   rgba(255,255,255,0.07);
-            --text:     #e8ecf4;
-            --muted:    #5a6180;
-            --accent:   #4f8ef7;
-            --get-bg:      rgba(54,201,167,0.08);
-            --get-border:  rgba(54,201,167,0.25);
-            --del-bg:      rgba(255,99,99,0.08);
-            --del-border:  rgba(255,99,99,0.25);
+            --bg: #0b0e1a;
+            --surface: #111526;
+            --card: #141829;
+            --border: rgba(255,255,255,0.07);
+            --text: #e8ecf4;
+            --muted: #5a6180;
+            --accent: #4f8ef7;
+            --get-bg: rgba(54,201,167,0.08);
+            --get-border: rgba(54,201,167,0.25);
+            --del-bg: rgba(255,99,99,0.08);
+            --del-border: rgba(255,99,99,0.25);
         }
 
         html, body {
@@ -30,14 +30,13 @@
             font-family: 'DM Sans', sans-serif;
         }
 
-        /* animated background */
         body::before {
             content: '';
             position: fixed;
             inset: 0;
             background:
-                    radial-gradient(ellipse 70% 50% at 20% 10%, rgba(79,142,247,0.07), transparent),
-                    radial-gradient(ellipse 50% 60% at 80% 90%, rgba(159,130,255,0.05), transparent);
+                radial-gradient(ellipse 70% 50% at 20% 10%, rgba(79,142,247,0.07), transparent),
+                radial-gradient(ellipse 50% 60% at 80% 90%, rgba(159,130,255,0.05), transparent);
             pointer-events: none;
             z-index: 0;
         }
@@ -52,15 +51,13 @@
             padding: 3rem 1.5rem 5rem;
         }
 
-        /* ── Top bar ── */
         .top-bar {
             width: 100%;
-            max-width: 1100px;
+            max-width: 1600px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 3.5rem;
-            animation: fadeDown 0.5s ease both;
+            margin-bottom: 3rem;
         }
 
         .back-btn {
@@ -72,13 +69,15 @@
             font-size: 0.75rem;
             text-decoration: none;
             border: 1px solid var(--border);
-            padding: 0.4rem 1rem;
+            padding: 0.45rem 1rem;
             border-radius: 8px;
-            transition: color 0.2s, border-color 0.2s;
-            cursor: pointer;
             background: none;
         }
-        .back-btn:hover { color: var(--accent); border-color: rgba(79,142,247,0.4); }
+
+        .back-btn:hover {
+            color: var(--accent);
+            border-color: rgba(79,142,247,0.4);
+        }
 
         .page-badge {
             font-family: 'DM Mono', monospace;
@@ -91,22 +90,20 @@
             border-radius: 20px;
         }
 
-        /* ── Hero heading ── */
         .hero {
             width: 100%;
-            max-width: 1100px;
-            margin-bottom: 2.5rem;
-            animation: fadeDown 0.55s 0.05s ease both;
+            max-width: 1600px;
+            margin-bottom: 2rem;
         }
 
         .hero-eyebrow {
             font-family: 'DM Mono', monospace;
-            font-size: 1.3rem;   /* bigger */
+            font-size: 0.95rem;
             letter-spacing: 0.15em;
             text-transform: uppercase;
             color: var(--accent);
-            margin-bottom: 0.6rem;
-            opacity: 0.8;
+            margin-bottom: 0.7rem;
+            opacity: 0.85;
         }
 
         .hero h1 {
@@ -122,7 +119,7 @@
         }
 
         .hero-meta {
-            margin-top: 0.8rem;
+            margin-top: 0.9rem;
             display: flex;
             align-items: center;
             gap: 1rem;
@@ -135,14 +132,26 @@
             gap: 0.4rem;
             font-family: 'DM Mono', monospace;
             font-size: 0.72rem;
-            padding: 0.3rem 0.9rem;
+            padding: 0.32rem 0.9rem;
             border-radius: 20px;
         }
-        .status-pill.ok  { background: var(--get-bg); border: 1px solid var(--get-border); color: #36c9a7; }
-        .status-pill.err { background: var(--del-bg); border: 1px solid var(--del-border); color: #ff6363; }
+
+        .status-pill.ok {
+            background: var(--get-bg);
+            border: 1px solid var(--get-border);
+            color: #36c9a7;
+        }
+
+        .status-pill.err {
+            background: var(--del-bg);
+            border: 1px solid var(--del-border);
+            color: #ff6363;
+        }
+
         .status-pill::before {
             content: '';
-            width: 6px; height: 6px;
+            width: 6px;
+            height: 6px;
             border-radius: 50%;
             background: currentColor;
         }
@@ -153,22 +162,33 @@
             color: var(--muted);
         }
 
-        /* ── Table wrapper ── */
+        .message-banner {
+            width: 100%;
+            max-width: 1600px;
+            margin-bottom: 1rem;
+            padding: 1rem 1.2rem;
+            border-radius: 14px;
+            background: rgba(54,201,167,0.08);
+            border: 1px solid rgba(54,201,167,0.25);
+            color: #36c9a7;
+            font-family: 'DM Mono', monospace;
+            font-size: 0.9rem;
+            display: none;
+        }
+
         .table-wrapper {
             width: 100%;
-            max-width: 1100px;
+            max-width: 1600px;
             background: var(--card);
             border: 1px solid var(--border);
             border-radius: 20px;
             overflow: hidden;
             box-shadow:
-                    0 0 0 1px rgba(255,255,255,0.03),
-                    0 24px 64px rgba(0,0,0,0.45),
-                    0 0 80px rgba(79,142,247,0.04);
-            animation: fadeUp 0.6s 0.1s ease both;
+                0 0 0 1px rgba(255,255,255,0.03),
+                0 24px 64px rgba(0,0,0,0.45),
+                0 0 80px rgba(79,142,247,0.04);
         }
 
-        /* gradient line at top */
         .table-wrapper::before {
             content: '';
             display: block;
@@ -176,10 +196,10 @@
             background: linear-gradient(90deg, transparent, rgba(79,142,247,0.6), rgba(159,130,255,0.4), transparent);
         }
 
-        /* ── Table ── */
         table {
             width: 100%;
             border-collapse: collapse;
+            table-layout: fixed;
         }
 
         thead tr {
@@ -188,7 +208,7 @@
         }
 
         th {
-            padding: 1rem 1.6rem;
+            padding: 1rem 1.4rem;
             font-family: 'DM Mono', monospace;
             font-size: 0.78rem;
             letter-spacing: 0.12em;
@@ -196,100 +216,77 @@
             color: var(--muted);
             text-align: left;
             font-weight: 600;
-            white-space: nowrap;
+            white-space: normal;
+            word-break: break-word;
+            overflow-wrap: anywhere;
+            vertical-align: top;
         }
 
         td {
-            padding: 1.2rem 1.6rem;
+            padding: 1.1rem 1.4rem;
             font-family: 'DM Mono', monospace;
-            font-size: 0.95rem;
+            font-size: 0.92rem;
             font-weight: 500;
-
             color: var(--text);
             border-bottom: 1px solid var(--border);
-            vertical-align: middle;
+            vertical-align: top;
+            white-space: normal;
+            word-break: break-word;
+            overflow-wrap: anywhere;
+            line-height: 1.6;
+            max-width: 260px;
         }
 
-        tbody tr:last-child td { border-bottom: none; }
-
-        tbody tr {
-            transition: background 0.15s;
-            animation: rowIn 0.35s ease both;
-        }
-        tbody tr:hover { background: rgba(79,142,247,0.04); }
-
-        /* staggered row animation */
-        tbody tr:nth-child(1)  { animation-delay: 0.15s; }
-        tbody tr:nth-child(2)  { animation-delay: 0.20s; }
-        tbody tr:nth-child(3)  { animation-delay: 0.25s; }
-        tbody tr:nth-child(4)  { animation-delay: 0.30s; }
-        tbody tr:nth-child(5)  { animation-delay: 0.35s; }
-        tbody tr:nth-child(6)  { animation-delay: 0.40s; }
-        tbody tr:nth-child(7)  { animation-delay: 0.45s; }
-        tbody tr:nth-child(8)  { animation-delay: 0.50s; }
-        tbody tr:nth-child(9)  { animation-delay: 0.55s; }
-        tbody tr:nth-child(10) { animation-delay: 0.60s; }
-
-        /* first column accent */
-        td:first-child {
-            color: var(--accent);
-            font-weight: 500;
+        tbody tr:last-child td {
+            border-bottom: none;
         }
 
-        /* ── Empty / Error state ── */
+        tbody tr:hover {
+            background: rgba(79,142,247,0.04);
+        }
+
         .empty-state {
-            padding: 4rem 2rem;
+            padding: 3rem 2rem;
             text-align: center;
+            color: var(--muted);
+            font-family: 'DM Mono', monospace;
+            font-size: 0.9rem;
         }
+
         .empty-state .icon {
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
-            opacity: 0.4;
-        }
-        .empty-state p {
-            font-family: 'DM Mono', monospace;
-            font-size: 0.82rem;
-            color: var(--muted);
-        }
-
-        /* ── Footer note ── */
-        .footer-note {
-            margin-top: 2rem;
-            font-family: 'DM Mono', monospace;
-            font-size: 0.68rem;
-            color: var(--muted);
+            font-size: 2rem;
+            margin-bottom: 0.8rem;
             opacity: 0.5;
-            letter-spacing: 0.05em;
-            animation: fadeUp 0.6s 0.3s ease both;
         }
 
-        /* ── Animations ── */
-        @keyframes fadeDown {
-            from { opacity: 0; transform: translateY(-12px); }
-            to   { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(16px); }
-            to   { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes rowIn {
-            from { opacity: 0; transform: translateX(-8px); }
-            to   { opacity: 1; transform: translateX(0); }
+        @media (max-width: 768px) {
+            .page {
+                padding: 2rem 1rem 4rem;
+            }
+
+            .top-bar {
+                margin-bottom: 2rem;
+            }
+
+            .hero, .table-wrapper, .message-banner, .top-bar {
+                max-width: 100%;
+            }
+
+            td, th {
+                padding: 0.9rem 1rem;
+            }
         }
     </style>
 </head>
 <body>
 <div class="page">
-
-    <!-- Top bar -->
     <div class="top-bar">
         <button class="back-btn" onclick="window.close()">← Close</button>
         <span class="page-badge">API Response</span>
     </div>
 
-    <!-- Hero -->
     <div class="hero">
-        <div class="hero-eyebrow" id="moduleTitle">API Service</div>
+        <div class="hero-eyebrow" id="moduleTitle">Task &amp; Category Service</div>
         <h1>Response</h1>
         <div class="hero-meta">
             <span class="status-pill ok" id="statusPill">200 OK</span>
@@ -297,150 +294,128 @@
         </div>
     </div>
 
-    <!-- Table -->
-    <div id="successMessage"
-         style="
-        display:none;
-        width:100%;
-        max-width:1100px;
-        margin-bottom:1rem;
-        padding:1rem 1.4rem;
-        border-radius:14px;
-        background: rgba(54,201,167,0.08);
-        border:1px solid rgba(54,201,167,0.25);
-        color:#36c9a7;
-        font-family:'DM Mono', monospace;
-        font-size:0.9rem;
-">
-    </div>
+    <div class="message-banner" id="messageBanner"></div>
 
-    <div class="table-wrapper" id="tableWrapper">
+    <div class="table-wrapper">
         <div class="empty-state" id="emptyState">
             <div class="icon">◌</div>
-            <p>No data to display</p>
+            <div>No data to display</div>
         </div>
+
         <table id="dataTable" style="display:none;">
             <thead id="thead"></thead>
             <tbody id="tbody"></tbody>
         </table>
     </div>
-
-    <div class="footer-note">Generated · <span id="timestamp"></span></div>
 </div>
 
 <script>
+    function toDisplayRow(value) {
+        if (value === null || value === undefined) return { value: '—' };
+        if (typeof value === 'object' && !Array.isArray(value)) return value;
+        return { value: String(value) };
+    }
 
-    document.getElementById('timestamp').textContent =
-        new Date().toLocaleString();
+    function normalizePayload(payload) {
+        let data = payload?.data ?? payload;
 
-    function render(raw) {
-
-        let response;
-
-        try {
-
-            response =
-                JSON.parse(decodeURIComponent(raw));
-
-        } catch {
-
-            response = {
-                error: 'Could not parse response data'
-            };
+        if (typeof data === 'string' || typeof data === 'number' || typeof data === 'boolean') {
+            data = [{ value: String(data) }];
+        } else if (Array.isArray(data)) {
+            data = data.map(toDisplayRow);
+        } else if (data && typeof data === 'object') {
+            data = [toDisplayRow(data)];
+        } else {
+            data = [];
         }
 
-        const pill =
-            document.getElementById('statusPill');
+        return data;
+    }
 
-        if (response.error) {
+    function render(payload) {
+        const statusPill = document.getElementById('statusPill');
+        const rowCount = document.getElementById('rowCount');
+        const emptyState = document.getElementById('emptyState');
+        const table = document.getElementById('dataTable');
+        const thead = document.getElementById('thead');
+        const tbody = document.getElementById('tbody');
+        const messageBanner = document.getElementById('messageBanner');
 
-            pill.textContent = 'Error';
-            pill.className = 'status-pill err';
+        if (payload?.module) {
+            document.getElementById('moduleTitle').textContent = payload.module;
         }
 
-        let data = response;
-
-        if (response.message) {
-
-            document.getElementById('successMessage').style.display = 'block';
-
-            document.getElementById('successMessage').textContent =
-                response.message;
+        if (payload?.message) {
+            messageBanner.style.display = 'block';
+            messageBanner.textContent = payload.message;
+            statusPill.textContent = '200 OK';
+            statusPill.className = 'status-pill ok';
+        } else {
+            messageBanner.style.display = 'none';
         }
 
-        if (response.data) {
-
-            data = response.data;
-        }
-
-        if (!Array.isArray(data)) {
-
-            data = [data];
-        }
-
-        if (
-            data.length === 0 ||
-            Object.keys(data[0]).length === 0
-        ) {
+        if (payload?.error) {
+            statusPill.textContent = 'Error';
+            statusPill.className = 'status-pill err';
+            messageBanner.style.display = 'block';
+            messageBanner.textContent = payload.error;
+            emptyState.style.display = 'block';
+            table.style.display = 'none';
+            rowCount.textContent = '';
             return;
         }
 
-        document.getElementById('emptyState').style.display = 'none';
+        const data = normalizePayload(payload);
 
-        const table =
-            document.getElementById('dataTable');
+        if (!data || data.length === 0 || Object.keys(data[0] || {}).length === 0) {
+            emptyState.style.display = 'block';
+            table.style.display = 'none';
+            rowCount.textContent = '';
+            return;
+        }
 
+        emptyState.style.display = 'none';
         table.style.display = 'table';
+        rowCount.textContent = data.length === 1 ? '1 record' : `${data.length} records`;
 
-        document.getElementById('rowCount').textContent =
-            data.length === 1
-                ? '1 record'
-                : data.length + ' records';
-
-        const keys =
-            Object.keys(data[0]);
-
-        document.getElementById('thead').innerHTML =
-            '<tr>' +
-            keys.map(k => `<th>${k}</th>`).join('') +
-            '</tr>';
-
-        document.getElementById('tbody').innerHTML =
-            data.map(row =>
-
-                '<tr>' +
-
-                keys.map(k =>
-
-                    `<td>${row[k] ?? '—'}</td>`
-
-                ).join('') +
-
-                '</tr>'
-
-            ).join('');
+        const keys = Object.keys(data[0]);
+        thead.innerHTML = `<tr>${keys.map(k => `<th>${k}</th>`).join('')}</tr>`;
+        tbody.innerHTML = data.map(row =>
+            `<tr>${keys.map(k => `<td>${row[k] ?? '—'}</td>`).join('')}</tr>`
+        ).join('');
     }
 
-    const params =
-        new URLSearchParams(window.location.search);
+    // Prefer current URL params first, then fall back to localStorage.
+    const params = new URLSearchParams(window.location.search);
+    const queryData = params.get('data');
+    const queryModule = params.get('module');
 
-    const raw =
-        params.get('data');
+    if (queryData) {
+        try {
+            const payload = JSON.parse(decodeURIComponent(queryData));
+            if (queryModule) {
+                payload.module = decodeURIComponent(queryModule);
+            }
+            render(payload);
+        } catch (e) {
+            render({ error: 'Could not parse response data from URL' });
+        }
+    } else {
+        const raw = localStorage.getItem('apiResponsePayload');
 
-    const module =
-        params.get('module');
-
-    if (module) {
-
-        document.getElementById('moduleTitle').textContent =
-            module;
+        if (raw) {
+            try {
+                render(JSON.parse(raw));
+                // Clear after reading so old data does not reappear.
+                localStorage.removeItem('apiResponsePayload');
+            } catch (e) {
+                render({ error: 'Could not parse response data from storage' });
+            }
+        } else {
+            document.getElementById('statusPill').textContent = 'No Data';
+            document.getElementById('statusPill').className = 'status-pill err';
+        }
     }
-
-    if (raw) {
-
-        render(raw);
-    }
-
 </script>
 </body>
 </html>

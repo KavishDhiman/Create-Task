@@ -18,49 +18,49 @@ public class SecurityConfig {
 
     // Meenakshi Credentials
     // =========================================
-
     @Value("${meenakshi.username}")
     private String meenakshiUsername;
 
     @Value("${meenakshi.password}")
     private String meenakshiPassword;
 
+    // =========================================
+    // Jayanthi Credentials
+    // =========================================
+    @Value("${jayanthi.username}")
+    private String jayanthiUsername;
+
+    @Value("${jayanthi.password}")
+    private String jayanthiPassword;
 
     // =========================================
     // Kaviya Credentials
     // =========================================
-
     @Value("${kaviya.username}")
     private String kaviyaUsername;
 
     @Value("${kaviya.password}")
     private String kaviyaPassword;
 
-
     // =========================================
     // Kavish Credentials
     // =========================================
-
     @Value("${kavish.username}")
     private String kavishUsername;
 
     @Value("${kavish.password}")
     private String kavishPassword;
 
-
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http
-
                 .csrf(csrf -> csrf.disable())
-
                 .authorizeHttpRequests(auth -> auth
 
                         // =========================================
                         // Public Routes
                         // =========================================
-
                         .requestMatchers(
                                 "/",
                                 "/login",
@@ -72,7 +72,6 @@ public class SecurityConfig {
                         // =========================================
                         // Swagger Routes
                         // =========================================
-
                         .requestMatchers(
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
@@ -82,17 +81,37 @@ public class SecurityConfig {
                         // =========================================
                         // Notification Module
                         // =========================================
-
                         .requestMatchers(
                                 "/notifications-ui/**",
                                 "/api/v1/notifications/**"
                         ).hasRole("NOTIFICATION")
 
                         // =========================================
+                        // Jayanthi Module
+                        // Task / Category / TaskCategory / Read Chats / API Overview
+                        // =========================================
+                        .requestMatchers(
+                                "/tasks-ui/**",
+                                "/categories-ui/**",
+                                "/taskcategories-ui/**",
+                                "/read-chats-ui/**",
+                                "/task-management-api-overview/**",
+                                "/api/v1/tasks/**",
+                                "/api/v1/categories/**",
+                                "/api/v1/taskcategories/**",
+                                "/api/v1/chats/**",
+                                "/api/v1/task-management/**"
+                        ).hasRole("TASK")
+
+                        .requestMatchers(
+                                "/api/v1/projects/*/tasks",
+                                "/api/v1/users/*/tasks"
+                        ).hasRole("TASK")
+
+                        // =========================================
                         // PROJECT USER ROUTE
                         // MUST COME BEFORE /api/v1/users/**
                         // =========================================
-
                         .requestMatchers(
                                 "/api/v1/users/*/projects"
                         ).hasRole("PROJECT")
@@ -102,7 +121,13 @@ public class SecurityConfig {
                                 "/api/v1/users/*/projects"
                         ).hasRole("PROJECT")
 
-                        //NOTIFICATION USER ROUTE MUST COME BEFORE /api/v1/users/**
+                        // Jayanthi / TASK report access
+                        .requestMatchers(
+                                "/api/v1/reports/tasks/overdue"
+                        ).hasRole("TASK")
+
+
+                        // NOTIFICATION USER ROUTE MUST COME BEFORE /api/v1/users/**
                         .requestMatchers(
                                 "/api/v1/users/*/notifications"
                         ).hasRole("NOTIFICATION")
@@ -120,25 +145,20 @@ public class SecurityConfig {
                         // =========================================
                         // Projects Module
                         // =========================================
-
                         .requestMatchers(
                                 "/projects-ui/**",
                                 "/api/v1/projects/**"
                         ).hasRole("PROJECT")
 
-
-
                         // =========================================
                         // Everything Else
                         // =========================================
-
                         .anyRequest().authenticated()
                 )
 
                 // =========================================
                 // Login Configuration
                 // =========================================
-
                 .formLogin(form -> form
                         .loginPage("/login")
                         .defaultSuccessUrl("/", false)
@@ -148,7 +168,6 @@ public class SecurityConfig {
                 // =========================================
                 // Logout Configuration
                 // =========================================
-
                 .logout(logout -> logout
                         .logoutUrl("/logout")
                         .logoutSuccessUrl("/login?logout")
@@ -158,7 +177,6 @@ public class SecurityConfig {
                 // =========================================
                 // Access Denied Page
                 // =========================================
-
                 .exceptionHandling(ex -> ex
                         .accessDeniedPage("/access-denied")
                 );
@@ -166,11 +184,9 @@ public class SecurityConfig {
         return http.build();
     }
 
-
     // =========================================
     // In-Memory Users
     // =========================================
-
     @Bean
     public UserDetailsService userDetailsService(PasswordEncoder encoder) {
 
@@ -180,6 +196,12 @@ public class SecurityConfig {
                 User.withUsername(meenakshiUsername)
                         .password(encoder.encode(meenakshiPassword))
                         .roles("NOTIFICATION")
+                        .build(),
+
+                // Jayanthi
+                User.withUsername(jayanthiUsername)
+                        .password(encoder.encode(jayanthiPassword))
+                        .roles("TASK")
                         .build(),
 
                 // Kaviya
@@ -195,7 +217,6 @@ public class SecurityConfig {
                         .build()
         );
     }
-
 
     @Bean
     public PasswordEncoder passwordEncoder() {

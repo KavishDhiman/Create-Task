@@ -707,30 +707,30 @@
             <div class="endpoint-group">
                 <div class="group-label">Comments</div>
                 <div class="endpoint-row">
-                    <div class="endpoint-main"><span class="method POST">POST</span><span class="path">/api/v1/tasks/<span class="path-param">{taskId}</span>/comments</span></div>
+                    <div class="endpoint-main"><span class="method POST">POST</span><a th:href="@{/attachment-comment-ui}" class="path">/api/v1/tasks/<span class="path-param">{taskId}</span>/comments</a></div>
                     <div class="endpoint-desc">Add a comment to a task</div>
                 </div>
                 <div class="endpoint-row">
-                    <div class="endpoint-main"><span class="method GET">GET</span><span class="path">/api/v1/tasks/<span class="path-param">{taskId}</span>/comments</span></div>
+                    <div class="endpoint-main"><span class="method GET">GET</span><a th:href="@{/attachment-comment-ui}" class="path">/api/v1/tasks/<span class="path-param">{taskId}</span>/comments</a></div>
                     <div class="endpoint-desc">View all comments on a task</div>
                 </div>
                 <div class="endpoint-row">
-                    <div class="endpoint-main"><span class="method DELETE">DELETE</span><span class="path">/api/v1/comments/<span class="path-param">{commentId}</span></span></div>
+                    <div class="endpoint-main"><span class="method DELETE">DELETE</span><a th:href="@{/attachment-comment-ui}" class="path">/api/v1/comments/<span class="path-param">{commentId}</span></a></div>
                     <div class="endpoint-desc">Delete a specific comment</div>
                 </div>
             </div>
             <div class="endpoint-group">
                 <div class="group-label">Attachments</div>
                 <div class="endpoint-row">
-                    <div class="endpoint-main"><span class="method POST">POST</span><span class="path">/api/v1/tasks/<span class="path-param">{taskId}</span>/attachments</span></div>
+                    <div class="endpoint-main"><span class="method POST">POST</span><a th:href="@{/attachment-comment-ui}" class="path">/api/v1/tasks/<span class="path-param">{taskId}</span>/attachments</a></div>
                     <div class="endpoint-desc">Upload a file attachment to a task</div>
                 </div>
                 <div class="endpoint-row">
-                    <div class="endpoint-main"><span class="method GET">GET</span><span class="path">/api/v1/tasks/<span class="path-param">{taskId}</span>/attachments</span></div>
+                    <div class="endpoint-main"><span class="method GET">GET</span><a th:href="@{/attachment-comment-ui}" class="path">/api/v1/tasks/<span class="path-param">{taskId}</span>/attachments</a></div>
                     <div class="endpoint-desc">List all attachments of a task</div>
                 </div>
                 <div class="endpoint-row">
-                    <div class="endpoint-main"><span class="method DELETE">DELETE</span><span class="path">/api/v1/attachments/<span class="path-param">{attachmentId}</span></span></div>
+                    <div class="endpoint-main"><span class="method DELETE">DELETE</span><a th:href="@{/attachment-comment-ui}" class="path">/api/v1/attachments/<span class="path-param">{attachmentId}</span></a></div>
                     <div class="endpoint-desc">Delete a specific attachment</div>
                 </div>
             </div>

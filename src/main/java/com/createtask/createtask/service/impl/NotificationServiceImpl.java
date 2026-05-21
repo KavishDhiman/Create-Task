@@ -13,6 +13,7 @@ import com.createtask.createtask.entity.Notification;
 import com.createtask.createtask.entity.AppUser;
 
 // Custom exception thrown when notification is not found
+import com.createtask.createtask.exception.NotificationAlreadyExistsException;
 import com.createtask.createtask.exception.NotificationNotFoundException;
 
 // Custom exception thrown when recipient user is not found
@@ -69,6 +70,11 @@ public class NotificationServiceImpl implements NotificationService {
     // Creates a new notification
     @Override
     public NotificationResponseDTO createNotification(NotificationRequestDTO requestDTO) {
+        if (notificationRepository.existsById(requestDTO.getNotificationID())) {
+            throw new NotificationAlreadyExistsException(
+                    "Notification with ID " + requestDTO.getNotificationID() + " already exists");
+        }
+
 
         // Find user by userId from request DTO
         AppUser user = userRepository.findById(requestDTO.getUserId())

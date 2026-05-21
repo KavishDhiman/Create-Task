@@ -162,7 +162,34 @@
         .btn-get    { background: var(--get-bg);  border: 1px solid var(--get-border);  color: #36c9a7; }
         .btn-post   { background: var(--post-bg); border: 1px solid var(--post-border); color: #9f82ff; }
         .btn-delete { background: var(--del-bg);  border: 1px solid var(--del-border);  color: #ff6363; }
+        /* ── Logout button ── */
+        .logout-form {
+            position: absolute;
+            top: 1.8rem;
+            right: 2rem;
+            z-index: 1000;
+        }
+        .logout-btn {
+            padding: 0.8rem 1.4rem 0.9rem;
+            line-height: 1.4;
+            min-height: 48px;
 
+            border-radius: 10px;
+            border: 1px solid rgba(255, 99, 99, 0.35);
+            background: rgba(255, 99, 99, 0.08);
+            color: #ff6363;
+
+            font-family: 'Times New Roman', Times, serif;
+            font-weight: 700;
+            font-size: 0.95rem;
+
+            cursor: pointer;
+        }
+
+        .logout-btn:hover {
+            transform: translateY(-2px);
+            background: rgba(255, 99, 99, 0.14);
+        }
         /* ── Response box ── */
         .response-section { padding: 0 2rem 3rem; }
         .response-header {
@@ -234,16 +261,14 @@
 <div class="page-header">
 
     <!-- LOGOUT BUTTON -->
-    <form th:action="@{/logout}" method="post">
-        <button type="submit" class="logout-btn">Sign Out →</button>
+    <form th:action="@{/logout}" method="post" class="logout-form">
+        <button type="submit" class="logout-btn">Log Out →</button>
     </form>
-</div>
 
-</div>
-<div class="page-header">
     <a th:href="@{/}" class="back-link">← Back to Homepage</a>
     <h1>Notification APIs</h1>
     <p>Test all notification endpoints — responses appear in the table below</p>
+
 </div>
 
 <!-- ── API CARDS ── -->
@@ -362,48 +387,155 @@
 
 <script>
     function openResponse(data) {
+        data.module = "Notification Service";
         const encoded = encodeURIComponent(JSON.stringify(data));
         window.open('/response-view?data=' + encoded, '_blank');
     }
 
+    // ── Validators ──
+    function isValidId(val) {
+        return val.trim() !== '' && /^\d+$/.test(val.trim());
+    }
+
+    function validationError(msg) {
+        openResponse({
+            error: "Invalid Input",
+            message: msg,
+            status: "400",
+            timestamp: new Date().toISOString()
+        });
+    }
+
+    // ── API calls ──
     function createNotification() {
+        const notifId = document.getElementById("postNotificationId").value;
+        const userId  = document.getElementById("postUserId").value;
+        const text    = document.getElementById("postText").value.trim();
+
+        if (!isValidId(notifId)) return validationError("Enter a valid Notification ID — numbers only, no letters or symbols.");
+        if (!isValidId(userId))  return validationError("Enter a valid User ID — numbers only, no letters or symbols.");
+        if (!text)               return validationError("Notification text cannot be empty.");
+
         fetch("/api/v1/notifications", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                notificationID: document.getElementById("postNotificationId").value,
-                userId: document.getElementById("postUserId").value,
-                text: document.getElementById("postText").value
+                notificationID: parseInt(notifId),
+                userId: parseInt(userId),
+                text: text
             })
         })
-            .then(res => res.json())
-            .then(data => openResponse(data))
-            .catch(() => openResponse({ error: "Request failed" }));
+            .then(res => {
+                // ✅ Read as text first — works for both plain text AND json responses
+                return res.text().then(raw => ({ status: res.status, raw }));
+            })
+            .then(({ status, raw }) => {
+                if (status === 409) {
+                    // ✅ Duplicate — backend sends plain text message
+                    openResponse({
+                        error: "Duplicate Entry",
+                        message: `Notification ID ${notifId} already exists. Please use a different ID.`,
+                        status: "409",
+                        timestamp: new Date().toISOString()
+                    });
+                } else if (status >= 400) {
+                    let msg = raw;
+                    try { msg = JSON.parse(raw).message || raw; } catch (_) {}
+                    openResponse({ error: "Error", message: msg, status: String(status), timestamp: new Date().toISOString() });
+                } else {
+                    // ✅ Success — parse as JSON
+                    const data = JSON.parse(raw);
+                    data.message = `Notification ID ${notifId} created successfully.`;
+                    openResponse(data);
+                }
+            })
+            .catch(() => openResponse({ error: "Request Failed", message: "Could not reach the server.", status: "—", timestamp: new Date().toISOString() }));
     }
 
     function getNotification() {
         const id = document.getElementById("getId").value;
-        fetch("/api/v1/notifications/" + id)
-            .then(res => res.json())
-            .then(data => openResponse(data))
-            .catch(() => openResponse({ error: "Request failed" }));
+        if (!isValidId(id)) return validationError("Enter a valid Notification ID — numbers only, no letters or symbols.");
+
+        fetch("/api/v1/notifications/" + id.trim())
+            .then(res => res.json().then(data => ({ status: res.status, data })))
+            .then(({ status, data }) => {
+                if (status === 404) {
+                    openResponse({ error: "Not Found", message: `Notification ID ${id} does not exist. Please enter an existing ID.`, status: "404", timestamp: new Date().toISOString() });
+                } else if (status >= 400) {
+                    openResponse({ error: data.error || "Error", message: data.message || "Something went wrong.", status: String(status), timestamp: new Date().toISOString() });
+                } else {
+                    // ✅ Success message added
+                    data.message = `Notification ID ${id} fetched successfully.`;
+                    openResponse(data);
+                }
+            })
+            .catch(() => openResponse({ error: "Request Failed", message: "Could not reach the server.", status: "—", timestamp: new Date().toISOString() }));
     }
 
     function getUserNotifications() {
         const userId = document.getElementById("userId").value;
-        fetch("/api/v1/users/" + userId + "/notifications")
-            .then(res => res.json())
-            .then(data => openResponse(data))
-            .catch(() => openResponse({ error: "Request failed" }));
+        if (!isValidId(userId)) return validationError("Enter a valid User ID — numbers only, no letters or symbols.");
+
+        fetch("/api/v1/users/" + userId.trim() + "/notifications")
+            .then(res => res.text().then(raw => ({ status: res.status, raw })))
+            .then(({ status, raw }) => {
+                if (status === 404) {
+                    openResponse({
+                        error: "Not Found",
+                        message: `User ID ${userId} does not exist. Please enter an existing User ID.`,
+                        status: "404",
+                        timestamp: new Date().toISOString()
+                    });
+                } else if (status === 500) {
+                    // ✅ Backend sends 500 for user not found — intercept it here
+                    let parsed = {};
+                    try { parsed = JSON.parse(raw); } catch (_) {}
+                    const msg = parsed.message || raw;
+
+                    if (msg.toLowerCase().includes("not found") || msg.toLowerCase().includes("user with id")) {
+                        openResponse({
+                            error: "Not Found",
+                            message: `User ID ${userId} does not exist. Please enter an existing User ID.`,
+                            status: "404",
+                            timestamp: new Date().toISOString()
+                        });
+                    } else {
+                        openResponse({ error: "Internal Server Error", message: msg, status: "500", timestamp: new Date().toISOString() });
+                    }
+                } else if (status >= 400) {
+                    let msg = raw;
+                    try { msg = JSON.parse(raw).message || raw; } catch (_) {}
+                    openResponse({ error: "Error", message: msg, status: String(status), timestamp: new Date().toISOString() });
+                } else {
+                    const data = JSON.parse(raw);
+                    const count = Array.isArray(data) ? data.length : 1;
+                    openResponse({ message: `${count} notification(s) fetched successfully for User ID ${userId}.`, data: data });
+                }
+            })
+            .catch(() => openResponse({ error: "Request Failed", message: "Could not reach the server.", status: "—", timestamp: new Date().toISOString() }));
     }
 
     function deleteNotification() {
         const id = document.getElementById("deleteId").value;
-        fetch("/api/v1/notifications/" + id, { method: "DELETE" })
-            .then(() => openResponse({ message: "Notification deleted successfully", notificationId: id }))
-            .catch(() => openResponse({ error: "Request failed" }));
+        if (!isValidId(id)) return validationError("Enter a valid Notification ID — numbers only, no letters or symbols.");
+
+        fetch("/api/v1/notifications/" + id.trim(), { method: "DELETE" })
+            .then(res => {
+                if (res.status === 404) {
+                    openResponse({
+                        error: "Not Found",
+                        message: `Notification ID ${id} does not exist. Nothing was deleted.`,
+                        status: "404",
+                        timestamp: new Date().toISOString()
+                    });
+                } else if (res.status >= 400) {
+                    return res.json().then(data => openResponse({ error: data.error || "Error", message: data.message || "Something went wrong.", status: String(res.status), timestamp: new Date().toISOString() }));
+                } else {
+                    openResponse({ message: `Notification ID ${id} deleted successfully.`, notificationId: id });
+                }
+            })
+            .catch(() => openResponse({ error: "Request Failed", message: "Could not reach the server.", status: "—", timestamp: new Date().toISOString() }));
     }
 </script>
-
 </body>
 </html>

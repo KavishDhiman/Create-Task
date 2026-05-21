@@ -50,17 +50,28 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http
+
                 .csrf(csrf -> csrf.disable())
 
                 .authorizeHttpRequests(auth -> auth
 
+                        // =========================================
+                        // PUBLIC ROUTES
+                        // =========================================
+
                         .requestMatchers(
                                 "/",
                                 "/login",
+                                "/access-denied",
                                 "/css/**",
                                 "/js/**",
-                                "/images/**"
+                                "/images/**",
+                                "/favicon.ico"
                         ).permitAll()
+
+                        // =========================================
+                        // SWAGGER
+                        // =========================================
 
                         .requestMatchers(
                                 "/swagger-ui/**",
@@ -69,9 +80,9 @@ public class SecurityConfig {
                         ).authenticated()
 
                         // =========================================
-                        // SRIHARI MODULE
-                        // MUST COME BEFORE /api/v1/tasks/**
+                        // ATTACHMENT + COMMENTS MODULE
                         // =========================================
+
                         .requestMatchers(
                                 "/attachment-comment-ui/**",
                                 "/api/v1/attachments/**",
@@ -83,68 +94,77 @@ public class SecurityConfig {
                         // =========================================
                         // NOTIFICATION MODULE
                         // =========================================
+
                         .requestMatchers(
                                 "/notifications-ui/**",
-                                "/api/v1/notifications/**"
+                                "/api/v1/notifications/**",
+                                "/api/v1/users/*/notifications"
                         ).hasRole("NOTIFICATION")
 
                         // =========================================
                         // TASK MODULE
                         // =========================================
+
                         .requestMatchers(
                                 "/tasks-ui/**",
                                 "/categories-ui/**",
                                 "/taskcategories-ui/**",
                                 "/read-chats-ui/**",
                                 "/task-management-api-overview/**",
+
                                 "/api/v1/tasks/**",
                                 "/api/v1/categories/**",
                                 "/api/v1/taskcategories/**",
                                 "/api/v1/chats/**",
-                                "/api/v1/task-management/**"
-                        ).hasRole("TASK")
+                                "/api/v1/task-management/**",
 
-                        .requestMatchers(
                                 "/api/v1/projects/*/tasks",
-                                "/api/v1/users/*/tasks"
-                        ).hasRole("TASK")
+                                "/api/v1/users/*/tasks",
 
-                        .requestMatchers(
                                 "/api/v1/reports/tasks/overdue"
                         ).hasRole("TASK")
 
                         // =========================================
                         // PROJECT MODULE
                         // =========================================
-                        .requestMatchers(
-                                "/api/v1/users/*/projects"
-                        ).hasRole("PROJECT")
 
                         .requestMatchers(
+
+                                "/projects-ui",
                                 "/projects-ui/**",
-                                "/api/v1/projects/**"
-                        ).hasRole("PROJECT")
 
-                        // =========================================
-                        // NOTIFICATION USER ROUTE
-                        // =========================================
-                        .requestMatchers(
-                                "/api/v1/users/*/notifications"
-                        ).hasRole("NOTIFICATION")
+                                "/reports-ui",
+                                "/reports-ui/**",
+
+                                "/api/v1/projects",
+                                "/api/v1/projects/**",
+
+                                "/api/v1/users/*/projects",
+
+                                "/api/v1/reports/projects/summary"
+                        ).hasRole("PROJECT")
 
                         // =========================================
                         // USER MANAGEMENT MODULE
                         // =========================================
+
                         .requestMatchers(
                                 "/users-ui/**",
-                                "/reports-ui/**",
                                 "/api/v1/users/**",
                                 "/api/v1/roles/**",
-                                "/api/v1/reports/**"
+                                "/api/v1/reports/users/**"
                         ).hasRole("USER_MANAGEMENT")
+
+                        // =========================================
+                        // EVERYTHING ELSE
+                        // =========================================
 
                         .anyRequest().authenticated()
                 )
+
+                // =========================================
+                // LOGIN
+                // =========================================
 
                 .formLogin(form -> form
                         .loginPage("/login")
@@ -152,11 +172,19 @@ public class SecurityConfig {
                         .permitAll()
                 )
 
+                // =========================================
+                // LOGOUT
+                // =========================================
+
                 .logout(logout -> logout
                         .logoutUrl("/logout")
                         .logoutSuccessUrl("/login?logout")
                         .permitAll()
                 )
+
+                // =========================================
+                // ACCESS DENIED
+                // =========================================
 
                 .exceptionHandling(ex -> ex
                         .accessDeniedPage("/access-denied")
@@ -165,30 +193,44 @@ public class SecurityConfig {
         return http.build();
     }
 
+    // =========================================
+    // USERS
+    // =========================================
+
     @Bean
     public UserDetailsService userDetailsService(PasswordEncoder encoder) {
 
         return new InMemoryUserDetailsManager(
+
+                // NOTIFICATION USER
 
                 User.withUsername(meenakshiUsername)
                         .password(encoder.encode(meenakshiPassword))
                         .roles("NOTIFICATION")
                         .build(),
 
+                // TASK USER
+
                 User.withUsername(jayanthiUsername)
                         .password(encoder.encode(jayanthiPassword))
                         .roles("TASK")
                         .build(),
+
+                // USER MANAGEMENT USER
 
                 User.withUsername(kaviyaUsername)
                         .password(encoder.encode(kaviyaPassword))
                         .roles("USER_MANAGEMENT")
                         .build(),
 
+                // PROJECT USER
+
                 User.withUsername(kavishUsername)
                         .password(encoder.encode(kavishPassword))
                         .roles("PROJECT")
                         .build(),
+
+                // ATTACHMENT USER
 
                 User.withUsername(srihariUsername)
                         .password(encoder.encode(srihariPassword))

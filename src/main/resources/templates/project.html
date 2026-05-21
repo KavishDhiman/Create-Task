@@ -58,6 +58,41 @@
             padding:40px;
         }
 
+        .topbar{
+
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+
+            margin-bottom:30px;
+        }
+
+        .back-link{
+
+            color:#7f8db3;
+            text-decoration:none;
+
+            font-family:'DM Mono', monospace;
+            font-size:0.85rem;
+        }
+
+        .logout-btn{
+
+            background:rgba(255,99,99,0.08);
+
+            border:1px solid rgba(255,99,99,0.25);
+
+            color:#ff6363;
+
+            padding:10px 18px;
+
+            border-radius:10px;
+
+            font-family:'DM Mono', monospace;
+
+            cursor:pointer;
+        }
+
         h1{
 
             font-family:'Syne',sans-serif;
@@ -78,9 +113,16 @@
 
             display:grid;
 
-            grid-template-columns:repeat(auto-fit,minmax(350px,1fr));
+            grid-template-columns:repeat(2,1fr);
 
             gap:25px;
+        }
+
+        @media(max-width:900px){
+
+            .grid{
+                grid-template-columns:1fr;
+            }
         }
 
         .card{
@@ -261,6 +303,22 @@
 
 <body>
 
+<div class="topbar">
+
+    <a href="/" class="back-link">
+        ← Back to Homepage
+    </a>
+
+    <form action="/logout" method="post">
+
+        <button type="submit" class="logout-btn">
+            Sign Out →
+        </button>
+
+    </form>
+
+</div>
+
 <h1>Project APIs</h1>
 
 <p class="subtitle">
@@ -295,9 +353,9 @@
 
             <input id="createDescription" placeholder="Description">
 
-            <input id="createStartDate" placeholder="Start Date">
+            <input id="createStartDate" placeholder="Start Date (2026-05-20)">
 
-            <input id="createEndDate" placeholder="End Date">
+            <input id="createEndDate" placeholder="End Date (2026-06-20)">
 
             <input id="createUserID" placeholder="User ID">
 
@@ -485,6 +543,37 @@
 
     </div>
 
+    <!-- PROJECT SUMMARY -->
+
+    <div class="card">
+
+        <div class="card-header">
+
+            <div class="method GET">GET</div>
+
+            <div class="title">
+                Project Summary Dashboard
+            </div>
+
+            <div class="path">
+                /api/v1/reports/projects/summary
+            </div>
+
+        </div>
+
+        <div class="body">
+
+            <button
+                    type="button"
+                    class="btn-get"
+                    onclick="getProjectSummary()">
+                Send GET →
+            </button>
+
+        </div>
+
+    </div>
+
 </div>
 
 <script>
@@ -545,10 +634,11 @@
 
             const data = await response.json();
 
-            openResponse({
-                message:"Project created successfully",
-                data:data
-            });
+            if(response.ok){
+                data.message = "Project created successfully";
+            }
+
+            openResponse(data);
 
         }catch(error){
 
@@ -568,10 +658,11 @@
             const data =
                 await response.json();
 
-            openResponse({
-                message:"Projects fetched successfully",
-                data:data
-            });
+            if(response.ok){
+                data.message = "Projects fetched successfully";
+            }
+
+            openResponse(data);
 
         }catch(error){
 
@@ -594,10 +685,11 @@
             const data =
                 await response.json();
 
-            openResponse({
-                message:"Project fetched successfully",
-                data:data
-            });
+            if(response.ok){
+                data.message = "Project fetched successfully";
+            }
+
+            openResponse(data);
 
         }catch(error){
 
@@ -647,10 +739,11 @@
 
             const data = await response.json();
 
-            openResponse({
-                message:"Project updated successfully",
-                data:data
-            });
+            if(response.ok){
+                data.message = "Project updated successfully";
+            }
+
+            openResponse(data);
 
         }catch(error){
 
@@ -698,15 +791,40 @@
             const data =
                 await response.json();
 
-            openResponse({
-                message:"User projects fetched successfully",
-                data:data
-            });
+            if(response.ok){
+                data.message = "User projects fetched successfully";
+            }
+
+            openResponse(data);
 
         }catch(error){
 
             openResponse({
                 error:"Failed to fetch user projects"
+            });
+        }
+    }
+
+    async function getProjectSummary(){
+
+        try{
+
+            const response =
+                await fetch(`${BASE}/reports/projects/summary`);
+
+            const data =
+                await response.json();
+
+            if(response.ok){
+                data.message = "Project summary fetched successfully";
+            }
+
+            openResponse(data);
+
+        }catch(error){
+
+            openResponse({
+                error:"Failed to fetch project summary"
             });
         }
     }

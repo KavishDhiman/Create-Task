@@ -647,9 +647,33 @@
     );
 }
 
-    function handleErr() {
-        openResponse({ error: "Request failed" });
-    }
+    function handleResponse(response) {
+
+    return response.text().then(text => {
+
+        let data = {};
+
+        try {
+            data = text ? JSON.parse(text) : {};
+        } catch {
+            data = { message: text };
+        }
+
+        if (!response.ok) {
+            throw data;
+        }
+
+        return data;
+    });
+}
+    function handleErr(err) {
+
+    openResponse({
+        error: err.error || "Request Failed",
+        message: err.message || "Something went wrong",
+        status: err.status || ""
+    });
+}
 
     // ── User APIs ──
     function createUser() {
@@ -667,7 +691,7 @@
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body)
     })
-        .then(r => r.json())
+        .then(handleResponse)
         .then(d => {
             d.message = "User created successfully";
             openResponse(d);
@@ -676,19 +700,30 @@
 }
 
     function getAllUsers() {
-        fetch(`${BASE}/users`)
-            .then(r => r.json())
-            .then(d => openResponse(d))
-            .catch(handleErr);
-    }
+    fetch(`${BASE}/users`)
+        .then(handleResponse)
+        .then(d => {
+            openResponse({
+                message: "Users fetched successfully",
+                data: d
+            });
+        })
+        .catch(handleErr);
+}
 
     function getUserById() {
-        const id = document.getElementById("getUserId").value;
-        fetch(`${BASE}/users/${id}`)
-            .then(r => r.json())
-            .then(d => openResponse(d))
-            .catch(handleErr);
-    }
+    const id = document.getElementById("getUserId").value;
+
+    fetch(`${BASE}/users/${id}`)
+        .then(handleResponse)
+        .then(d => {
+            openResponse({
+                message: "User fetched successfully",
+                data: d
+            });
+        })
+        .catch(handleErr);
+}
 
     function updateUser() {
 
@@ -707,7 +742,7 @@
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body)
     })
-        .then(r => r.json())
+        .then(handleResponse)
         .then(d => {
             d.message = "User updated successfully";
             openResponse(d);
@@ -716,11 +751,24 @@
 }
 
     function deleteUser() {
-        const id = document.getElementById("deleteUserId").value;
-        fetch(`${BASE}/users/${id}`, { method: "DELETE" })
-            .then(() => openResponse({ message: "User deleted successfully", userId: id }))
-            .catch(handleErr);
-    }
+
+    const id = document.getElementById("deleteUserId").value;
+
+    fetch(`${BASE}/users/${id}`, {
+        method: "DELETE"
+    })
+        .then(handleResponse)
+        .then(d => {
+
+            openResponse({
+                isDelete: true,
+                message: d.message || d,
+                userId: id
+            });
+
+        })
+        .catch(handleErr);
+}
 
     // ── Role APIs ──
     function createRole() {
@@ -735,7 +783,7 @@
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body)
     })
-        .then(r => r.json())
+        .then(handleResponse)
         .then(d => {
             d.message = "Role created successfully";
             openResponse(d);
@@ -744,55 +792,85 @@
 }
 function getAllRoles() {
     fetch(`${BASE}/roles`)
-        .then(r => r.json())
-        .then(d => openResponse(d))
+        .then(handleResponse)
+        .then(d => {
+            openResponse({
+                message: "Roles fetched successfully",
+                data: d
+            });
+        })
         .catch(handleErr);
 }
     // ── User-Role Mapping ──
     function assignRole() {
+
     const uid = document.getElementById("assignUserId").value;
     const rid = document.getElementById("assignRoleId").value;
 
     fetch(`${BASE}/users/${uid}/roles/${rid}`, {
         method: "POST"
     })
-        .then(() => openResponse({
-            message: "Role assigned successfully",
-            userId: uid,
-            roleId: rid
-        }))
+        .then(handleResponse)
+        .then(d => {
+
+            openResponse({
+                message: "Role assigned successfully",
+                userId: uid,
+                roleId: rid
+            });
+
+        })
         .catch(handleErr);
 }
 
     function removeRole() {
-        const uid = document.getElementById("removeUserId").value;
-        const rid = document.getElementById("removeRoleId").value;
 
-        fetch(`${BASE}/users/${uid}/roles/${rid}`, { method: "DELETE" })
-            .then(() => openResponse({
-                message: "Role removed successfully",
+    const uid = document.getElementById("removeUserId").value;
+    const rid = document.getElementById("removeRoleId").value;
+
+    fetch(`${BASE}/users/${uid}/roles/${rid}`, {
+        method: "DELETE"
+    })
+        .then(handleResponse)
+        .then(d => {
+
+            openResponse({
+                isDelete: true,
+                message: d.message || "Role removed successfully",
                 userId: uid,
                 roleId: rid
-            }))
-            .catch(handleErr);
-    }
+            });
+
+        })
+        .catch(handleErr);
+}
 
     function getUserRoles() {
-        const uid = document.getElementById("getRolesUserId").value;
+    const uid = document.getElementById("getRolesUserId").value;
 
-        fetch(`${BASE}/users/${uid}/roles`)
-            .then(r => r.json())
-            .then(d => openResponse(d))
-            .catch(handleErr);
-    }
+    fetch(`${BASE}/users/${uid}/roles`)
+        .then(handleResponse)
+        .then(d => {
+            openResponse({
+                message: "User roles fetched successfully",
+                data: d
+            });
+        })
+        .catch(handleErr);
+}
 
     // ── Reporting Endpoints ──
     function getUserProductivityReport() {
-        fetch(`${BASE}/reports/users/productivity`)
-            .then(r => r.json())
-            .then(d => openResponse(d))
-            .catch(handleErr);
-    }
+    fetch(`${BASE}/reports/users/productivity`)
+        .then(handleResponse)
+        .then(d => {
+            openResponse({
+                message: "User productivity report generated successfully",
+                data: d
+            });
+        })
+        .catch(handleErr);
+}
 </script>
 
 </body>

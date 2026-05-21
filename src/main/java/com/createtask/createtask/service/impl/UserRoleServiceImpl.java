@@ -29,9 +29,26 @@ public class UserRoleServiceImpl implements UserRoleService {
      */
     @Override
     public UserRole createRole(UserRole userRole) {
+
+        // Prevent duplicate role ID
+        if (userRoleRepository.existsById(userRole.getUserRoleID())) {
+            throw new RuntimeException(
+                    "Role ID already exists"
+            );
+        }
+
+        // Prevent duplicate role name
         if (userRoleRepository.existsByRoleName(userRole.getRoleName())) {
             throw new DuplicateRoleException(userRole.getRoleName());
         }
+
+        // Allow only alphabets and spaces in role name
+        if (!userRole.getRoleName().matches("^[A-Za-z ]+$")) {
+            throw new RuntimeException(
+                    "Role name must contain only letters"
+            );
+        }
+
         return userRoleRepository.save(userRole);
     }
 

@@ -355,17 +355,53 @@
         }
 
         if (payload?.error) {
-            statusPill.textContent = 'Error';
-            statusPill.className = 'status-pill err';
-            messageBanner.style.display = 'block';
-            messageBanner.textContent = payload.error;
-            emptyState.style.display = 'block';
-            table.style.display = 'none';
-            rowCount.textContent = '';
-            return;
-        }
 
-        const data = normalizePayload(payload);
+    statusPill.textContent = 'Error';
+    statusPill.className = 'status-pill err';
+
+    messageBanner.style.display = 'block';
+
+    messageBanner.textContent =
+        payload.message
+        ? `${payload.error} — ${payload.message}`
+        : payload.error;
+
+    const errorData = [{
+        error: payload.error || 'Error',
+        message: payload.message || 'Something went wrong',
+        status: payload.status || '—',
+        timestamp: payload.timestamp || '—'
+    }];
+
+    emptyState.style.display = 'none';
+    table.style.display = 'table';
+
+    rowCount.textContent = '1 record';
+
+    const keys = Object.keys(errorData[0]);
+
+    thead.innerHTML =
+        `<tr>${keys.map(k => `<th>${k}</th>`).join('')}</tr>`;
+
+    tbody.innerHTML =
+        errorData.map(row =>
+            `<tr>${keys.map(k => `<td>${row[k]}</td>`).join('')}</tr>`
+        ).join('');
+
+    return;
+}
+
+        const data = normalizePayload(payload).map(row => {
+    const cleaned = { ...row };
+
+    delete cleaned.module;
+
+    if (payload?.message && !payload?.isDelete) {
+        delete cleaned.message;
+    }
+
+    return cleaned;
+});
 
         if (!data || data.length === 0 || Object.keys(data[0] || {}).length === 0) {
             emptyState.style.display = 'block';

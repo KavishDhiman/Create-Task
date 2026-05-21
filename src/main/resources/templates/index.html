@@ -320,8 +320,8 @@
         </div>
     </div>
     <div class="team-row team-row-bottom">
-        <div class="member-card" onclick="show('jayanti')" id="card-jayanti">
-            <img th:src="@{/images/jayanti.jpeg}" class="member-avatar" alt="Jayanthi" />
+        <div class="member-card" onclick="show('jayanthi')" id="card-jayanthi">
+            <img th:src="@{/images/jayanthi.jpeg}" class="member-avatar" alt="Jayanthi" />
             <div class="member-name">Jayanthi</div>
             <span class="member-tag">Tasks &amp; Categories</span>
         </div>
@@ -563,87 +563,140 @@
     </div>
 
     <!-- ── JAYANTHI ── -->
-    <div id="panel-jayanti" style="display:none">
+    <div id="panel-jayanthi" style="display:none">
         <div class="endpoints-header">
             <span class="who">Jayanthi M</span> — Tasks &amp; Categories
             <span class="count">15 endpoints</span>
         </div>
         <div class="group-grid">
+
+            <!-- Task CRUD group -->
             <div class="endpoint-group">
                 <div class="group-label">Task CRUD</div>
                 <div class="endpoint-row">
-                    <div class="endpoint-main"><span class="method POST">POST</span><span class="path">/api/v1/tasks</span></div>
+                    <div class="endpoint-main">
+                        <span class="method POST">POST</span>
+                        <a th:href="@{/tasks-ui}" class="path">/api/v1/tasks</a>
+                    </div>
                     <div class="endpoint-desc">Create a new task</div>
                 </div>
                 <div class="endpoint-row">
-                    <div class="endpoint-main"><span class="method GET">GET</span><span class="path">/api/v1/tasks/<span class="path-param">{taskId}</span></span></div>
+                    <div class="endpoint-main">
+                        <span class="method GET">GET</span>
+                        <a th:href="@{/tasks-ui}" class="path">/api/v1/tasks/<span class="path-param">{taskId}</span></a>
+                    </div>
                     <div class="endpoint-desc">Get details of a specific task</div>
                 </div>
                 <div class="endpoint-row">
-                    <div class="endpoint-main"><span class="method GET">GET</span><span class="path">/api/v1/tasks</span></div>
+                    <div class="endpoint-main">
+                        <span class="method GET">GET</span>
+                        <a th:href="@{/tasks-ui}" class="path">/api/v1/tasks</a>
+                    </div>
                     <div class="endpoint-desc">List all tasks</div>
                 </div>
                 <div class="endpoint-row">
-                    <div class="endpoint-main"><span class="method PUT">PUT</span><span class="path">/api/v1/tasks/<span class="path-param">{taskId}</span></span></div>
+                    <div class="endpoint-main">
+                        <span class="method PUT">PUT</span>
+                        <a th:href="@{/tasks-ui}" class="path">/api/v1/tasks/<span class="path-param">{taskId}</span></a>
+                    </div>
                     <div class="endpoint-desc">Update task information</div>
                 </div>
                 <div class="endpoint-row">
-                    <div class="endpoint-main"><span class="method DELETE">DELETE</span><span class="path">/api/v1/tasks/<span class="path-param">{taskId}</span></span></div>
+                    <div class="endpoint-main">
+                        <span class="method DELETE">DELETE</span>
+                        <a th:href="@{/tasks-ui}" class="path">/api/v1/tasks/<span class="path-param">{taskId}</span></a>
+                    </div>
                     <div class="endpoint-desc">Delete a task</div>
                 </div>
             </div>
+
+            <!-- Task Filtering group -->
             <div class="endpoint-group">
                 <div class="group-label">Task Filtering</div>
                 <div class="endpoint-row">
-                    <div class="endpoint-main"><span class="method GET">GET</span><span class="path">/api/v1/projects/<span class="path-param">{projectId}</span>/tasks</span></div>
+                    <div class="endpoint-main">
+                        <span class="method GET">GET</span>
+                        <a th:href="@{/tasks-ui}" class="path">/api/v1/projects/<span class="path-param">{projectId}</span>/tasks</a>
+                    </div>
                     <div class="endpoint-desc">Get all tasks under a project</div>
                 </div>
                 <div class="endpoint-row">
-                    <div class="endpoint-main"><span class="method GET">GET</span><span class="path">/api/v1/users/<span class="path-param">{userId}</span>/tasks</span></div>
+                    <div class="endpoint-main">
+                        <span class="method GET">GET</span>
+                        <a th:href="@{/tasks-ui}" class="path">/api/v1/users/<span class="path-param">{userId}</span>/tasks</a>
+                    </div>
                     <div class="endpoint-desc">Get all tasks assigned to a user</div>
                 </div>
                 <div class="endpoint-row">
-                    <div class="endpoint-main"><span class="method GET">GET</span><span class="path">/api/v1/tasks/status/<span class="path-param">{status}</span></span></div>
-                    <div class="endpoint-desc">Filter tasks by status (e.g. PENDING, DONE)</div>
+                    <div class="endpoint-main">
+                        <span class="method GET">GET</span>
+                        <a th:href="@{/tasks-ui}" class="path">/api/v1/tasks/status/<span class="path-param">{status}</span></a>
+                    </div>
+                    <div class="endpoint-desc">Filter tasks by status</div>
                 </div>
                 <div class="endpoint-row">
-                    <div class="endpoint-main"><span class="method GET">GET</span><span class="path">/api/v1/tasks/priority/<span class="path-param">{priority}</span></span></div>
+                    <div class="endpoint-main">
+                        <span class="method GET">GET</span>
+                        <a th:href="@{/tasks-ui}" class="path">/api/v1/tasks/priority/<span class="path-param">{priority}</span></a>
+                    </div>
                     <div class="endpoint-desc">Filter tasks by priority level</div>
                 </div>
             </div>
+
+            <!-- Categories group -->
             <div class="endpoint-group">
                 <div class="group-label">Categories</div>
                 <div class="endpoint-row">
-                    <div class="endpoint-main"><span class="method POST">POST</span><span class="path">/api/v1/categories</span></div>
+                    <div class="endpoint-main">
+                        <span class="method POST">POST</span>
+                        <a th:href="@{/tasks-ui}" class="path">/api/v1/categories</a>
+                    </div>
                     <div class="endpoint-desc">Create a new category</div>
                 </div>
                 <div class="endpoint-row">
-                    <div class="endpoint-main"><span class="method GET">GET</span><span class="path">/api/v1/categories</span></div>
+                    <div class="endpoint-main">
+                        <span class="method GET">GET</span>
+                        <a th:href="@{/tasks-ui}" class="path">/api/v1/categories</a>
+                    </div>
                     <div class="endpoint-desc">List all categories</div>
                 </div>
                 <div class="endpoint-row">
-                    <div class="endpoint-main"><span class="method POST">POST</span><span class="path">/api/v1/tasks/<span class="path-param">{taskId}</span>/categories/<span class="path-param">{catId}</span></span></div>
+                    <div class="endpoint-main">
+                        <span class="method POST">POST</span>
+                        <a th:href="@{/tasks-ui}" class="path">/api/v1/tasks/<span class="path-param">{taskId}</span>/categories/<span class="path-param">{categoryId}</span></a>
+                    </div>
                     <div class="endpoint-desc">Assign a category to a task</div>
                 </div>
                 <div class="endpoint-row">
-                    <div class="endpoint-main"><span class="method DELETE">DELETE</span><span class="path">/api/v1/tasks/<span class="path-param">{taskId}</span>/categories/<span class="path-param">{catId}</span></span></div>
+                    <div class="endpoint-main">
+                        <span class="method DELETE">DELETE</span>
+                        <a th:href="@{/tasks-ui}" class="path">/api/v1/tasks/<span class="path-param">{taskId}</span>/categories/<span class="path-param">{categoryId}</span></a>
+                    </div>
                     <div class="endpoint-desc">Remove a category from a task</div>
                 </div>
                 <div class="endpoint-row">
-                    <div class="endpoint-main"><span class="method GET">GET</span><span class="path">/api/v1/tasks/<span class="path-param">{taskId}</span>/categories</span></div>
+                    <div class="endpoint-main">
+                        <span class="method GET">GET</span>
+                        <a th:href="@{/tasks-ui}" class="path">/api/v1/tasks/<span class="path-param">{taskId}</span>/categories</a>
+                    </div>
                     <div class="endpoint-desc">Get all categories of a task</div>
                 </div>
             </div>
+
+            <!-- Reporting group -->
             <div class="endpoint-group">
                 <div class="group-label">Reporting</div>
                 <div class="endpoint-row">
-                    <div class="endpoint-main"><span class="method GET">GET</span><span class="path">/api/v1/reports/tasks/overdue?days=7</span></div>
-                    <div class="endpoint-desc">Overdue tasks report — lists tasks past deadline within N days</div>
+                    <div class="endpoint-main">
+                        <span class="method GET">GET</span>
+                        <a th:href="@{/tasks-ui}" class="path">/api/v1/reports/tasks/overdue?days=7</a>
+                    </div>
+                    <div class="endpoint-desc">Overdue tasks report — lists tasks past deadline</div>
                 </div>
             </div>
+
         </div>
     </div>
-
     <!-- ── SRIHARI ── -->
     <div id="panel-srihari" style="display:none">
         <div class="endpoints-header">
@@ -750,7 +803,7 @@
 </footer>
 
 <script>
-    const members = ['kavish','kaviya','meenakshi','srihari','jayanti'];
+    const members = ['kavish','kaviya','meenakshi','srihari','jayanthi'];
     let current = null;
 
     function show(id) {

@@ -16,51 +16,44 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    // Meenakshi Credentials
-    // =========================================
     @Value("${meenakshi.username}")
     private String meenakshiUsername;
 
     @Value("${meenakshi.password}")
     private String meenakshiPassword;
 
-    // =========================================
-    // Jayanthi Credentials
-    // =========================================
     @Value("${jayanthi.username}")
     private String jayanthiUsername;
 
     @Value("${jayanthi.password}")
     private String jayanthiPassword;
 
-    // =========================================
-    // Kaviya Credentials
-    // =========================================
     @Value("${kaviya.username}")
     private String kaviyaUsername;
 
     @Value("${kaviya.password}")
     private String kaviyaPassword;
 
-    // =========================================
-    // Kavish Credentials
-    // =========================================
     @Value("${kavish.username}")
     private String kavishUsername;
 
     @Value("${kavish.password}")
     private String kavishPassword;
 
+    @Value("${srihari.username}")
+    private String srihariUsername;
+
+    @Value("${srihari.password}")
+    private String srihariPassword;
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http
                 .csrf(csrf -> csrf.disable())
+
                 .authorizeHttpRequests(auth -> auth
 
-                        // =========================================
-                        // Public Routes
-                        // =========================================
                         .requestMatchers(
                                 "/",
                                 "/login",
@@ -69,9 +62,6 @@ public class SecurityConfig {
                                 "/images/**"
                         ).permitAll()
 
-                        // =========================================
-                        // Swagger Routes
-                        // =========================================
                         .requestMatchers(
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
@@ -79,7 +69,19 @@ public class SecurityConfig {
                         ).authenticated()
 
                         // =========================================
-                        // Notification Module
+                        // SRIHARI MODULE
+                        // MUST COME BEFORE /api/v1/tasks/**
+                        // =========================================
+                        .requestMatchers(
+                                "/attachment-comment-ui/**",
+                                "/api/v1/attachments/**",
+                                "/api/v1/comments/**",
+                                "/api/v1/tasks/*/attachments",
+                                "/api/v1/tasks/*/comments"
+                        ).hasRole("ATTACHMENT")
+
+                        // =========================================
+                        // NOTIFICATION MODULE
                         // =========================================
                         .requestMatchers(
                                 "/notifications-ui/**",
@@ -87,8 +89,7 @@ public class SecurityConfig {
                         ).hasRole("NOTIFICATION")
 
                         // =========================================
-                        // Jayanthi Module
-                        // Task / Category / TaskCategory / Read Chats / API Overview
+                        // TASK MODULE
                         // =========================================
                         .requestMatchers(
                                 "/tasks-ui/**",
@@ -108,75 +109,55 @@ public class SecurityConfig {
                                 "/api/v1/users/*/tasks"
                         ).hasRole("TASK")
 
-                        // =========================================
-                        // PROJECT USER ROUTE
-                        // MUST COME BEFORE /api/v1/users/**
-                        // =========================================
-                        .requestMatchers(
-                                "/api/v1/users/*/projects"
-                        ).hasRole("PROJECT")
-
-                        // PROJECT USER ROUTE MUST COME BEFORE /api/v1/users/**
-                        .requestMatchers(
-                                "/api/v1/users/*/projects"
-                        ).hasRole("PROJECT")
-
-                        // Jayanthi / TASK report access
                         .requestMatchers(
                                 "/api/v1/reports/tasks/overdue"
                         ).hasRole("TASK")
 
-
-                        // NOTIFICATION USER ROUTE MUST COME BEFORE /api/v1/users/**
-                        .requestMatchers(
-                                "/api/v1/users/*/notifications"
-                        ).hasRole("NOTIFICATION")
-
-                        // Users & Roles Module
-                        .requestMatchers(
-                                "/users-ui/**",
-                                "/comments-ui/**",
-                                "/reports-ui/**",
-                                "/api/v1/users/**",
-                                "/api/v1/roles/**",
-                                "/api/v1/reports/**"
-                        ).hasRole("USER_MANAGEMENT")
-
                         // =========================================
-                        // Projects Module
+                        // PROJECT MODULE
                         // =========================================
+                        .requestMatchers(
+                                "/api/v1/users/*/projects"
+                        ).hasRole("PROJECT")
+
                         .requestMatchers(
                                 "/projects-ui/**",
                                 "/api/v1/projects/**"
                         ).hasRole("PROJECT")
 
                         // =========================================
-                        // Everything Else
+                        // NOTIFICATION USER ROUTE
                         // =========================================
+                        .requestMatchers(
+                                "/api/v1/users/*/notifications"
+                        ).hasRole("NOTIFICATION")
+
+                        // =========================================
+                        // USER MANAGEMENT MODULE
+                        // =========================================
+                        .requestMatchers(
+                                "/users-ui/**",
+                                "/reports-ui/**",
+                                "/api/v1/users/**",
+                                "/api/v1/roles/**",
+                                "/api/v1/reports/**"
+                        ).hasRole("USER_MANAGEMENT")
+
                         .anyRequest().authenticated()
                 )
 
-                // =========================================
-                // Login Configuration
-                // =========================================
                 .formLogin(form -> form
                         .loginPage("/login")
                         .defaultSuccessUrl("/", false)
                         .permitAll()
                 )
 
-                // =========================================
-                // Logout Configuration
-                // =========================================
                 .logout(logout -> logout
                         .logoutUrl("/logout")
                         .logoutSuccessUrl("/login?logout")
                         .permitAll()
                 )
 
-                // =========================================
-                // Access Denied Page
-                // =========================================
                 .exceptionHandling(ex -> ex
                         .accessDeniedPage("/access-denied")
                 );
@@ -184,36 +165,34 @@ public class SecurityConfig {
         return http.build();
     }
 
-    // =========================================
-    // In-Memory Users
-    // =========================================
     @Bean
     public UserDetailsService userDetailsService(PasswordEncoder encoder) {
 
         return new InMemoryUserDetailsManager(
 
-                // Meenakshi
                 User.withUsername(meenakshiUsername)
                         .password(encoder.encode(meenakshiPassword))
                         .roles("NOTIFICATION")
                         .build(),
 
-                // Jayanthi
                 User.withUsername(jayanthiUsername)
                         .password(encoder.encode(jayanthiPassword))
                         .roles("TASK")
                         .build(),
 
-                // Kaviya
                 User.withUsername(kaviyaUsername)
                         .password(encoder.encode(kaviyaPassword))
                         .roles("USER_MANAGEMENT")
                         .build(),
 
-                // Kavish
                 User.withUsername(kavishUsername)
                         .password(encoder.encode(kavishPassword))
                         .roles("PROJECT")
+                        .build(),
+
+                User.withUsername(srihariUsername)
+                        .password(encoder.encode(srihariPassword))
+                        .roles("ATTACHMENT")
                         .build()
         );
     }

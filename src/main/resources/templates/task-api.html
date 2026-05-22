@@ -663,185 +663,271 @@
     window.open("/response-view", "_blank");
   }
 
-  function openErrorTab(message, title = MODULE_TITLE) {
-    localStorage.setItem("apiResponsePayload", JSON.stringify({
-      module: title,
+  function openErrorTab(message, status = 500, title = MODULE_TITLE) {
+    openResponseTab({
+      httpStatus: status,
       error: message
-    }));
-    window.open("/response-view", "_blank");
+    }, title);
   }
 
-function createTask() {
-  fetch(BASE + "/tasks", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      taskID: parseInt(document.getElementById("createTaskId").value),
-      taskName: document.getElementById("createTaskName").value,
-      description: document.getElementById("createTaskDesc").value,
-      dueDate: document.getElementById("createTaskDue").value,
-      priority: document.getElementById("createTaskPriority").value,
-      status: document.getElementById("createTaskStatus").value,
-      projectID: parseInt(document.getElementById("createTaskProjectId").value),
-      userID: parseInt(document.getElementById("createTaskUserId").value)
-    })
-  })
-  .then(res => res.json())
-  .then(data => openResponseTab({
-      message: "Task created successfully",
-      data: data
-  }))
-  .catch(() => openErrorTab("Failed to create task"));
-}
+  function parseBody(text) {
+    if (!text) return null;
+    try {
+      return JSON.parse(text);
+    } catch {
+      return text;
+    }
+  }
 
-  function getTaskById() {
+  async function apiCall(url, options = {}) {
+    const res = await fetch(url, options);
+    const text = await res.text();
+    const body = parseBody(text);
+
+    if (!res.ok) {
+      const message =
+        (body && typeof body === "object" && (body.message || body.error)) ||
+        (typeof body === "string" && body.trim()) ||
+        `HTTP ${res.status}`;
+      throw {
+        status: res.status,
+        message,
+        body
+      };
+    }
+
+    return {
+      status: res.status,
+      body
+    };
+  }
+
+  async function createTask() {
+    try {
+      const { status, body } = await apiCall(BASE + "/tasks", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          taskID: parseInt(document.getElementById("createTaskId").value),
+          taskName: document.getElementById("createTaskName").value,
+          description: document.getElementById("createTaskDesc").value,
+          dueDate: document.getElementById("createTaskDue").value,
+          priority: document.getElementById("createTaskPriority").value,
+          status: document.getElementById("createTaskStatus").value,
+          projectID: parseInt(document.getElementById("createTaskProjectId").value),
+          userID: parseInt(document.getElementById("createTaskUserId").value)
+        })
+      });
+
+      openResponseTab({
+        httpStatus: status,
+        message: "Task created successfully",
+        data: body
+      });
+    } catch (err) {
+      openErrorTab(err.message || "Failed to create task", err.status || 500);
+    }
+  }
+
+  async function getTaskById() {
     const id = document.getElementById("getTaskId").value;
-    fetch(BASE + "/tasks/" + id)
-      .then(res => res.json())
-      .then(data => openResponseTab({ data }))
-      .catch(() => openErrorTab("Request failed"));
+
+    try {
+      const { status, body } = await apiCall(BASE + "/tasks/" + id);
+      openResponseTab({ httpStatus: status, data: body });
+    } catch (err) {
+      openErrorTab(err.message || "Request failed", err.status || 500);
+    }
   }
 
-  function getAllTasks() {
-    fetch(BASE + "/tasks")
-      .then(res => res.json())
-      .then(data => openResponseTab({ data }))
-      .catch(() => openErrorTab("Request failed"));
+  async function getAllTasks() {
+    try {
+      const { status, body } = await apiCall(BASE + "/tasks");
+      openResponseTab({ httpStatus: status, data: body });
+    } catch (err) {
+      openErrorTab(err.message || "Request failed", err.status || 500);
+    }
   }
 
-function updateTask() {
-  const id = document.getElementById("updateTaskId").value;
+  async function updateTask() {
+    const id = document.getElementById("updateTaskId").value;
 
-  fetch(BASE + "/tasks/" + id, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      taskID: parseInt(id),
-      taskName: document.getElementById("updateTaskName").value,
-      description: document.getElementById("updateTaskDesc").value,
-      dueDate: document.getElementById("updateTaskDue").value,
-      priority: document.getElementById("updateTaskPriority").value,
-      status: document.getElementById("updateTaskStatus").value,
-      projectID: parseInt(document.getElementById("updateTaskProjectId").value),
-      userID: parseInt(document.getElementById("updateTaskUserId").value)
-    })
-  })
-  .then(res => res.json())
-  .then(data => openResponseTab({
-      message: "Task updated successfully",
-      data: data
-  }))
-  .catch(() => openErrorTab("Failed to update task"));
-}
+    try {
+      const { status, body } = await apiCall(BASE + "/tasks/" + id, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          taskID: parseInt(id),
+          taskName: document.getElementById("updateTaskName").value,
+          description: document.getElementById("updateTaskDesc").value,
+          dueDate: document.getElementById("updateTaskDue").value,
+          priority: document.getElementById("updateTaskPriority").value,
+          status: document.getElementById("updateTaskStatus").value,
+          projectID: parseInt(document.getElementById("updateTaskProjectId").value),
+          userID: parseInt(document.getElementById("updateTaskUserId").value)
+        })
+      });
 
-function deleteTask() {
-  const id = document.getElementById("deleteTaskId").value;
+      openResponseTab({
+        httpStatus: status,
+        message: "Task updated successfully",
+        data: body
+      });
+    } catch (err) {
+      openErrorTab(err.message || "Failed to update task", err.status || 500);
+    }
+  }
 
-  fetch(BASE + "/tasks/" + id, {
-    method: "DELETE"
-  })
-  .then(() => openResponseTab({
-      message: "Task deleted successfully"
-  }))
-  .catch(() => openErrorTab("Failed to delete task"));
-}
+  async function deleteTask() {
+    const id = document.getElementById("deleteTaskId").value;
 
-  function getTasksByProject() {
+    try {
+      const { status } = await apiCall(BASE + "/tasks/" + id, {
+        method: "DELETE"
+      });
+
+      openResponseTab({
+        httpStatus: status,
+        message: "Task deleted successfully"
+      });
+    } catch (err) {
+      openErrorTab(err.message || "Failed to delete task", err.status || 500);
+    }
+  }
+
+  async function getTasksByProject() {
     const id = document.getElementById("filterProjectId").value;
-    fetch(BASE + "/projects/" + id + "/tasks")
-      .then(res => res.json())
-      .then(data => openResponseTab({ data }))
-      .catch(() => openErrorTab("Request failed"));
+
+    try {
+      const { status, body } = await apiCall(BASE + "/projects/" + id + "/tasks");
+      openResponseTab({ httpStatus: status, data: body });
+    } catch (err) {
+      openErrorTab(err.message || "Request failed", err.status || 500);
+    }
   }
 
-  function getTasksByUser() {
+  async function getTasksByUser() {
     const id = document.getElementById("filterUserId").value;
-    fetch(BASE + "/users/" + id + "/tasks")
-      .then(res => res.json())
-      .then(data => openResponseTab({ data }))
-      .catch(() => openErrorTab("Request failed"));
+
+    try {
+      const { status, body } = await apiCall(BASE + "/users/" + id + "/tasks");
+      openResponseTab({ httpStatus: status, data: body });
+    } catch (err) {
+      openErrorTab(err.message || "Request failed", err.status || 500);
+    }
   }
 
-  function getTasksByStatus() {
-    const status = document.getElementById("filterStatus").value;
-    fetch(BASE + "/tasks/status/" + encodeURIComponent(status))
-      .then(res => res.json())
-      .then(data => openResponseTab({ data }))
-      .catch(() => openErrorTab("Request failed"));
+  async function getTasksByStatus() {
+    const statusValue = document.getElementById("filterStatus").value;
+
+    try {
+      const { status, body } = await apiCall(BASE + "/tasks/status/" + encodeURIComponent(statusValue));
+      openResponseTab({ httpStatus: status, data: body });
+    } catch (err) {
+      openErrorTab(err.message || "Request failed", err.status || 500);
+    }
   }
 
-  function getTasksByPriority() {
+  async function getTasksByPriority() {
     const priority = document.getElementById("filterPriority").value;
-    fetch(BASE + "/tasks/priority/" + encodeURIComponent(priority))
-      .then(res => res.json())
-      .then(data => openResponseTab({ data }))
-      .catch(() => openErrorTab("Request failed"));
+
+    try {
+      const { status, body } = await apiCall(BASE + "/tasks/priority/" + encodeURIComponent(priority));
+      openResponseTab({ httpStatus: status, data: body });
+    } catch (err) {
+      openErrorTab(err.message || "Request failed", err.status || 500);
+    }
   }
 
-function createCategory() {
-  fetch(BASE + "/categories", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      categoryID: parseInt(document.getElementById("createCatId").value),
-      categoryName: document.getElementById("createCatName").value
-    })
-  })
-  .then(res => res.json())
-  .then(data => openResponseTab({
-      message: "Category created successfully",
-      data: data
-  }))
-  .catch(() => openErrorTab("Failed to create category"));
-}
+  async function createCategory() {
+    try {
+      const { status, body } = await apiCall(BASE + "/categories", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          categoryID: parseInt(document.getElementById("createCatId").value),
+          categoryName: document.getElementById("createCatName").value
+        })
+      });
 
-  function getAllCategories() {
-    fetch(BASE + "/categories")
-      .then(res => res.json())
-      .then(data => openResponseTab({ data }))
-      .catch(() => openErrorTab("Request failed"));
+      openResponseTab({
+        httpStatus: status,
+        message: "Category created successfully",
+        data: body
+      });
+    } catch (err) {
+      openErrorTab(err.message || "Failed to create category", err.status || 500);
+    }
   }
 
-function assignCategory() {
-  const taskId = document.getElementById("assignTaskId").value;
-  const catId = document.getElementById("assignCatId").value;
+  async function getAllCategories() {
+    try {
+      const { status, body } = await apiCall(BASE + "/categories");
+      openResponseTab({ httpStatus: status, data: body });
+    } catch (err) {
+      openErrorTab(err.message || "Request failed", err.status || 500);
+    }
+  }
 
-  fetch(BASE + "/tasks/" + taskId + "/categories/" + catId, {
-    method: "POST"
-  })
-  .then(() => openResponseTab({
-      message: "Category assigned to task successfully"
-  }))
-  .catch(() => openErrorTab("Failed to assign category"));
-}
+  async function assignCategory() {
+    const taskId = document.getElementById("assignTaskId").value;
+    const catId = document.getElementById("assignCatId").value;
 
-function removeCategory() {
-  const taskId = document.getElementById("removeCatTaskId").value;
-  const catId = document.getElementById("removeCatId").value;
+    try {
+      const { status } = await apiCall(BASE + "/tasks/" + taskId + "/categories/" + catId, {
+        method: "POST"
+      });
 
-  fetch(BASE + "/tasks/" + taskId + "/categories/" + catId, {
-    method: "DELETE"
-  })
-  .then(() => openResponseTab({
-      message: "Category removed from task successfully"
-  }))
-  .catch(() => openErrorTab("Failed to remove category"));
-}
+      openResponseTab({
+        httpStatus: status,
+        message: "Category assigned to task successfully"
+      });
+    } catch (err) {
+      openErrorTab(err.message || "Failed to assign category", err.status || 500);
+    }
+  }
 
-  function getCategoriesForTask() {
+  async function removeCategory() {
+    const taskId = document.getElementById("removeCatTaskId").value;
+    const catId = document.getElementById("removeCatId").value;
+
+    try {
+      const { status } = await apiCall(BASE + "/tasks/" + taskId + "/categories/" + catId, {
+        method: "DELETE"
+      });
+
+      openResponseTab({
+        httpStatus: status,
+        message: "Category removed from task successfully"
+      });
+    } catch (err) {
+      openErrorTab(err.message || "Failed to remove category", err.status || 500);
+    }
+  }
+
+  async function getCategoriesForTask() {
     const taskId = document.getElementById("getCatTaskId").value;
-    fetch(BASE + "/tasks/" + taskId + "/categories")
-      .then(res => res.json())
-      .then(data => openResponseTab({ data }))
-      .catch(() => openErrorTab("Request failed"));
+
+    try {
+      const { status, body } = await apiCall(BASE + "/tasks/" + taskId + "/categories");
+      openResponseTab({ httpStatus: status, data: body });
+    } catch (err) {
+      openErrorTab(err.message || "Request failed", err.status || 500);
+    }
   }
 
-  function getOverdueTasksReport() {
+  async function getOverdueTasksReport() {
     const days = document.getElementById("overdueDays").value || 7;
-    fetch(BASE + "/reports/tasks/overdue?days=" + encodeURIComponent(days))
-      .then(res => res.json())
-      .then(data => openResponseTab({ data }, " Overdue Tasks Report"))
-      .catch(() => openErrorTab("Request failed", "Overdue Tasks Report"));
+
+    try {
+      const { status, body } = await apiCall(BASE + "/reports/tasks/overdue?days=" + encodeURIComponent(days));
+      openResponseTab({
+        httpStatus: status,
+        data: body
+      }, "Overdue Tasks Report");
+    } catch (err) {
+      openErrorTab(err.message || "Request failed", err.status || 500, "Overdue Tasks Report");
+    }
   }
 </script>
 </body>

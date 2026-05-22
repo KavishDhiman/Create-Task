@@ -370,20 +370,6 @@
     </div>
 </div>
 
-<!-- ── RESPONSE ── -->
-<div class="response-section">
-    <div class="response-header">
-        Response
-        <span class="response-status" id="statusBadge"></span>
-    </div>
-    <div class="response-box">
-        <div class="response-empty" id="emptyMsg">No request sent yet — use a card above to test an endpoint</div>
-        <table class="resp-table" id="respTable">
-            <thead id="tableHead"></thead>
-            <tbody id="tableBody"></tbody>
-        </table>
-    </div>
-</div>
 
 <script>
     function openResponse(data) {
@@ -391,7 +377,6 @@
         const encoded = encodeURIComponent(JSON.stringify(data));
         window.open('/response-view?data=' + encoded, '_blank');
     }
-
     // ── Validators ──
     function isValidId(val) {
         return val.trim() !== '' && /^\d+$/.test(val.trim());

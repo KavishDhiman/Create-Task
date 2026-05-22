@@ -304,7 +304,7 @@
     </div>
 </div>
 
-<div class="section-title">Our Team <span>Click a member to see their endpoints</span></div>
+<div class="section-title">Our Team </div>
 
 <div class="team-grid">
     <div class="team-row team-row-top">
@@ -316,7 +316,7 @@
         <div class="member-card" onclick="show('kavish')" id="card-kavish">
             <img th:src="@{/images/kavish.jpeg}" class="member-avatar" alt="Kavish" />
             <div class="member-name">Kavish</div>
-            <span class="member-tag">Projects</span>
+            <span class="member-tag">Projects & Deployment </span>
         </div>
     </div>
     <div class="team-row team-row-bottom">
@@ -333,9 +333,10 @@
         <div class="member-card" onclick="show('meenakshi')" id="card-meenakshi">
             <img th:src="@{/images/meenu.jpeg}" class="member-avatar" alt="Meenakshi" />
             <div class="member-name">Meenakshi</div>
-            <span class="member-tag">Thymeleaf &amp; Notifications</span>
+            <span class="member-tag">Notifications &amp; Thymeleaf  </span>
         </div>
     </div>
+
 </div>
 
 <div class="endpoints-section">
@@ -356,6 +357,7 @@
                 <div class="group-label">User Management</div>
                 <div class="endpoint-row">
                     <div class="endpoint-main"><span class="method POST">POST</span>
+
                         <a th:href="@{/users-ui}" class="path">/api/v1/users</a></div>
                     <div class="endpoint-desc">Create a new user account</div>
                 </div>
@@ -740,7 +742,7 @@
     <!-- ── MEENAKSHI ── -->
     <div id="panel-meenakshi" style="display:none">
         <div class="endpoints-header">
-            <span class="who">Meenakshi</span> — Thymeleaf &amp; Notifications
+            <span class="who">Meenakshi</span> — Notifications &amp; Frontend
             <span class="count">6 endpoints</span>
         </div>
         <div class="group-grid">
@@ -774,21 +776,7 @@
                     </div>
                     <div class="endpoint-desc">Delete a specific notification</div>
                 </div>
-                <div class="endpoint-row">
-                    <div class="endpoint-main">
-                        <span class="method GET">GET</span>
-                        <a th:href="@{/notifications-ui}" class="path">/api/v1/users/<span class="path-param">{userId}</span>/notifications/unread</a>
-                    </div>
-                    <div class="endpoint-desc">Get all unread notifications for a user</div>
-                </div>
-                <div class="endpoint-row">
-                    <div class="endpoint-main">
-                        <span class="method PUT">PUT</span>
-                        <a th:href="@{/notifications-ui}" class="path">/api/v1/notifications/<span class="path-param">{notificationId}</span>/read</a>
-                    </div>
-                    <div class="endpoint-desc">Mark a notification as read</div>
-                </div>
-            </div>
+
         </div>
     </div>
 

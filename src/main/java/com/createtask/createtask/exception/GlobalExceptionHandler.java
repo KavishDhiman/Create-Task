@@ -6,6 +6,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -135,6 +136,21 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(NotificationAlreadyExistsException.class)
     public ResponseEntity<String> handleNotificationAlreadyExists(NotificationAlreadyExistsException ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
+    }
+
+    // Handles invalid datatype inputs like entering text instead of numbers
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<Map<String, Object>> handleTypeMismatch(
+            MethodArgumentTypeMismatchException ex) {
+
+        Map<String, Object> error = new HashMap<>();
+
+        error.put("error", "Invalid Input");
+        error.put("message", "Please enter valid numeric values only.");
+        error.put("status", 400);
+        error.put("timestamp", LocalDateTime.now());
+
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
 }

@@ -15,6 +15,8 @@
             rel="stylesheet"
     />
 
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
+
     <style>
 
         *{
@@ -23,277 +25,259 @@
             box-sizing:border-box;
         }
 
-        :root{
-
-            --bg:#0b0f1a;
-            --card:#141b2d;
-            --surface:#101726;
-            --border:rgba(255,255,255,0.08);
-
-            --text:#e8ecf4;
-            --muted:#6d7a99;
-
-            --get-bg:rgba(54,201,167,0.10);
-            --get-border:rgba(54,201,167,0.28);
-
-            --post-bg:rgba(124,92,252,0.10);
-            --post-border:rgba(124,92,252,0.28);
-
-            --put-bg:rgba(255,179,71,0.10);
-            --put-border:rgba(255,179,71,0.28);
-
-            --delete-bg:rgba(255,99,99,0.10);
-            --delete-border:rgba(255,99,99,0.28);
-        }
-
         body{
-
             background:var(--bg);
             color:var(--text);
-
             font-family:'DM Sans',sans-serif;
-
             min-height:100vh;
-
-            padding:40px;
         }
 
-        .topbar{
+        .page-header{
+            padding:2rem 2.5rem 1.5rem;
+            border-bottom:1px solid var(--border);
+            background:linear-gradient(180deg,#0e1220 0%,var(--bg) 100%);
+            position:relative;
+        }
 
+        .page-header::before{
+            content:'';
+            position:absolute;
+            inset:0;
+            background:
+                    radial-gradient(
+                            ellipse 60% 80% at 50% -10%,
+                            rgba(79,142,247,0.10),
+                            transparent
+                    );
+            pointer-events:none;
+        }
+
+        .header-top-bar{
             display:flex;
             justify-content:space-between;
             align-items:center;
-
-            margin-bottom:30px;
+            margin-bottom:1rem;
         }
 
         .back-link{
-
-            color:#7f8db3;
-            text-decoration:none;
-
+            color:var(--muted);
             font-family:'DM Mono', monospace;
-            font-size:0.85rem;
+            font-size:0.82rem;
+            text-decoration:none;
+        }
+
+        .back-link:hover{
+            color:var(--accent);
         }
 
         .logout-btn{
-
-            background:rgba(255,99,99,0.08);
-
-            border:1px solid rgba(255,99,99,0.25);
-
+            background:var(--del-bg);
+            border:1px solid var(--del-border);
             color:#ff6363;
-
-            padding:10px 18px;
-
-            border-radius:10px;
-
             font-family:'DM Mono', monospace;
-
+            font-size:0.78rem;
+            padding:7px 18px;
+            border-radius:8px;
             cursor:pointer;
+            transition:opacity 0.2s;
         }
 
-        h1{
+        .logout-btn:hover{
+            opacity:0.85;
+        }
 
+        .page-header h1{
             font-family:'Syne',sans-serif;
-
-            font-size:3rem;
-
-            margin-bottom:10px;
+            font-weight:800;
+            font-size:clamp(1.8rem,4vw,2.6rem);
+            letter-spacing:-0.02em;
+            background:linear-gradient(135deg,#e8ecf4 30%,#4f8ef7);
+            -webkit-background-clip:text;
+            -webkit-text-fill-color:transparent;
+            background-clip:text;
+            margin-bottom:0.4rem;
         }
 
-        .subtitle{
-
+        .page-header p{
             color:var(--muted);
+            font-size:0.95rem;
+        }
 
-            margin-bottom:40px;
+        .section-heading{
+            font-family:'Syne',sans-serif;
+            font-weight:700;
+            font-size:1.1rem;
+            color:var(--text);
+            padding:2rem 2.5rem 1rem;
+            border-bottom:1px solid var(--border);
+            display:flex;
+            align-items:center;
+            gap:0.6rem;
+        }
+
+        .section-badge{
+            background:var(--tag-bg);
+            border:1px solid var(--tag-border);
+            color:var(--accent);
+            font-family:'DM Mono', monospace;
+            font-size:0.68rem;
+            padding:2px 10px;
+            border-radius:20px;
+        }
+
+        .api-section{
+            padding:1.5rem 2.5rem;
         }
 
         .grid{
-
             display:grid;
-
             grid-template-columns:repeat(2,1fr);
-
-            gap:25px;
+            gap:1.5rem;
         }
 
         @media(max-width:900px){
-
             .grid{
                 grid-template-columns:1fr;
             }
         }
 
         .card{
-
             background:var(--card);
-
             border:1px solid var(--border);
-
             border-radius:18px;
-
             overflow:hidden;
+            transition:border-color 0.2s;
+        }
+
+        .card:hover{
+            border-color:rgba(79,142,247,0.3);
         }
 
         .card-header{
-
-            padding:20px;
-
+            padding:1.1rem 1.4rem;
             border-bottom:1px solid var(--border);
+            background:rgba(255,255,255,0.02);
+        }
+
+        .header-top{
+            display:flex;
+            align-items:center;
+            gap:0.8rem;
+            margin-bottom:0.6rem;
         }
 
         .method{
-
-            display:inline-block;
-
-            padding:5px 12px;
-
-            border-radius:8px;
-
             font-family:'DM Mono',monospace;
-
             font-size:0.75rem;
-
-            margin-bottom:12px;
+            font-weight:600;
+            padding:4px 12px;
+            border-radius:5px;
+            letter-spacing:0.04em;
+            flex-shrink:0;
         }
 
         .POST{
-
             background:var(--post-bg);
-
             border:1px solid var(--post-border);
-
             color:#9f82ff;
         }
 
         .GET{
-
             background:var(--get-bg);
-
             border:1px solid var(--get-border);
-
             color:#36c9a7;
         }
 
         .PUT{
-
             background:var(--put-bg);
-
             border:1px solid var(--put-border);
-
             color:#ffb347;
         }
 
         .DELETE{
-
-            background:var(--delete-bg);
-
-            border:1px solid var(--delete-border);
-
+            background:var(--del-bg);
+            border:1px solid var(--del-border);
             color:#ff6363;
         }
 
         .title{
-
-            font-size:1.2rem;
-
+            font-family:'Syne',sans-serif;
+            font-size:1rem;
             font-weight:700;
-
-            margin-bottom:10px;
+            color:var(--text);
         }
 
         .path{
-
             background:var(--surface);
-
             border:1px solid var(--border);
-
-            border-radius:10px;
-
-            padding:12px;
-
+            border-radius:8px;
+            padding:0.7rem 1rem;
             font-family:'DM Mono',monospace;
-
             font-size:0.82rem;
+            color:var(--text);
+            word-break:break-all;
         }
 
         .body{
-
-            padding:20px;
+            padding:1.4rem;
         }
 
         input{
-
             width:100%;
-
-            padding:14px;
-
             background:var(--surface);
-
             border:1px solid var(--border);
-
-            border-radius:10px;
-
-            color:white;
-
-            margin-bottom:15px;
-
+            border-radius:8px;
+            padding:0.75rem 1rem;
+            color:var(--text);
+            font-family:'DM Mono',monospace;
+            font-size:0.85rem;
+            margin-bottom:1rem;
             outline:none;
         }
 
+        input:focus{
+            border-color:var(--accent);
+        }
+
         button{
-
             width:100%;
-
-            padding:14px;
-
+            margin-top:0.4rem;
+            padding:0.75rem;
             border:none;
-
-            border-radius:10px;
-
-            cursor:pointer;
-
+            border-radius:8px;
             font-family:'Syne',sans-serif;
-
             font-weight:700;
+            font-size:0.9rem;
+            cursor:pointer;
+            transition:opacity 0.2s, transform 0.15s;
+        }
 
-            font-size:0.95rem;
+        button:hover{
+            opacity:0.9;
+            transform:translateY(-1px);
         }
 
         .btn-post{
-
             background:var(--post-bg);
-
             border:1px solid var(--post-border);
-
             color:#9f82ff;
         }
 
         .btn-get{
-
             background:var(--get-bg);
-
             border:1px solid var(--get-border);
-
             color:#36c9a7;
         }
 
         .btn-put{
-
             background:var(--put-bg);
-
             border:1px solid var(--put-border);
-
             color:#ffb347;
         }
 
         .btn-delete{
-
-            background:var(--delete-bg);
-
-            border:1px solid var(--delete-border);
-
+            background:var(--del-bg);
+            border:1px solid var(--del-border);
             color:#ff6363;
         }
 
@@ -303,272 +287,278 @@
 
 <body>
 
-<div class="topbar">
+<div class="page-header">
 
-    <a href="/" class="back-link">
-        ← Back to Homepage
-    </a>
+    <div class="header-top-bar">
 
-    <form action="/logout" method="post">
+        <a href="/" class="back-link">
+            ← Back to Homepage
+        </a>
 
-        <button type="submit" class="logout-btn">
-            Sign Out →
-        </button>
+        <form action="/logout" method="post">
 
-    </form>
+            <button type="submit" class="logout-btn">
+                Sign Out →
+            </button>
+
+        </form>
+
+    </div>
+
+    <h1>Project APIs</h1>
+
+    <p>
+        Test all project management endpoints
+    </p>
 
 </div>
 
-<h1>Project APIs</h1>
+<div class="section-heading">
+    Project Management
+    <span class="section-badge">7 endpoints</span>
+</div>
 
-<p class="subtitle">
-    Test all project management endpoints
-</p>
+<div class="api-section">
 
-<div class="grid">
+    <div class="grid">
 
-    <!-- CREATE PROJECT -->
+        <!-- CREATE PROJECT -->
 
-    <div class="card">
+        <div class="card">
 
-        <div class="card-header">
+            <div class="card-header">
 
-            <div class="method POST">POST</div>
+                <div class="header-top">
+                    <div class="method POST">POST</div>
+                    <div class="title">Create Project</div>
+                </div>
 
-            <div class="title">
-                Create Project
+                <div class="path">
+                    /api/v1/projects
+                </div>
+
             </div>
 
-            <div class="path">
-                /api/v1/projects
-            </div>
+            <div class="body">
 
-        </div>
+                <input id="createProjectID" placeholder="Project ID">
 
-        <div class="body">
+                <input id="createProjectName" placeholder="Project Name">
 
-            <input id="createProjectID" placeholder="Project ID">
+                <input id="createDescription" placeholder="Description">
 
-            <input id="createProjectName" placeholder="Project Name">
+                <input id="createStartDate" placeholder="Start Date (2026-05-20)">
 
-            <input id="createDescription" placeholder="Description">
+                <input id="createEndDate" placeholder="End Date (2026-06-20)">
 
-            <input id="createStartDate" placeholder="Start Date (2026-05-20)">
+                <input id="createUserID" placeholder="User ID">
 
-            <input id="createEndDate" placeholder="End Date (2026-06-20)">
+                <button
+                        type="button"
+                        class="btn-post"
+                        onclick="createProject()">
+                    Send POST →
+                </button>
 
-            <input id="createUserID" placeholder="User ID">
-
-            <button
-                    type="button"
-                    class="btn-post"
-                    onclick="createProject()">
-                Send POST →
-            </button>
-
-        </div>
-
-    </div>
-
-    <!-- GET ALL PROJECTS -->
-
-    <div class="card">
-
-        <div class="card-header">
-
-            <div class="method GET">GET</div>
-
-            <div class="title">
-                Get All Projects
-            </div>
-
-            <div class="path">
-                /api/v1/projects
             </div>
 
         </div>
 
-        <div class="body">
+        <!-- GET ALL PROJECTS -->
 
-            <button
-                    type="button"
-                    class="btn-get"
-                    onclick="getProjects()">
-                Send GET →
-            </button>
+        <div class="card">
 
-        </div>
+            <div class="card-header">
 
-    </div>
+                <div class="header-top">
+                    <div class="method GET">GET</div>
+                    <div class="title">Get All Projects</div>
+                </div>
 
-    <!-- GET PROJECT BY ID -->
+                <div class="path">
+                    /api/v1/projects
+                </div>
 
-    <div class="card">
-
-        <div class="card-header">
-
-            <div class="method GET">GET</div>
-
-            <div class="title">
-                Get Project By ID
             </div>
 
-            <div class="path">
-                /api/v1/projects/{projectId}
-            </div>
+            <div class="body">
 
-        </div>
+                <button
+                        type="button"
+                        class="btn-get"
+                        onclick="getProjects()">
+                    Send GET →
+                </button>
 
-        <div class="body">
-
-            <input id="getProjectId" placeholder="Project ID">
-
-            <button
-                    type="button"
-                    class="btn-get"
-                    onclick="getProjectById()">
-                Send GET →
-            </button>
-
-        </div>
-
-    </div>
-
-    <!-- UPDATE PROJECT -->
-
-    <div class="card">
-
-        <div class="card-header">
-
-            <div class="method PUT">PUT</div>
-
-            <div class="title">
-                Update Project
-            </div>
-
-            <div class="path">
-                /api/v1/projects/{projectId}
             </div>
 
         </div>
 
-        <div class="body">
+        <!-- GET PROJECT BY ID -->
 
-            <input id="updateProjectId" placeholder="Project ID">
+        <div class="card">
 
-            <input id="updateProjectName" placeholder="Updated Project Name">
+            <div class="card-header">
 
-            <input id="updateDescription" placeholder="Updated Description">
+                <div class="header-top">
+                    <div class="method GET">GET</div>
+                    <div class="title">Get Project By ID</div>
+                </div>
 
-            <input id="updateStartDate" placeholder="Updated Start Date">
+                <div class="path">
+                    /api/v1/projects/{projectId}
+                </div>
 
-            <input id="updateEndDate" placeholder="Updated End Date">
-
-            <input id="updateUserID" placeholder="Updated User ID">
-
-            <button
-                    type="button"
-                    class="btn-put"
-                    onclick="updateProject()">
-                Send PUT →
-            </button>
-
-        </div>
-
-    </div>
-
-    <!-- DELETE PROJECT -->
-
-    <div class="card">
-
-        <div class="card-header">
-
-            <div class="method DELETE">DELETE</div>
-
-            <div class="title">
-                Delete Project
             </div>
 
-            <div class="path">
-                /api/v1/projects/{projectId}
+            <div class="body">
+
+                <input id="getProjectId" placeholder="Project ID">
+
+                <button
+                        type="button"
+                        class="btn-get"
+                        onclick="getProjectById()">
+                    Send GET →
+                </button>
+
             </div>
 
         </div>
 
-        <div class="body">
+        <!-- UPDATE PROJECT -->
 
-            <input id="deleteProjectId" placeholder="Project ID">
+        <div class="card">
 
-            <button
-                    type="button"
-                    class="btn-delete"
-                    onclick="deleteProject()">
-                Send DELETE →
-            </button>
+            <div class="card-header">
 
-        </div>
+                <div class="header-top">
+                    <div class="method PUT">PUT</div>
+                    <div class="title">Update Project</div>
+                </div>
 
-    </div>
+                <div class="path">
+                    /api/v1/projects/{projectId}
+                </div>
 
-    <!-- GET USER PROJECTS -->
-
-    <div class="card">
-
-        <div class="card-header">
-
-            <div class="method GET">GET</div>
-
-            <div class="title">
-                Get User Projects
             </div>
 
-            <div class="path">
-                /api/v1/users/{userId}/projects
-            </div>
+            <div class="body">
 
-        </div>
+                <input id="updateProjectId" placeholder="Project ID">
 
-        <div class="body">
+                <input id="updateProjectName" placeholder="Updated Project Name">
 
-            <input id="getUserProjectId" placeholder="User ID">
+                <input id="updateDescription" placeholder="Updated Description">
 
-            <button
-                    type="button"
-                    class="btn-get"
-                    onclick="getUserProjects()">
-                Send GET →
-            </button>
+                <input id="updateStartDate" placeholder="Updated Start Date">
 
-        </div>
+                <input id="updateEndDate" placeholder="Updated End Date">
 
-    </div>
+                <input id="updateUserID" placeholder="Updated User ID">
 
-    <!-- PROJECT SUMMARY -->
+                <button
+                        type="button"
+                        class="btn-put"
+                        onclick="updateProject()">
+                    Send PUT →
+                </button>
 
-    <div class="card">
-
-        <div class="card-header">
-
-            <div class="method GET">GET</div>
-
-            <div class="title">
-                Project Summary Dashboard
-            </div>
-
-            <div class="path">
-                /api/v1/reports/projects/summary
             </div>
 
         </div>
 
-        <div class="body">
+        <!-- DELETE PROJECT -->
 
-            <button
-                    type="button"
-                    class="btn-get"
-                    onclick="getProjectSummary()">
-                Send GET →
-            </button>
+        <div class="card">
+
+            <div class="card-header">
+
+                <div class="header-top">
+                    <div class="method DELETE">DELETE</div>
+                    <div class="title">Delete Project</div>
+                </div>
+
+                <div class="path">
+                    /api/v1/projects/{projectId}
+                </div>
+
+            </div>
+
+            <div class="body">
+
+                <input id="deleteProjectId" placeholder="Project ID">
+
+                <button
+                        type="button"
+                        class="btn-delete"
+                        onclick="deleteProject()">
+                    Send DELETE →
+                </button>
+
+            </div>
+
+        </div>
+
+        <!-- GET USER PROJECTS -->
+
+        <div class="card">
+
+            <div class="card-header">
+
+                <div class="header-top">
+                    <div class="method GET">GET</div>
+                    <div class="title">Get User Projects</div>
+                </div>
+
+                <div class="path">
+                    /api/v1/users/{userId}/projects
+                </div>
+
+            </div>
+
+            <div class="body">
+
+                <input id="getUserProjectId" placeholder="User ID">
+
+                <button
+                        type="button"
+                        class="btn-get"
+                        onclick="getUserProjects()">
+                    Send GET →
+                </button>
+
+            </div>
+
+        </div>
+
+        <!-- PROJECT SUMMARY -->
+
+        <div class="card">
+
+            <div class="card-header">
+
+                <div class="header-top">
+                    <div class="method GET">GET</div>
+                    <div class="title">Project Summary Dashboard</div>
+                </div>
+
+                <div class="path">
+                    /api/v1/reports/projects/summary
+                </div>
+
+            </div>
+
+            <div class="body">
+
+                <button
+                        type="button"
+                        class="btn-get"
+                        onclick="getProjectSummary()">
+                    Send GET →
+                </button>
+
+            </div>
 
         </div>
 
@@ -755,28 +745,55 @@
 
     async function deleteProject(){
 
+    try{
+
+        const id =
+            document.getElementById("deleteProjectId").value;
+
+        const response = await fetch(`${BASE}/projects/${id}`,{
+            method:"DELETE"
+        });
+
+        const text = await response.text();
+
+        let data = {};
+
         try{
+            data = JSON.parse(text);
+        }catch{
+            data = { message:text };
+        }
 
-            const id =
-                document.getElementById("deleteProjectId").value;
-
-            const response = await fetch(`${BASE}/projects/${id}`,{
-                method:"DELETE"
-            });
-
-            const data = await response.text();
+        if(response.ok){
 
             openResponse({
-                message:data
+                isDelete:true,
+                message:data.message || "Project deleted successfully",
+                projectId:id,
+                status:response.status
             });
 
-        }catch(error){
+        }else{
 
             openResponse({
-                error:"Failed to delete project"
+                isDelete:true,
+                error:data.error || "Delete Failed",
+                message:data.message || `No project found with ID ${id}`,
+                projectId:id,
+                status:response.status
             });
         }
+
+    }catch(error){
+
+        openResponse({
+            isDelete:true,
+            error:"Delete Failed",
+            message:"Unable to delete project",
+            status:500
+        });
     }
+}
 
     async function getUserProjects(){
 

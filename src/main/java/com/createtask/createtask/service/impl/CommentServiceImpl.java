@@ -6,6 +6,7 @@ import com.createtask.createtask.entity.Comment;
 import com.createtask.createtask.entity.Task;
 import com.createtask.createtask.entity.AppUser;
 import com.createtask.createtask.exception.CommentNotFoundException;
+import com.createtask.createtask.exception.DuplicateResourceException;
 import com.createtask.createtask.repository.CommentRepository;
 import com.createtask.createtask.repository.TaskRepository;
 import com.createtask.createtask.repository.UserRepository;
@@ -36,6 +37,12 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public CommentResponseDTO addComment(int taskId,
                                          CommentRequestDTO requestDTO) {
+
+        // Duplicate ID check — throws 409 instead of crashing with 500
+        if (commentRepository.existsById(requestDTO.getCommentID())) {
+            throw new DuplicateResourceException(
+                    "Comment already exists with ID: " + requestDTO.getCommentID());
+        }
 
         Task task = taskRepository.findById(taskId).orElseThrow();
 
@@ -87,8 +94,7 @@ public class CommentServiceImpl implements CommentService {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() ->
                         new CommentNotFoundException(
-                                "Comment not found with ID: "
-                                        + commentId));
+                                "Comment not found with ID: " + commentId));
 
         commentRepository.delete(comment);
 

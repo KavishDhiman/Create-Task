@@ -5,6 +5,7 @@ import com.createtask.createtask.dto.response.AttachmentResponseDTO;
 import com.createtask.createtask.entity.Attachment;
 import com.createtask.createtask.entity.Task;
 import com.createtask.createtask.exception.AttachmentNotFoundException;
+import com.createtask.createtask.exception.DuplicateResourceException;
 import com.createtask.createtask.repository.AttachmentRepository;
 import com.createtask.createtask.repository.TaskRepository;
 import com.createtask.createtask.service.AttachmentService;
@@ -30,6 +31,12 @@ public class AttachmentServiceImpl implements AttachmentService {
     @Override
     public AttachmentResponseDTO addAttachment(int taskId,
                                                AttachmentRequestDTO requestDTO) {
+
+        // Duplicate ID check — throws 409 instead of crashing with 500
+        if (attachmentRepository.existsById(requestDTO.getAttachmentID())) {
+            throw new DuplicateResourceException(
+                    "Attachment already exists with ID: " + requestDTO.getAttachmentID());
+        }
 
         Task task = taskRepository.findById(taskId).orElseThrow();
 
@@ -75,8 +82,7 @@ public class AttachmentServiceImpl implements AttachmentService {
         Attachment attachment = attachmentRepository.findById(attachmentId)
                 .orElseThrow(() ->
                         new AttachmentNotFoundException(
-                                "Attachment not found with ID: "
-                                        + attachmentId));
+                                "Attachment not found with ID: " + attachmentId));
 
         attachmentRepository.delete(attachment);
 

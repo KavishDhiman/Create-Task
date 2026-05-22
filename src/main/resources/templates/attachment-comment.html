@@ -320,7 +320,7 @@
         <a th:href="@{/}" class="back-link">← Back to Homepage</a>
 
         <form th:action="@{/logout}" method="post">
-            <button type="submit" class="logout-btn">Sign Out →</button>
+            <button type="submit" class="logout-btn">Log Out →</button>
         </form>
     </div>
 
@@ -536,17 +536,17 @@
 
     const BASE = "/api/v1";
 
-    function openResponse(data, message, moduleName) {
-        const payload = { data: data, message: message || null, module: moduleName };
+    function openResponse(payload, moduleName) {
+        if (moduleName) payload.module = moduleName;
         const encoded = encodeURIComponent(JSON.stringify(payload));
         window.open(
-            '/response-view?data=' + encoded + '&module=' + encodeURIComponent(moduleName),
+            '/response-view?data=' + encoded + '&module=' + encodeURIComponent(moduleName || ''),
             '_blank'
         );
     }
 
     function handleErr() {
-        openResponse({ error: "Request failed" }, null, "API Service");
+        openResponse({ error: "Request failed" }, "API Service");
     }
 
     // =========================
@@ -565,13 +565,17 @@
 
         fetch(`${BASE}/tasks/${taskId}/comments`, {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify(body)
         })
-            .then(r => r.json())
-            .then(d => openResponse(d, "Your comment has been created", "Comment Service"))
+            .then(r => r.json().then(d => ({ ok: r.ok, d })))
+            .then(({ ok, d }) => {
+                if (ok) {
+                    openResponse({ data: d, message: "Your comment has been created" }, "Comment Service");
+                } else {
+                    openResponse({ error: d.message || "Already exists or invalid request" }, "Comment Service");
+                }
+            })
             .catch(handleErr);
     }
 
@@ -580,8 +584,16 @@
         const taskId = document.getElementById("getCommentsTaskId").value;
 
         fetch(`${BASE}/tasks/${taskId}/comments`)
-            .then(r => r.json())
-            .then(d => openResponse(d, null, "Comment Service"))
+            .then(r => r.json().then(d => ({ ok: r.ok, d })))
+            .then(({ ok, d }) => {
+                if (ok && Array.isArray(d) && d.length === 0) {
+                    openResponse({ error: `Task ID ${taskId} does not exist or has no comments` }, "Comment Service");
+                } else if (ok) {
+                    openResponse({ data: d }, "Comment Service");
+                } else {
+                    openResponse({ error: d.message || `Task ID ${taskId} does not exist` }, "Comment Service");
+                }
+            })
             .catch(handleErr);
     }
 
@@ -589,14 +601,11 @@
 
         const id = document.getElementById("deleteCommentId").value;
 
-        fetch(`${BASE}/comments/${id}`, {
-            method: "DELETE"
-        })
-            .then(r => r.text())
-            .then(msg => openResponse({
-                message: msg,
-                commentId: id
-            }, null, "Comment Service"))
+        fetch(`${BASE}/comments/${id}`, { method: "DELETE" })
+            .then(r => r.ok
+                ? r.text().then(msg => openResponse({ data: { deletedCommentID: id, status: msg } }, "Comment Service"))
+                : r.json().then(d => openResponse({ error: d.message || "Delete failed" }, "Comment Service"))
+            )
             .catch(handleErr);
     }
 
@@ -616,13 +625,17 @@
 
         fetch(`${BASE}/tasks/${taskId}/attachments`, {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify(body)
         })
-            .then(r => r.json())
-            .then(d => openResponse(d, "Your attachment has been created", "Attachment Service"))
+            .then(r => r.json().then(d => ({ ok: r.ok, d })))
+            .then(({ ok, d }) => {
+                if (ok) {
+                    openResponse({ data: d, message: "Your attachment has been created" }, "Attachment Service");
+                } else {
+                    openResponse({ error: d.message || "Already exists or invalid request" }, "Attachment Service");
+                }
+            })
             .catch(handleErr);
     }
 
@@ -631,8 +644,16 @@
         const taskId = document.getElementById("getAttachmentsTaskId").value;
 
         fetch(`${BASE}/tasks/${taskId}/attachments`)
-            .then(r => r.json())
-            .then(d => openResponse(d, null, "Attachment Service"))
+            .then(r => r.json().then(d => ({ ok: r.ok, d })))
+            .then(({ ok, d }) => {
+                if (ok && Array.isArray(d) && d.length === 0) {
+                    openResponse({ error: `Task ID ${taskId} does not exist or has no attachments` }, "Attachment Service");
+                } else if (ok) {
+                    openResponse({ data: d }, "Attachment Service");
+                } else {
+                    openResponse({ error: d.message || `Task ID ${taskId} does not exist` }, "Attachment Service");
+                }
+            })
             .catch(handleErr);
     }
 
@@ -640,14 +661,11 @@
 
         const id = document.getElementById("deleteAttachmentId").value;
 
-        fetch(`${BASE}/attachments/${id}`, {
-            method: "DELETE"
-        })
-            .then(r => r.text())
-            .then(msg => openResponse({
-                message: msg,
-                attachmentId: id
-            }, null, "Attachment Service"))
+        fetch(`${BASE}/attachments/${id}`, { method: "DELETE" })
+            .then(r => r.ok
+                ? r.text().then(msg => openResponse({ data: { deletedAttachmentID: id, status: msg } }, "Attachment Service"))
+                : r.json().then(d => openResponse({ error: d.message || "Delete failed" }, "Attachment Service"))
+            )
             .catch(handleErr);
     }
 

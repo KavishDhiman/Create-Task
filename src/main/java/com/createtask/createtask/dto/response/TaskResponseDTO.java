@@ -35,6 +35,9 @@ public class TaskResponseDTO {
     // Full name of the assigned user — included for display convenience
     private String userName;
 
+    // Stores success or informational messages for UI responses
+    private String message;
+
     // Default constructor required by Jackson for JSON serialization
     public TaskResponseDTO() {}
 
@@ -87,4 +90,10 @@ public class TaskResponseDTO {
     public String getUserName() { return userName; }
     // Sets the user's full name
     public void setUserName(String userName) { this.userName = userName; }
+
+    // Returns the response message
+    public String getMessage() { return message; }
+
+    // Sets the response message
+    public void setMessage(String message) { this.message = message; }
 }

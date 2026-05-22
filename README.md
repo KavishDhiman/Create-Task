@@ -22,7 +22,7 @@ The system was developed collaboratively as a team project with modular ownershi
 - Thymeleaf
 - HTML5
 - CSS3
-- JavaScript
+
 
 ## Database
 - MySQL
@@ -120,8 +120,6 @@ The schema includes:
 - Many-to-Many mappings
 - Foreign Key constraints
 - Aggregation-ready structure for reporting APIs
-
-Database schema and sample data are included in the SQL script. :contentReference[oaicite:0]{index=0}
 
 ---
 

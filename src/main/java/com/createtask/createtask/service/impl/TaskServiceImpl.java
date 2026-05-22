@@ -2,9 +2,10 @@ package com.createtask.createtask.service.impl;
 
 import com.createtask.createtask.dto.request.TaskRequestDTO;
 import com.createtask.createtask.dto.response.TaskResponseDTO;
+import com.createtask.createtask.entity.AppUser;
 import com.createtask.createtask.entity.Project;
 import com.createtask.createtask.entity.Task;
-import com.createtask.createtask.entity.AppUser;
+import com.createtask.createtask.exception.DuplicateResourceException;
 import com.createtask.createtask.exception.ResourceNotFoundException;
 import com.createtask.createtask.repository.ProjectRepository;
 import com.createtask.createtask.repository.TaskRepository;
@@ -39,10 +40,15 @@ public class TaskServiceImpl implements TaskService {
         this.userRepository = userRepository;
     }
 
-    // Validates project and user FKs, builds the entity, persists and returns it as a DTO
+    // Creates a new task after validating duplicate task ID, project, and user existence
     @Override
     public TaskResponseDTO createTask(TaskRequestDTO requestDTO) {
-        // Resolve project reference — throws 404 if project ID doesn't exist in DB
+
+        if (taskRepository.existsById(requestDTO.getTaskID())) {
+            throw new DuplicateResourceException(
+                    "Task already exists with ID: " + requestDTO.getTaskID());
+        }
+
         Project project = null;
         if (requestDTO.getProjectID() != null) {
             project = projectRepository.findById(requestDTO.getProjectID())
@@ -50,7 +56,6 @@ public class TaskServiceImpl implements TaskService {
                             "Project not found with ID: " + requestDTO.getProjectID()));
         }
 
-        // Resolve user reference — throws 404 if user ID doesn't exist in DB
         AppUser user = null;
         if (requestDTO.getUserID() != null) {
             user = userRepository.findById(requestDTO.getUserID())
@@ -58,7 +63,6 @@ public class TaskServiceImpl implements TaskService {
                             "User not found with ID: " + requestDTO.getUserID()));
         }
 
-        // Map DTO fields to a new Task entity and save
         Task task = new Task();
         task.setTaskID(requestDTO.getTaskID());
         task.setTaskName(requestDTO.getTaskName());
@@ -93,18 +97,15 @@ public class TaskServiceImpl implements TaskService {
     // Fetches the existing task, applies updated values from DTO, and saves back
     @Override
     public TaskResponseDTO updateTask(int taskID, TaskRequestDTO requestDTO) {
-        // Ensure the task to be updated actually exists
         Task task = taskRepository.findById(taskID)
                 .orElseThrow(() -> new ResourceNotFoundException("Task not found with ID: " + taskID));
 
-        // Apply scalar field updates from the incoming DTO
         task.setTaskName(requestDTO.getTaskName());
         task.setDescription(requestDTO.getDescription());
         task.setDueDate(requestDTO.getDueDate());
         task.setPriority(requestDTO.getPriority());
         task.setStatus(requestDTO.getStatus());
 
-        // Re-validate and update project FK if a new project ID is provided
         if (requestDTO.getProjectID() != null) {
             Project project = projectRepository.findById(requestDTO.getProjectID())
                     .orElseThrow(() -> new ResourceNotFoundException(
@@ -112,7 +113,6 @@ public class TaskServiceImpl implements TaskService {
             task.setProject(project);
         }
 
-        // Re-validate and update user FK if a new user ID is provided
         if (requestDTO.getUserID() != null) {
             AppUser user = userRepository.findById(requestDTO.getUserID())
                     .orElseThrow(() -> new ResourceNotFoundException(
@@ -128,7 +128,7 @@ public class TaskServiceImpl implements TaskService {
     public TaskResponseDTO deleteTask(int taskID) {
         Task task = taskRepository.findById(taskID)
                 .orElseThrow(() -> new ResourceNotFoundException("Task not found with ID: " + taskID));
-        // Map to DTO before deletion so the caller knows what was removed
+
         TaskResponseDTO deleted = mapToResponseDTO(task);
         taskRepository.delete(task);
         return deleted;
@@ -186,13 +186,11 @@ public class TaskServiceImpl implements TaskService {
         dto.setPriority(task.getPriority());
         dto.setStatus(task.getStatus());
 
-        // Only populate project fields if the task has a project linked
         if (task.getProject() != null) {
             dto.setProjectID(task.getProject().getProjectID());
             dto.setProjectName(task.getProject().getProjectName());
         }
 
-        // Only populate user fields if the task has a user assigned
         if (task.getUser() != null) {
             dto.setUserID(task.getUser().getUserID());
             dto.setUserName(task.getUser().getFullName());

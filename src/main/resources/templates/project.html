@@ -586,6 +586,314 @@
     </div>
 
 </div>
+<script>
 
+    const BASE = "/api/v1";
+
+    function openResponse(data){
+
+        const encoded =
+            encodeURIComponent(
+                JSON.stringify(data)
+            );
+
+        window.open(
+            '/response-view?data='
+            + encoded
+            + '&module='
+            + encodeURIComponent('Project Service'),
+            '_blank'
+        );
+    }
+
+    function validateDates(startDate, endDate){
+
+        if(endDate && startDate && endDate < startDate){
+
+            alert("End Date cannot be before Start Date");
+
+            return false;
+        }
+
+        return true;
+    }
+
+    async function createProject(){
+
+        try{
+
+            const startDate =
+                document.getElementById("createStartDate").value;
+
+            const endDate =
+                document.getElementById("createEndDate").value;
+
+            if(!validateDates(startDate, endDate)){
+                return;
+            }
+
+            const body = {
+
+                projectID:
+                    parseInt(document.getElementById("createProjectID").value),
+
+                projectName:
+                    document.getElementById("createProjectName").value,
+
+                description:
+                    document.getElementById("createDescription").value,
+
+                startDate:startDate,
+
+                endDate:endDate,
+
+                userID:
+                    parseInt(document.getElementById("createUserID").value)
+            };
+
+            const response = await fetch(`${BASE}/projects`,{
+
+                method:"POST",
+
+                headers:{
+                    "Content-Type":"application/json"
+                },
+
+                body:JSON.stringify(body)
+            });
+
+            const data = await response.json();
+
+            if(response.ok){
+                data.message = "Project created successfully";
+            }
+
+            openResponse(data);
+
+        }catch(error){
+
+            openResponse({
+                error:"Failed to create project"
+            });
+        }
+    }
+
+    async function getProjects(){
+
+        try{
+
+            const response =
+                await fetch(`${BASE}/projects`);
+
+            const data =
+                await response.json();
+
+            if(response.ok){
+                data.message = "Projects fetched successfully";
+            }
+
+            openResponse(data);
+
+        }catch(error){
+
+            openResponse({
+                error:"Failed to fetch projects"
+            });
+        }
+    }
+
+    async function getProjectById(){
+
+        try{
+
+            const id =
+                document.getElementById("getProjectId").value;
+
+            const response =
+                await fetch(`${BASE}/projects/${id}`);
+
+            const data =
+                await response.json();
+
+            if(response.ok){
+                data.message = "Project fetched successfully";
+            }
+
+            openResponse(data);
+
+        }catch(error){
+
+            openResponse({
+                error:"Failed to fetch project"
+            });
+        }
+    }
+
+    async function updateProject(){
+
+        try{
+
+            const startDate =
+                document.getElementById("updateStartDate").value;
+
+            const endDate =
+                document.getElementById("updateEndDate").value;
+
+            if(!validateDates(startDate, endDate)){
+                return;
+            }
+
+            const id =
+                document.getElementById("updateProjectId").value;
+
+            const body = {
+
+                projectID: parseInt(id),
+
+                projectName:
+                    document.getElementById("updateProjectName").value,
+
+                description:
+                    document.getElementById("updateDescription").value,
+
+                startDate:startDate,
+
+                endDate:endDate,
+
+                userID:
+                    parseInt(document.getElementById("updateUserID").value)
+            };
+
+            const response = await fetch(`${BASE}/projects/${id}`,{
+
+                method:"PUT",
+
+                headers:{
+                    "Content-Type":"application/json"
+                },
+
+                body:JSON.stringify(body)
+            });
+
+            const data = await response.json();
+
+            if(response.ok){
+                data.message = "Project updated successfully";
+            }
+
+            openResponse(data);
+
+        }catch(error){
+
+            openResponse({
+                error:"Failed to update project"
+            });
+        }
+    }
+
+    async function deleteProject(){
+
+        try{
+
+            const id =
+                document.getElementById("deleteProjectId").value;
+
+            const response = await fetch(`${BASE}/projects/${id}`,{
+                method:"DELETE"
+            });
+
+            const text = await response.text();
+
+            let data = {};
+
+            try{
+                data = JSON.parse(text);
+            }catch{
+                data = { message:text };
+            }
+
+            if(response.ok){
+
+                openResponse({
+                    isDelete:true,
+                    message:data.message || "Project deleted successfully",
+                    projectId:id,
+                    status:response.status
+                });
+
+            }else{
+
+                openResponse({
+                    isDelete:true,
+                    error:data.error || "Delete Failed",
+                    message:data.message || `No project found with ID ${id}`,
+                    projectId:id,
+                    status:response.status
+                });
+            }
+
+        }catch(error){
+
+            openResponse({
+                isDelete:true,
+                error:"Delete Failed",
+                message:"Unable to delete project",
+                status:500
+            });
+        }
+    }
+
+    async function getUserProjects(){
+
+        try{
+
+            const userId =
+                document.getElementById("getUserProjectId").value;
+
+            const response =
+                await fetch(`${BASE}/users/${userId}/projects`);
+
+            const data =
+                await response.json();
+
+            if(response.ok){
+                data.message = "User projects fetched successfully";
+            }
+
+            openResponse(data);
+
+        }catch(error){
+
+            openResponse({
+                error:"Failed to fetch user projects"
+            });
+        }
+    }
+
+    async function getProjectSummary(){
+
+        try{
+
+            const response =
+                await fetch(`${BASE}/reports/projects/summary`);
+
+            const data =
+                await response.json();
+
+            if(response.ok){
+                data.message = "Project summary fetched successfully";
+            }
+
+            openResponse(data);
+
+        }catch(error){
+
+            openResponse({
+                error:"Failed to fetch project summary"
+            });
+        }
+    }
+
+</script>
 </body>
 </html>

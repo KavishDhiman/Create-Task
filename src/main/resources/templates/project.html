@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 
 <head>
 
@@ -34,7 +34,6 @@
 
         .page-header{
             padding:2rem 2.5rem 1.5rem;
-            border-bottom:1px solid var(--border);
             background:linear-gradient(180deg,#0e1220 0%,var(--bg) 100%);
             position:relative;
         }
@@ -106,13 +105,12 @@
         .section-heading{
             font-family:'Syne',sans-serif;
             font-weight:700;
-            font-size:1.1rem;
+            font-size:1.25rem;
             color:var(--text);
-            padding:2rem 2.5rem 1rem;
-            border-bottom:1px solid var(--border);
+            padding:2rem 2.5rem 1.2rem;
             display:flex;
             align-items:center;
-            gap:0.6rem;
+            gap:0.8rem;
         }
 
         .section-badge{
@@ -121,7 +119,7 @@
             color:var(--accent);
             font-family:'DM Mono', monospace;
             font-size:0.68rem;
-            padding:2px 10px;
+            padding:4px 12px;
             border-radius:20px;
         }
 
@@ -131,11 +129,13 @@
 
         .grid{
             display:grid;
-            grid-template-columns:repeat(2,1fr);
+            grid-template-columns:repeat(2,minmax(0,1fr));
             gap:1.5rem;
+            align-items:stretch;
         }
 
         @media(max-width:900px){
+
             .grid{
                 grid-template-columns:1fr;
             }
@@ -147,6 +147,9 @@
             border-radius:18px;
             overflow:hidden;
             transition:border-color 0.2s;
+            display:flex;
+            flex-direction:column;
+            height:100%;
         }
 
         .card:hover{
@@ -220,6 +223,9 @@
 
         .body{
             padding:1.4rem;
+            display:flex;
+            flex-direction:column;
+            flex:1;
         }
 
         input{
@@ -241,7 +247,7 @@
 
         button{
             width:100%;
-            margin-top:0.4rem;
+            margin-top:auto;
             padding:0.75rem;
             border:none;
             border-radius:8px;
@@ -314,8 +320,8 @@
 </div>
 
 <div class="section-heading">
-    Project Management
-    <span class="section-badge">7 endpoints</span>
+    <span>Project Management Endpoints</span>
+    <span class="section-badge">7 ENDPOINTS</span>
 </div>
 
 <div class="api-section">
@@ -341,17 +347,17 @@
 
             <div class="body">
 
-                <input id="createProjectID" placeholder="Project ID">
+                <input type="number" id="createProjectID" placeholder="Project ID">
 
-                <input id="createProjectName" placeholder="Project Name">
+                <input type="text" id="createProjectName" placeholder="Project Name">
 
-                <input id="createDescription" placeholder="Description">
+                <input type="text" id="createDescription" placeholder="Description">
 
-                <input id="createStartDate" placeholder="Start Date (2026-05-20)">
+                <input type="date" id="createStartDate">
 
-                <input id="createEndDate" placeholder="End Date (2026-06-20)">
+                <input type="date" id="createEndDate">
 
-                <input id="createUserID" placeholder="User ID">
+                <input type="number" id="createUserID" placeholder="User ID">
 
                 <button
                         type="button"
@@ -413,7 +419,7 @@
 
             <div class="body">
 
-                <input id="getProjectId" placeholder="Project ID">
+                <input type="number" id="getProjectId" placeholder="Project ID">
 
                 <button
                         type="button"
@@ -445,17 +451,17 @@
 
             <div class="body">
 
-                <input id="updateProjectId" placeholder="Project ID">
+                <input type="number" id="updateProjectId" placeholder="Project ID">
 
-                <input id="updateProjectName" placeholder="Updated Project Name">
+                <input type="text" id="updateProjectName" placeholder="Updated Project Name">
 
-                <input id="updateDescription" placeholder="Updated Description">
+                <input type="text" id="updateDescription" placeholder="Updated Description">
 
-                <input id="updateStartDate" placeholder="Updated Start Date">
+                <input type="date" id="updateStartDate">
 
-                <input id="updateEndDate" placeholder="Updated End Date">
+                <input type="date" id="updateEndDate">
 
-                <input id="updateUserID" placeholder="Updated User ID">
+                <input type="number" id="updateUserID" placeholder="Updated User ID">
 
                 <button
                         type="button"
@@ -487,7 +493,7 @@
 
             <div class="body">
 
-                <input id="deleteProjectId" placeholder="Project ID">
+                <input type="number" id="deleteProjectId" placeholder="Project ID">
 
                 <button
                         type="button"
@@ -519,7 +525,7 @@
 
             <div class="body">
 
-                <input id="getUserProjectId" placeholder="User ID">
+                <input type="number" id="getUserProjectId" placeholder="User ID">
 
                 <button
                         type="button"
@@ -531,6 +537,21 @@
             </div>
 
         </div>
+
+    </div>
+
+</div>
+
+<!-- REPORTING -->
+
+<div class="section-heading">
+    <span>Reporting</span>
+    <span class="section-badge">1 ENDPOINT</span>
+</div>
+
+<div class="api-section">
+
+    <div class="grid">
 
         <!-- PROJECT SUMMARY -->
 
@@ -565,288 +586,6 @@
     </div>
 
 </div>
-
-<script>
-
-    const BASE = "/api/v1";
-
-    function openResponse(data){
-
-        const encoded =
-            encodeURIComponent(
-                JSON.stringify(data)
-            );
-
-        window.open(
-            '/response-view?data='
-            + encoded
-            + '&module='
-            + encodeURIComponent('Project Service'),
-            '_blank'
-        );
-    }
-
-    async function createProject(){
-
-        try{
-
-            const body = {
-
-                projectID:
-                    parseInt(document.getElementById("createProjectID").value),
-
-                projectName:
-                    document.getElementById("createProjectName").value,
-
-                description:
-                    document.getElementById("createDescription").value,
-
-                startDate:
-                    document.getElementById("createStartDate").value,
-
-                endDate:
-                    document.getElementById("createEndDate").value,
-
-                userID:
-                    parseInt(document.getElementById("createUserID").value)
-            };
-
-            const response = await fetch(`${BASE}/projects`,{
-
-                method:"POST",
-
-                headers:{
-                    "Content-Type":"application/json"
-                },
-
-                body:JSON.stringify(body)
-            });
-
-            const data = await response.json();
-
-            if(response.ok){
-                data.message = "Project created successfully";
-            }
-
-            openResponse(data);
-
-        }catch(error){
-
-            openResponse({
-                error:"Failed to create project"
-            });
-        }
-    }
-
-    async function getProjects(){
-
-        try{
-
-            const response =
-                await fetch(`${BASE}/projects`);
-
-            const data =
-                await response.json();
-
-            if(response.ok){
-                data.message = "Projects fetched successfully";
-            }
-
-            openResponse(data);
-
-        }catch(error){
-
-            openResponse({
-                error:"Failed to fetch projects"
-            });
-        }
-    }
-
-    async function getProjectById(){
-
-        try{
-
-            const id =
-                document.getElementById("getProjectId").value;
-
-            const response =
-                await fetch(`${BASE}/projects/${id}`);
-
-            const data =
-                await response.json();
-
-            if(response.ok){
-                data.message = "Project fetched successfully";
-            }
-
-            openResponse(data);
-
-        }catch(error){
-
-            openResponse({
-                error:"Failed to fetch project"
-            });
-        }
-    }
-
-    async function updateProject(){
-
-        try{
-
-            const id =
-                document.getElementById("updateProjectId").value;
-
-            const body = {
-
-                projectID: parseInt(id),
-
-                projectName:
-                    document.getElementById("updateProjectName").value,
-
-                description:
-                    document.getElementById("updateDescription").value,
-
-                startDate:
-                    document.getElementById("updateStartDate").value,
-
-                endDate:
-                    document.getElementById("updateEndDate").value,
-
-                userID:
-                    parseInt(document.getElementById("updateUserID").value)
-            };
-
-            const response = await fetch(`${BASE}/projects/${id}`,{
-
-                method:"PUT",
-
-                headers:{
-                    "Content-Type":"application/json"
-                },
-
-                body:JSON.stringify(body)
-            });
-
-            const data = await response.json();
-
-            if(response.ok){
-                data.message = "Project updated successfully";
-            }
-
-            openResponse(data);
-
-        }catch(error){
-
-            openResponse({
-                error:"Failed to update project"
-            });
-        }
-    }
-
-    async function deleteProject(){
-
-    try{
-
-        const id =
-            document.getElementById("deleteProjectId").value;
-
-        const response = await fetch(`${BASE}/projects/${id}`,{
-            method:"DELETE"
-        });
-
-        const text = await response.text();
-
-        let data = {};
-
-        try{
-            data = JSON.parse(text);
-        }catch{
-            data = { message:text };
-        }
-
-        if(response.ok){
-
-            openResponse({
-                isDelete:true,
-                message:data.message || "Project deleted successfully",
-                projectId:id,
-                status:response.status
-            });
-
-        }else{
-
-            openResponse({
-                isDelete:true,
-                error:data.error || "Delete Failed",
-                message:data.message || `No project found with ID ${id}`,
-                projectId:id,
-                status:response.status
-            });
-        }
-
-    }catch(error){
-
-        openResponse({
-            isDelete:true,
-            error:"Delete Failed",
-            message:"Unable to delete project",
-            status:500
-        });
-    }
-}
-
-    async function getUserProjects(){
-
-        try{
-
-            const userId =
-                document.getElementById("getUserProjectId").value;
-
-            const response =
-                await fetch(`${BASE}/users/${userId}/projects`);
-
-            const data =
-                await response.json();
-
-            if(response.ok){
-                data.message = "User projects fetched successfully";
-            }
-
-            openResponse(data);
-
-        }catch(error){
-
-            openResponse({
-                error:"Failed to fetch user projects"
-            });
-        }
-    }
-
-    async function getProjectSummary(){
-
-        try{
-
-            const response =
-                await fetch(`${BASE}/reports/projects/summary`);
-
-            const data =
-                await response.json();
-
-            if(response.ok){
-                data.message = "Project summary fetched successfully";
-            }
-
-            openResponse(data);
-
-        }catch(error){
-
-            openResponse({
-                error:"Failed to fetch project summary"
-            });
-        }
-    }
-
-</script>
 
 </body>
 </html>

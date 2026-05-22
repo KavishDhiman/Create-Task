@@ -32,10 +32,21 @@ public class AttachmentServiceImpl implements AttachmentService {
     public AttachmentResponseDTO addAttachment(int taskId,
                                                AttachmentRequestDTO requestDTO) {
 
-        // Duplicate ID check — throws 409 instead of crashing with 500
+        // Duplicate ID check
         if (attachmentRepository.existsById(requestDTO.getAttachmentID())) {
             throw new DuplicateResourceException(
                     "Attachment already exists with ID: " + requestDTO.getAttachmentID());
+        }
+
+        // Task existence check
+        if (!taskRepository.existsById(taskId)) {
+            throw new RuntimeException("Task ID not found: " + taskId);
+        }
+
+        // File path format validation — must be a valid path starting with /
+        String filePath = requestDTO.getFilePath();
+        if (filePath == null || !filePath.matches("^(/[\\w\\-\\.]+)+$")) {
+            throw new RuntimeException("Please enter valid file path (e.g. /uploads/report.pdf or /path/to/file)");
         }
 
         Task task = taskRepository.findById(taskId).orElseThrow();
@@ -44,7 +55,7 @@ public class AttachmentServiceImpl implements AttachmentService {
 
         attachment.setAttachmentID(requestDTO.getAttachmentID());
         attachment.setFileName(requestDTO.getFileName());
-        attachment.setFilePath(requestDTO.getFilePath());
+        attachment.setFilePath(filePath);
         attachment.setTask(task);
 
         Attachment savedAttachment = attachmentRepository.save(attachment);

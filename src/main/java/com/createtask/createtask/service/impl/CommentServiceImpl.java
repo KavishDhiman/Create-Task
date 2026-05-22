@@ -38,16 +38,24 @@ public class CommentServiceImpl implements CommentService {
     public CommentResponseDTO addComment(int taskId,
                                          CommentRequestDTO requestDTO) {
 
-        // Duplicate ID check — throws 409 instead of crashing with 500
+        // Duplicate ID check
         if (commentRepository.existsById(requestDTO.getCommentID())) {
             throw new DuplicateResourceException(
                     "Comment already exists with ID: " + requestDTO.getCommentID());
         }
 
-        Task task = taskRepository.findById(taskId).orElseThrow();
+        // Task existence check
+        if (!taskRepository.existsById(taskId)) {
+            throw new RuntimeException("Task ID not found: " + taskId);
+        }
 
-        AppUser user = userRepository.findById(requestDTO.getUserID())
-                .orElseThrow();
+        // User existence check
+        if (!userRepository.existsById(requestDTO.getUserID())) {
+            throw new RuntimeException("User ID not found: " + requestDTO.getUserID());
+        }
+
+        Task task = taskRepository.findById(taskId).orElseThrow();
+        AppUser user = userRepository.findById(requestDTO.getUserID()).orElseThrow();
 
         Comment comment = new Comment();
 

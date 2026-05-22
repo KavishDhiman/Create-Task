@@ -228,6 +228,15 @@
             flex:1;
         }
 
+        label{
+            display:block;
+            margin-bottom:0.55rem;
+            color:var(--muted);
+            font-size:0.78rem;
+            letter-spacing:0.08em;
+            font-family:'DM Mono', monospace;
+        }
+
         input{
             width:100%;
             background:var(--surface);
@@ -321,7 +330,7 @@
 
 <div class="section-heading">
     <span>Project Management Endpoints</span>
-    <span class="section-badge">7 ENDPOINTS</span>
+    <span class="section-badge">6 ENDPOINTS</span>
 </div>
 
 <div class="api-section">
@@ -347,16 +356,22 @@
 
             <div class="body">
 
+                <label>PROJECT ID</label>
                 <input type="number" id="createProjectID" placeholder="Project ID">
 
+                <label>PROJECT NAME</label>
                 <input type="text" id="createProjectName" placeholder="Project Name">
 
+                <label>DESCRIPTION</label>
                 <input type="text" id="createDescription" placeholder="Description">
 
+                <label>START DATE</label>
                 <input type="date" id="createStartDate">
 
+                <label>END DATE</label>
                 <input type="date" id="createEndDate">
 
+                <label>USER ID</label>
                 <input type="number" id="createUserID" placeholder="User ID">
 
                 <button
@@ -419,6 +434,7 @@
 
             <div class="body">
 
+                <label>PROJECT ID</label>
                 <input type="number" id="getProjectId" placeholder="Project ID">
 
                 <button
@@ -451,16 +467,22 @@
 
             <div class="body">
 
+                <label>PROJECT ID</label>
                 <input type="number" id="updateProjectId" placeholder="Project ID">
 
+                <label>UPDATED PROJECT NAME</label>
                 <input type="text" id="updateProjectName" placeholder="Updated Project Name">
 
+                <label>UPDATED DESCRIPTION</label>
                 <input type="text" id="updateDescription" placeholder="Updated Description">
 
+                <label>UPDATED START DATE</label>
                 <input type="date" id="updateStartDate">
 
+                <label>UPDATED END DATE</label>
                 <input type="date" id="updateEndDate">
 
+                <label>UPDATED USER ID</label>
                 <input type="number" id="updateUserID" placeholder="Updated User ID">
 
                 <button
@@ -493,6 +515,7 @@
 
             <div class="body">
 
+                <label>PROJECT ID</label>
                 <input type="number" id="deleteProjectId" placeholder="Project ID">
 
                 <button
@@ -525,6 +548,7 @@
 
             <div class="body">
 
+                <label>USER ID</label>
                 <input type="number" id="getUserProjectId" placeholder="User ID">
 
                 <button
@@ -552,8 +576,6 @@
 <div class="api-section">
 
     <div class="grid">
-
-        <!-- PROJECT SUMMARY -->
 
         <div class="card">
 
@@ -586,6 +608,7 @@
     </div>
 
 </div>
+
 <script>
 
     const BASE = "/api/v1";
@@ -895,5 +918,6 @@
     }
 
 </script>
+
 </body>
 </html>

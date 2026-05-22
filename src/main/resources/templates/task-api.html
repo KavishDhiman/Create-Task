@@ -642,7 +642,7 @@
       <div class="api-card-body">
         <div class="input-group">
           <label>Days</label>
-          <input id="overdueDays" placeholder="e.g. 7" value="7" />
+          <input id="overdueDays" placeholder="e.g. 7" />
         </div>
         <button class="send-btn btn-get" onclick="getOverdueTasksReport()">Send GET →</button>
       </div>
@@ -788,7 +788,13 @@
 
       openResponseTab({
         httpStatus: status,
-        message: "Task deleted successfully"
+        message: "Task with ID " + id + " deleted successfully",
+        data: [
+          {
+            taskID: id,
+            status: "Deleted Successfully"
+          }
+        ]
       });
     } catch (err) {
       openErrorTab(err.message || "Failed to delete task", err.status || 500);
@@ -898,7 +904,14 @@
 
       openResponseTab({
         httpStatus: status,
-        message: "Category removed from task successfully"
+        message: "Category with ID " + catId + " removed from Task " + taskId + " successfully",
+        data: [
+          {
+            taskID: taskId,
+            categoryID: catId,
+            status: "Removed Successfully"
+          }
+        ]
       });
     } catch (err) {
       openErrorTab(err.message || "Failed to remove category", err.status || 500);

@@ -124,14 +124,20 @@ public class TaskServiceImpl implements TaskService {
     }
 
     // Captures the task details first, deletes it, then returns the deleted task as DTO
+// Deletes the task and returns a success message response
     @Override
     public TaskResponseDTO deleteTask(int taskID) {
-        Task task = taskRepository.findById(taskID)
-                .orElseThrow(() -> new ResourceNotFoundException("Task not found with ID: " + taskID));
 
-        TaskResponseDTO deleted = mapToResponseDTO(task);
+        Task task = taskRepository.findById(taskID)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Task not found with ID: " + taskID));
+
         taskRepository.delete(task);
-        return deleted;
+
+        TaskResponseDTO response = new TaskResponseDTO();
+        response.setMessage("Task with ID " + taskID + " deleted successfully");
+
+        return response;
     }
 
     // Verifies the project exists, then fetches all tasks under it

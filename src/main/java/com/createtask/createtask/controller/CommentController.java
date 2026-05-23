@@ -4,6 +4,7 @@ import com.createtask.createtask.dto.request.CommentRequestDTO;
 import com.createtask.createtask.dto.response.CommentResponseDTO;
 import com.createtask.createtask.service.CommentService;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,7 +24,7 @@ public class CommentController {
     @PostMapping("/tasks/{taskId}/comments")
     public CommentResponseDTO addComment(
             @PathVariable int taskId,
-            @RequestBody CommentRequestDTO requestDTO) {
+            @Valid @RequestBody CommentRequestDTO requestDTO) {
 
         return commentService.addComment(taskId, requestDTO);
     }

@@ -24,7 +24,7 @@ public class Notification {
     @Column(name = "CreatedAt", nullable = false) // Maps to CreatedAt column; DB also enforces NOT NULL
     private LocalDateTime createdAt; // Timestamp recording when the notification was created
 
-    @NotNull(message = "User must not be null") // Every notification must be linked to a recipient user
+    @NotNull(message = "User ID must not be null") // Every notification must be linked to a recipient user
     @ManyToOne // Many notifications can belong to one user
     @JoinColumn(name = "UserID", nullable = false) // Foreign key column linking to the User table; enforced at DB level
     private AppUser user; // The User entity who is the recipient of this notification

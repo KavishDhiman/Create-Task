@@ -379,7 +379,11 @@
     }
     // ── Validators ──
     function isValidId(val) {
-        return val.trim() !== '' && /^\d+$/.test(val.trim());
+        if (val.trim() === '') {
+            return true;
+        }
+
+        return /^\d+$/.test(val.trim());
     }
 
     function validationError(msg) {
@@ -399,7 +403,7 @@
 
         if (!isValidId(notifId)) return validationError("Enter a valid Notification ID — numbers only, no letters or symbols.");
         if (!isValidId(userId))  return validationError("Enter a valid User ID — numbers only, no letters or symbols.");
-        if (!text)               return validationError("Notification text cannot be empty.");
+
 
         fetch("/api/v1/notifications", {
             method: "POST",
@@ -425,8 +429,28 @@
                     });
                 } else if (status >= 400) {
                     let msg = raw;
-                    try { msg = JSON.parse(raw).message || raw; } catch (_) {}
-                    openResponse({ error: "Error", message: msg, status: String(status), timestamp: new Date().toISOString() });
+
+                    try {
+                        const parsed = JSON.parse(raw);
+
+                        if (parsed.fieldErrors) {
+                            msg =
+                                parsed.fieldErrors.notificationID ||
+                                parsed.fieldErrors.userId ||
+                                parsed.fieldErrors.text ||
+                                parsed.message ||
+                                raw;
+                        } else {
+                            msg = parsed.message || raw;
+                        }
+                    } catch (_) {}
+
+                    openResponse({
+                        error: "Error",
+                        message: msg,
+                        status: String(status),
+                        timestamp: new Date().toISOString()
+                    });
                 } else {
                     // ✅ Success — parse as JSON
                     const data = JSON.parse(raw);
@@ -439,7 +463,14 @@
 
     function getNotification() {
         const id = document.getElementById("getId").value;
-        if (!isValidId(id)) return validationError("Enter a valid Notification ID — numbers only, no letters or symbols.");
+
+        if (id.trim() === "") {
+            return validationError("Notification ID must not be null");
+        }
+
+        if (!/^\d+$/.test(id.trim())) {
+            return validationError("Enter a valid Notification ID — numbers only, no letters or symbols.");
+        }
 
         fetch("/api/v1/notifications/" + id.trim())
             .then(res => res.json().then(data => ({ status: res.status, data })))
@@ -459,7 +490,14 @@
 
     function getUserNotifications() {
         const userId = document.getElementById("userId").value;
-        if (!isValidId(userId)) return validationError("Enter a valid User ID — numbers only, no letters or symbols.");
+
+        if (userId.trim() === "") {
+            return validationError("User ID must not be null");
+        }
+
+        if (!/^\d+$/.test(userId.trim())) {
+            return validationError("Enter a valid User ID — numbers only, no letters or symbols.");
+        }
 
         fetch("/api/v1/users/" + userId.trim() + "/notifications")
             .then(res => res.text().then(raw => ({ status: res.status, raw })))
@@ -502,7 +540,14 @@
 
     function deleteNotification() {
         const id = document.getElementById("deleteId").value;
-        if (!isValidId(id)) return validationError("Enter a valid Notification ID — numbers only, no letters or symbols.");
+
+        if (id.trim() === "") {
+            return validationError("Notification ID must not be null");
+        }
+
+        if (!/^\d+$/.test(id.trim())) {
+            return validationError("Enter a valid Notification ID — numbers only, no letters or symbols.");
+        }
 
         fetch("/api/v1/notifications/" + id.trim(), { method: "DELETE" })
             .then(res => {

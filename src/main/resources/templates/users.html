@@ -668,10 +668,17 @@
 }
     function handleErr(err) {
 
+    let validationMessage = err.message || "Something went wrong";
+
+    if (err.fieldErrors) {
+        validationMessage = Object.values(err.fieldErrors).join(", ");
+    }
+
     openResponse({
         error: err.error || "Request Failed",
-        message: err.message || "Something went wrong",
-        status: err.status || ""
+        message: validationMessage,
+        status: err.status || "",
+        timestamp: err.timestamp || "—"
     });
 }
 

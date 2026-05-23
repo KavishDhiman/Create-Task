@@ -7,6 +7,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -147,6 +148,20 @@ public class GlobalExceptionHandler {
 
         error.put("error", "Invalid Input");
         error.put("message", "Please enter valid numeric values only.");
+        error.put("status", 400);
+        error.put("timestamp", LocalDateTime.now());
+
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    }
+    // Handles invalid JSON datatype values
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<Map<String, Object>> handleInvalidJson(
+            HttpMessageNotReadableException ex) {
+
+        Map<String, Object> error = new HashMap<>();
+
+        error.put("error", "Invalid Input");
+        error.put("message", "Please enter valid numeric values for numeric fields.");
         error.put("status", 400);
         error.put("timestamp", LocalDateTime.now());
 

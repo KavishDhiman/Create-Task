@@ -14,15 +14,15 @@ public class Attachment implements Comparable<Attachment> {
     @Column(name = "AttachmentID")
     private int attachmentID;
 
-    @NotBlank
+    @NotBlank(message = "File name is required")
     @Column(name = "FileName", nullable = false, length = 255)
     private String fileName;
 
-    @NotBlank
+    @NotBlank(message = "File path is required")
     @Column(name = "FilePath", nullable = false, length = 255)
     private String filePath;
 
-    @NotNull
+    @NotNull(message = "Task ID is required")
     @ManyToOne
     @JoinColumn(name = "TaskID")
     private Task task;

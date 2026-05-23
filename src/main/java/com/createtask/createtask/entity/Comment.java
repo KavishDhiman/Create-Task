@@ -15,20 +15,20 @@ public class Comment implements Comparable<Comment> {
     @Column(name = "CommentID")
     private int commentID;
 
-    @NotBlank
+    @NotBlank(message = "Comment text is required")
     @Column(name = "Text", columnDefinition = "TEXT")
     private String text;
 
-    @NotNull
+    @NotNull(message = "Created date is required")
     @Column(name = "CreatedAt")
     private LocalDateTime createdAt;
 
-    @NotNull
+    @NotNull(message = "Task ID is required")
     @ManyToOne
     @JoinColumn(name = "TaskID")
     private Task task;
 
-    @NotNull
+    @NotNull(message = "User ID is required")
     @ManyToOne
     @JoinColumn(name = "UserID")
     private AppUser user;

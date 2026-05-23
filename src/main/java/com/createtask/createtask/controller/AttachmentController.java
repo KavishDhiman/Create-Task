@@ -4,6 +4,7 @@ import com.createtask.createtask.dto.request.AttachmentRequestDTO;
 import com.createtask.createtask.dto.response.AttachmentResponseDTO;
 import com.createtask.createtask.service.AttachmentService;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,7 +24,7 @@ public class AttachmentController {
     @PostMapping("/tasks/{taskId}/attachments")
     public AttachmentResponseDTO addAttachment(
             @PathVariable int taskId,
-            @RequestBody AttachmentRequestDTO requestDTO) {
+            @Valid @RequestBody AttachmentRequestDTO requestDTO) {
 
         return attachmentService.addAttachment(taskId, requestDTO);
     }

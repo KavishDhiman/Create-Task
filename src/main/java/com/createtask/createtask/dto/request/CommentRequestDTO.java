@@ -1,17 +1,20 @@
 package com.createtask.createtask.dto.request;
 
+import jakarta.validation.constraints.NotBlank;
+
 public class CommentRequestDTO {
 
     private int commentID;
+
+    @NotBlank(message = "Comment text is required")
     private String text;
+
     private int userID;
 
     public CommentRequestDTO() {
     }
 
-    public CommentRequestDTO(int commentID,
-                             String text,
-                             int userID) {
+    public CommentRequestDTO(int commentID, String text, int userID) {
         this.commentID = commentID;
         this.text = text;
         this.userID = userID;

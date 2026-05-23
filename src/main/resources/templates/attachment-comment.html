@@ -536,6 +536,13 @@
 
     const BASE = "/api/v1";
 
+    function extractError(d) {
+        if (d.fieldErrors && Object.keys(d.fieldErrors).length > 0) {
+            return Object.values(d.fieldErrors).join(", ");
+        }
+        return d.message || "An error occurred";
+    }
+
     function openResponse(payload, moduleName) {
         if (moduleName) payload.module = moduleName;
         const encoded = encodeURIComponent(JSON.stringify(payload));
@@ -556,11 +563,17 @@
     function addComment() {
 
         const taskId = document.getElementById("addCommentTaskId").value;
+        const commentId = document.getElementById("addCommentId").value;
+        const userId = document.getElementById("addCommentUserId").value;
+
+        if (!commentId || commentId === "0") return openResponse({ error: "Please enter a valid Comment ID" }, "Comment Service");
+        if (!taskId || taskId === "0") return openResponse({ error: "Task ID is required" }, "Comment Service");
+        if (!userId || userId === "0") return openResponse({ error: "Please enter a valid User ID" }, "Comment Service");
 
         const body = {
-            commentID: parseInt(document.getElementById("addCommentId").value),
+            commentID: parseInt(commentId),
             text: document.getElementById("addCommentText").value,
-            userID: parseInt(document.getElementById("addCommentUserId").value)
+            userID: parseInt(userId)
         };
 
         fetch(`${BASE}/tasks/${taskId}/comments`, {
@@ -573,7 +586,7 @@
                 if (ok) {
                     openResponse({ data: d, message: "Your comment has been created" }, "Comment Service");
                 } else {
-                    openResponse({ error: d.message || "Already exists or invalid request" }, "Comment Service");
+                    openResponse({ error: extractError(d) }, "Comment Service");
                 }
             })
             .catch(handleErr);
@@ -582,6 +595,8 @@
     function getCommentsByTaskId() {
 
         const taskId = document.getElementById("getCommentsTaskId").value;
+
+        if (!taskId || taskId === "0") return openResponse({ error: "Task ID is required" }, "Comment Service");
 
         fetch(`${BASE}/tasks/${taskId}/comments`)
             .then(r => r.json().then(d => ({ ok: r.ok, d })))
@@ -601,10 +616,12 @@
 
         const id = document.getElementById("deleteCommentId").value;
 
+        if (!id || id === "0") return openResponse({ error: "Please enter a valid Comment ID" }, "Comment Service");
+
         fetch(`${BASE}/comments/${id}`, { method: "DELETE" })
             .then(r => r.ok
                 ? r.text().then(msg => openResponse({ data: { deletedCommentID: id, status: msg } }, "Comment Service"))
-                : r.json().then(d => openResponse({ error: d.message || "Delete failed" }, "Comment Service"))
+                : r.json().then(d => openResponse({ error: extractError(d) }, "Comment Service"))
             )
             .catch(handleErr);
     }
@@ -616,9 +633,13 @@
     function addAttachment() {
 
         const taskId = document.getElementById("addAttachmentTaskId").value;
+        const attachmentId = document.getElementById("addAttachmentId").value;
+
+        if (!attachmentId || attachmentId === "0") return openResponse({ error: "Please enter a valid Attachment ID" }, "Attachment Service");
+        if (!taskId || taskId === "0") return openResponse({ error: "Task ID is required" }, "Attachment Service");
 
         const body = {
-            attachmentID: parseInt(document.getElementById("addAttachmentId").value),
+            attachmentID: parseInt(attachmentId),
             fileName: document.getElementById("addAttachmentFileName").value,
             filePath: document.getElementById("addAttachmentFilePath").value
         };
@@ -633,7 +654,7 @@
                 if (ok) {
                     openResponse({ data: d, message: "Your attachment has been created" }, "Attachment Service");
                 } else {
-                    openResponse({ error: d.message || "Already exists or invalid request" }, "Attachment Service");
+                    openResponse({ error: extractError(d) }, "Attachment Service");
                 }
             })
             .catch(handleErr);
@@ -642,6 +663,8 @@
     function getAttachmentsByTaskId() {
 
         const taskId = document.getElementById("getAttachmentsTaskId").value;
+
+        if (!taskId || taskId === "0") return openResponse({ error: "Task ID is required" }, "Attachment Service");
 
         fetch(`${BASE}/tasks/${taskId}/attachments`)
             .then(r => r.json().then(d => ({ ok: r.ok, d })))
@@ -661,10 +684,12 @@
 
         const id = document.getElementById("deleteAttachmentId").value;
 
+        if (!id || id === "0") return openResponse({ error: "Please enter a valid Attachment ID" }, "Attachment Service");
+
         fetch(`${BASE}/attachments/${id}`, { method: "DELETE" })
             .then(r => r.ok
                 ? r.text().then(msg => openResponse({ data: { deletedAttachmentID: id, status: msg } }, "Attachment Service"))
-                : r.json().then(d => openResponse({ error: d.message || "Delete failed" }, "Attachment Service"))
+                : r.json().then(d => openResponse({ error: extractError(d) }, "Attachment Service"))
             )
             .catch(handleErr);
     }

@@ -17,7 +17,7 @@ public class NotificationRequestDTO {
 
     @NotNull(message = "Notification text must not be null")
     @NotBlank(message = "Notification text must not be blank")
-    @Size(min = 1, max = 2000, message = "Notification text must be between 1 and 2000 characters")
+    @Size(min = 1, max = 2000, message = "Notification text must not exceed 2000 characters")
     private String text;
 
     public NotificationRequestDTO() {

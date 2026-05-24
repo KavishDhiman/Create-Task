@@ -357,7 +357,7 @@
             <div class="body">
 
                 <label>PROJECT ID</label>
-                <input type="number" id="createProjectID" placeholder="Project ID">
+                <input type="number" min="1" id="createProjectID" placeholder="Project ID">
 
                 <label>PROJECT NAME</label>
                 <input type="text" id="createProjectName" placeholder="Project Name">
@@ -372,7 +372,7 @@
                 <input type="date" id="createEndDate">
 
                 <label>USER ID</label>
-                <input type="number" id="createUserID" placeholder="User ID">
+                <input type="number" min="1" id="createUserID" placeholder="User ID">
 
                 <button
                         type="button"
@@ -435,7 +435,7 @@
             <div class="body">
 
                 <label>PROJECT ID</label>
-                <input type="number" id="getProjectId" placeholder="Project ID">
+                <input type="number" min="1" id="getProjectId" placeholder="Project ID">
 
                 <button
                         type="button"
@@ -468,7 +468,7 @@
             <div class="body">
 
                 <label>PROJECT ID</label>
-                <input type="number" id="updateProjectId" placeholder="Project ID">
+                <input type="number" min="1" id="updateProjectId" placeholder="Project ID">
 
                 <label>UPDATED PROJECT NAME</label>
                 <input type="text" id="updateProjectName" placeholder="Updated Project Name">
@@ -483,7 +483,7 @@
                 <input type="date" id="updateEndDate">
 
                 <label>UPDATED USER ID</label>
-                <input type="number" id="updateUserID" placeholder="Updated User ID">
+                <input type="number" min="1" id="updateUserID" placeholder="Updated User ID">
 
                 <button
                         type="button"
@@ -516,7 +516,7 @@
             <div class="body">
 
                 <label>PROJECT ID</label>
-                <input type="number" id="deleteProjectId" placeholder="Project ID">
+                <input type="number" min="1" id="deleteProjectId" placeholder="Project ID">
 
                 <button
                         type="button"
@@ -549,7 +549,7 @@
             <div class="body">
 
                 <label>USER ID</label>
-                <input type="number" id="getUserProjectId" placeholder="User ID">
+                <input type="number" min="1" id="getUserProjectId" placeholder="User ID">
 
                 <button
                         type="button"
@@ -634,10 +634,10 @@
         if(endDate && startDate && endDate < startDate){
 
             openResponse({
+                error:"End Date cannot be before Start Date",
+                message:"End Date cannot be before Start Date",
                 status:400,
-                timestamp:new Date().toISOString(),
-                error:"Validation Error",
-                message:"End Date cannot be before Start Date"
+                timestamp:new Date().toISOString()
             });
 
             return false;
@@ -650,20 +650,11 @@
 
         try{
 
-            const projectId =
+            const projectIdValue =
                 document.getElementById("createProjectID").value;
 
-            if(projectId === ""){
-
-                openResponse({
-                    status:400,
-                    timestamp:new Date().toISOString(),
-                    error:"Validation Error",
-                    message:"Project ID must not be null. Please provide a valid project identifier."
-                });
-
-                return;
-            }
+            const projectName =
+                document.getElementById("createProjectName").value;
 
             const startDate =
                 document.getElementById("createStartDate").value;
@@ -671,26 +662,90 @@
             const endDate =
                 document.getElementById("createEndDate").value;
 
+            const userIdValue =
+                document.getElementById("createUserID").value;
+
+            // PROJECT ID VALIDATION
+
+            if(projectIdValue === "" || parseInt(projectIdValue) <= 0){
+
+                openResponse({
+                    error:"Project ID must not be null. Please provide a valid project identifier.",
+                    message:"Project ID must not be null. Please provide a valid project identifier.",
+                    status:400,
+                    timestamp:new Date().toISOString()
+                });
+
+                return;
+            }
+
+            // PROJECT NAME VALIDATION
+
+            if(projectName.trim() === ""){
+
+                openResponse({
+                    error:"Project name must not be blank. Please provide a meaningful name for the project.",
+                    message:"Project name must not be blank. Please provide a meaningful name for the project.",
+                    status:400,
+                    timestamp:new Date().toISOString()
+                });
+
+                return;
+            }
+
+            // START DATE VALIDATION
+
+            if(startDate === ""){
+
+                openResponse({
+                    error:"Start date must not be null. Please provide a valid start date for the project.",
+                    message:"Start date must not be null. Please provide a valid start date for the project.",
+                    status:400,
+                    timestamp:new Date().toISOString()
+                });
+
+                return;
+            }
+
+            // USER VALIDATION
+
+            if(userIdValue === "" || parseInt(userIdValue) <= 0){
+
+                openResponse({
+                    error:"User must not be null. Every project must be assigned to a valid registered user.",
+                    message:"User must not be null. Every project must be assigned to a valid registered user.",
+                    status:400,
+                    timestamp:new Date().toISOString()
+                });
+
+                return;
+            }
+
+            // DATE VALIDATION
+
             if(!validateDates(startDate, endDate)){
                 return;
             }
 
             const body = {
 
-                projectID: parseInt(projectId),
+                projectID:
+                    parseInt(projectIdValue),
 
                 projectName:
-                    document.getElementById("createProjectName").value,
+                    projectName,
 
                 description:
                     document.getElementById("createDescription").value,
 
-                startDate:startDate,
+                startDate:
+                    startDate,
 
-                endDate:endDate,
+                endDate:
+                    endDate,
 
                 userID:
-                    parseInt(document.getElementById("createUserID").value)
+                    parseInt(userIdValue)
             };
 
             const response = await fetch(`${BASE}/projects`,{
@@ -707,32 +762,17 @@
             const data = await response.json();
 
             if(response.ok){
-
-                openResponse({
-                    status: response.status,
-                    timestamp: new Date().toISOString(),
-                    error: "Success",
-                    message: "Project created successfully",
-                    data: data
-                });
-
-            }else{
-
-                openResponse({
-                    status: data.status,
-                    timestamp: data.timestamp,
-                    error: data.error,
-                    message: data.message
-                });
+                data.message = "Project created successfully";
             }
+
+            openResponse(data);
 
         }catch(error){
 
             openResponse({
+                error:"Failed to create project",
                 status:500,
-                timestamp:new Date().toISOString(),
-                error:"Internal Server Error",
-                message:"Failed to create project"
+                timestamp:new Date().toISOString()
             });
         }
     }
@@ -748,32 +788,17 @@
                 await response.json();
 
             if(response.ok){
-
-                openResponse({
-                    status: response.status,
-                    timestamp: new Date().toISOString(),
-                    error: "Success",
-                    message: "Projects fetched successfully",
-                    data: data
-                });
-
-            }else{
-
-                openResponse({
-                    status:data.status,
-                    timestamp:data.timestamp,
-                    error:data.error,
-                    message:data.message
-                });
+                data.message = "Projects fetched successfully";
             }
+
+            openResponse(data);
 
         }catch(error){
 
             openResponse({
+                error:"Failed to fetch projects",
                 status:500,
-                timestamp:new Date().toISOString(),
-                error:"Internal Server Error",
-                message:"Failed to fetch projects"
+                timestamp:new Date().toISOString()
             });
         }
     }
@@ -785,13 +810,13 @@
             const id =
                 document.getElementById("getProjectId").value;
 
-            if(id === ""){
+            if(id === "" || parseInt(id) <= 0){
 
                 openResponse({
+                    error:"Project ID must not be null. Please provide a valid project identifier.",
+                    message:"Project ID must not be null. Please provide a valid project identifier.",
                     status:400,
-                    timestamp:new Date().toISOString(),
-                    error:"Validation Error",
-                    message:"Project ID must not be null. Please provide a valid project identifier."
+                    timestamp:new Date().toISOString()
                 });
 
                 return;
@@ -804,32 +829,17 @@
                 await response.json();
 
             if(response.ok){
-
-                openResponse({
-                    status: response.status,
-                    timestamp: new Date().toISOString(),
-                    error: "Success",
-                    message: "Project fetched successfully",
-                    data: data
-                });
-
-            }else{
-
-                openResponse({
-                    status:data.status,
-                    timestamp:data.timestamp,
-                    error:data.error,
-                    message:data.message
-                });
+                data.message = "Project fetched successfully";
             }
+
+            openResponse(data);
 
         }catch(error){
 
             openResponse({
+                error:"Failed to fetch project",
                 status:500,
-                timestamp:new Date().toISOString(),
-                error:"Internal Server Error",
-                message:"Failed to fetch project"
+                timestamp:new Date().toISOString()
             });
         }
     }
@@ -841,17 +851,8 @@
             const id =
                 document.getElementById("updateProjectId").value;
 
-            if(id === ""){
-
-                openResponse({
-                    status:400,
-                    timestamp:new Date().toISOString(),
-                    error:"Validation Error",
-                    message:"Project ID must not be null. Please provide a valid project identifier."
-                });
-
-                return;
-            }
+            const projectName =
+                document.getElementById("updateProjectName").value;
 
             const startDate =
                 document.getElementById("updateStartDate").value;
@@ -859,26 +860,90 @@
             const endDate =
                 document.getElementById("updateEndDate").value;
 
+            const userIdValue =
+                document.getElementById("updateUserID").value;
+
+            // PROJECT ID VALIDATION
+
+            if(id === "" || parseInt(id) <= 0){
+
+                openResponse({
+                    error:"Project ID must not be null. Please provide a valid project identifier.",
+                    message:"Project ID must not be null. Please provide a valid project identifier.",
+                    status:400,
+                    timestamp:new Date().toISOString()
+                });
+
+                return;
+            }
+
+            // PROJECT NAME VALIDATION
+
+            if(projectName.trim() === ""){
+
+                openResponse({
+                    error:"Project name must not be blank. Please provide a meaningful name for the project.",
+                    message:"Project name must not be blank. Please provide a meaningful name for the project.",
+                    status:400,
+                    timestamp:new Date().toISOString()
+                });
+
+                return;
+            }
+
+            // START DATE VALIDATION
+
+            if(startDate === ""){
+
+                openResponse({
+                    error:"Start date must not be null. Please provide a valid start date for the project.",
+                    message:"Start date must not be null. Please provide a valid start date for the project.",
+                    status:400,
+                    timestamp:new Date().toISOString()
+                });
+
+                return;
+            }
+
+            // USER VALIDATION
+
+            if(userIdValue === "" || parseInt(userIdValue) <= 0){
+
+                openResponse({
+                    error:"User must not be null. Every project must be assigned to a valid registered user.",
+                    message:"User must not be null. Every project must be assigned to a valid registered user.",
+                    status:400,
+                    timestamp:new Date().toISOString()
+                });
+
+                return;
+            }
+
+            // DATE VALIDATION
+
             if(!validateDates(startDate, endDate)){
                 return;
             }
 
             const body = {
 
-                projectID: parseInt(id),
+                projectID:
+                    parseInt(id),
 
                 projectName:
-                    document.getElementById("updateProjectName").value,
+                    projectName,
 
                 description:
                     document.getElementById("updateDescription").value,
 
-                startDate:startDate,
+                startDate:
+                    startDate,
 
-                endDate:endDate,
+                endDate:
+                    endDate,
 
                 userID:
-                    parseInt(document.getElementById("updateUserID").value)
+                    parseInt(userIdValue)
             };
 
             const response = await fetch(`${BASE}/projects/${id}`,{
@@ -895,32 +960,17 @@
             const data = await response.json();
 
             if(response.ok){
-
-                openResponse({
-                    status: response.status,
-                    timestamp: new Date().toISOString(),
-                    error: "Success",
-                    message: "Project updated successfully",
-                    data: data
-                });
-
-            }else{
-
-                openResponse({
-                    status:data.status,
-                    timestamp:data.timestamp,
-                    error:data.error,
-                    message:data.message
-                });
+                data.message = "Project updated successfully";
             }
+
+            openResponse(data);
 
         }catch(error){
 
             openResponse({
+                error:"Failed to update project",
                 status:500,
-                timestamp:new Date().toISOString(),
-                error:"Internal Server Error",
-                message:"Failed to update project"
+                timestamp:new Date().toISOString()
             });
         }
     }
@@ -932,13 +982,13 @@
             const id =
                 document.getElementById("deleteProjectId").value;
 
-            if(id === ""){
+            if(id === "" || parseInt(id) <= 0){
 
                 openResponse({
+                    error:"Project ID must not be null. Please provide a valid project identifier.",
+                    message:"Project ID must not be null. Please provide a valid project identifier.",
                     status:400,
-                    timestamp:new Date().toISOString(),
-                    error:"Validation Error",
-                    message:"Project ID must not be null. Please provide a valid project identifier."
+                    timestamp:new Date().toISOString()
                 });
 
                 return;
@@ -961,29 +1011,33 @@
             if(response.ok){
 
                 openResponse({
+                    isDelete:true,
+                    message:data.message || "Project deleted successfully",
+                    projectId:id,
                     status:response.status,
-                    timestamp:new Date().toISOString(),
-                    error:"Success",
-                    message:data.message || "Project deleted successfully"
+                    timestamp:new Date().toISOString()
                 });
 
             }else{
 
                 openResponse({
-                    status:data.status || response.status,
-                    timestamp:data.timestamp || new Date().toISOString(),
+                    isDelete:true,
                     error:data.error || "Delete Failed",
-                    message:data.message || `No project found with ID ${id}`
+                    message:data.message || `No project found with ID ${id}`,
+                    projectId:id,
+                    status:response.status,
+                    timestamp:new Date().toISOString()
                 });
             }
 
         }catch(error){
 
             openResponse({
+                isDelete:true,
+                error:"Delete Failed",
+                message:"Unable to delete project",
                 status:500,
-                timestamp:new Date().toISOString(),
-                error:"Internal Server Error",
-                message:"Unable to delete project"
+                timestamp:new Date().toISOString()
             });
         }
     }
@@ -995,13 +1049,13 @@
             const userId =
                 document.getElementById("getUserProjectId").value;
 
-            if(userId === ""){
+            if(userId === "" || parseInt(userId) <= 0){
 
                 openResponse({
+                    error:"User must not be null. Every project must be assigned to a valid registered user.",
+                    message:"User must not be null. Every project must be assigned to a valid registered user.",
                     status:400,
-                    timestamp:new Date().toISOString(),
-                    error:"Validation Error",
-                    message:"User ID must not be null."
+                    timestamp:new Date().toISOString()
                 });
 
                 return;
@@ -1014,32 +1068,17 @@
                 await response.json();
 
             if(response.ok){
-
-                openResponse({
-                    status: response.status,
-                    timestamp: new Date().toISOString(),
-                    error: "Success",
-                    message: "User projects fetched successfully",
-                    data: data
-                });
-
-            }else{
-
-                openResponse({
-                    status:data.status,
-                    timestamp:data.timestamp,
-                    error:data.error,
-                    message:data.message
-                });
+                data.message = "User projects fetched successfully";
             }
+
+            openResponse(data);
 
         }catch(error){
 
             openResponse({
+                error:"Failed to fetch user projects",
                 status:500,
-                timestamp:new Date().toISOString(),
-                error:"Internal Server Error",
-                message:"Failed to fetch user projects"
+                timestamp:new Date().toISOString()
             });
         }
     }
@@ -1055,32 +1094,17 @@
                 await response.json();
 
             if(response.ok){
-
-                openResponse({
-                    status: response.status,
-                    timestamp: new Date().toISOString(),
-                    error: "Success",
-                    message: "Project summary fetched successfully",
-                    data: data
-                });
-
-            }else{
-
-                openResponse({
-                    status:data.status,
-                    timestamp:data.timestamp,
-                    error:data.error,
-                    message:data.message
-                });
+                data.message = "Project summary fetched successfully";
             }
+
+            openResponse(data);
 
         }catch(error){
 
             openResponse({
+                error:"Failed to fetch project summary",
                 status:500,
-                timestamp:new Date().toISOString(),
-                error:"Internal Server Error",
-                message:"Failed to fetch project summary"
+                timestamp:new Date().toISOString()
             });
         }
     }

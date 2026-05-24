@@ -9,37 +9,33 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDate;
 import java.util.List;
 
-/**
- * Repository for Task entity.
- * Standard CRUD comes from JpaRepository.
- * Custom filters and aggregations added below for task management and reporting.
- */
+// Handles database operations for Task entity
 @Repository
 public interface TaskRepository extends JpaRepository<Task, Integer> {
 
-    /** Fetches all tasks that belong to a specific project — GET /projects/{id}/tasks */
+    // Retrieves tasks associated with a project
     @Query("SELECT t FROM Task t WHERE t.project.projectID = :projectID")
     List<Task> findByProjectID(@Param("projectID") int projectID);
 
-    /** Fetches all tasks assigned to a specific user — GET /users/{id}/tasks */
+    // Retrieves tasks assigned to a user
     @Query("SELECT t FROM Task t WHERE t.user.userID = :userID")
     List<Task> findByUserID(@Param("userID") int userID);
 
-    /** Filters tasks by status value — GET /tasks/status/{status} */
+    // Retrieves tasks filtered by status
     List<Task> findByStatus(String status);
 
-    /** Filters tasks by priority value — GET /tasks/priority/{priority} */
+    // Retrieves tasks filtered by priority
     List<Task> findByPriority(String priority);
 
-    /** Counts total tasks assigned to a user — used by productivity report */
+    // Counts total tasks assigned to a user
     @Query("SELECT COUNT(t) FROM Task t WHERE t.user.userID = :userID")
     long countByUserID(@Param("userID") int userID);
 
-    /** Counts tasks for a user filtered by a specific status — used by productivity report */
+    // Counts tasks assigned to a user by status
     @Query("SELECT COUNT(t) FROM Task t WHERE t.user.userID = :userID AND t.status = :status")
     long countByUserIDAndStatus(@Param("userID") int userID, @Param("status") String status);
 
-    /** Fetches overdue tasks before a cutoff date — used by overdue task report */
+    // Retrieves overdue tasks before cutoff date
     @Query("SELECT t FROM Task t WHERE t.dueDate IS NOT NULL AND t.dueDate < :cutoffDate AND COALESCE(LOWER(t.status), '') <> 'completed'")
     List<Task> findOverdueTasks(@Param("cutoffDate") LocalDate cutoffDate);
 }

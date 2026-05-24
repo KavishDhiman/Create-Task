@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-// REST controller handling all Task endpoints
+// Handles task management REST API operations
 @RestController
 @RequestMapping("/api/v1")
 @Tag(name = "Tasks", description = "Create, read, update, delete and filter tasks")
@@ -23,6 +23,7 @@ public class TaskController {
 
     private final TaskService taskService;
 
+    // Initializes task service dependency
     public TaskController(TaskService taskService) {
         this.taskService = taskService;
     }
@@ -39,7 +40,7 @@ public class TaskController {
         return ResponseEntity.status(HttpStatus.CREATED).body(taskService.createTask(requestDTO));
     }
 
-    // Retrieves a task by ID
+    // Retrieves a task using task ID
     @Operation(summary = "Get task by ID")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Task found"),
@@ -51,7 +52,7 @@ public class TaskController {
         return ResponseEntity.ok(taskService.getTaskById(taskId));
     }
 
-    // Retrieves all tasks
+    // Retrieves all available tasks
     @Operation(summary = "Get all tasks")
     @ApiResponse(responseCode = "200", description = "List of all tasks")
     @GetMapping("/tasks")
@@ -59,7 +60,7 @@ public class TaskController {
         return ResponseEntity.ok(taskService.getAllTasks());
     }
 
-    // Updates an existing task
+    // Updates task details using task ID
     @Operation(summary = "Update an existing task")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Task updated successfully"),
@@ -72,7 +73,7 @@ public class TaskController {
         return ResponseEntity.ok(taskService.updateTask(taskId, requestDTO));
     }
 
-    // Deletes a task
+    // Deletes a task using task ID
     @Operation(summary = "Delete a task")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Task deleted successfully"),
@@ -85,7 +86,7 @@ public class TaskController {
         return ResponseEntity.ok(deleted);
     }
 
-    // Retrieves tasks by status
+    // Retrieves tasks filtered by status
     @Operation(summary = "Filter tasks by status", description = "Accepted values: Pending, In Progress, Completed")
     @GetMapping("/tasks/status/{status}")
     public ResponseEntity<List<TaskResponseDTO>> getTasksByStatus(
@@ -93,7 +94,7 @@ public class TaskController {
         return ResponseEntity.ok(taskService.getTasksByStatus(status));
     }
 
-    // Retrieves tasks by priority
+    // Retrieves tasks filtered by priority
     @Operation(summary = "Filter tasks by priority", description = "Accepted values: High, Medium, Low")
     @GetMapping("/tasks/priority/{priority}")
     public ResponseEntity<List<TaskResponseDTO>> getTasksByPriority(
@@ -101,7 +102,7 @@ public class TaskController {
         return ResponseEntity.ok(taskService.getTasksByPriority(priority));
     }
 
-    // Retrieves all tasks under a project
+    // Retrieves tasks associated with a project
     @Operation(summary = "Get all tasks under a project")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Tasks retrieved"),
@@ -113,7 +114,7 @@ public class TaskController {
         return ResponseEntity.ok(taskService.getTasksByProject(projectId));
     }
 
-    // Retrieves all tasks assigned to a user
+    // Retrieves tasks assigned to a user
     @Operation(summary = "Get all tasks assigned to a user")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Tasks retrieved"),

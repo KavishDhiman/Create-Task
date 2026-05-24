@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-// REST controller handling Category CRUD endpoints
+// Handles category management REST API operations
 @RestController
 @RequestMapping("/api/v1")
 @Tag(name = "Categories", description = "Create and list categories")
@@ -22,6 +22,7 @@ public class CategoryController {
 
     private final CategoryService categoryService;
 
+    // Initializes category service dependency
     public CategoryController(CategoryService categoryService) {
         this.categoryService = categoryService;
     }
@@ -39,7 +40,7 @@ public class CategoryController {
         return ResponseEntity.status(HttpStatus.CREATED).body(categoryService.createCategory(requestDTO));
     }
 
-    // Retrieves all categories
+    // Retrieves all available categories
     @Operation(summary = "Get all categories")
     @ApiResponse(responseCode = "200", description = "List of all categories")
     @GetMapping("/categories")

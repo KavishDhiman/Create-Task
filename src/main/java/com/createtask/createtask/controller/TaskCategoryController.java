@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+// Handles task-category mapping operations
 @RestController
 @RequestMapping("/api/v1/tasks")
 @Tag(name = "Task-Category Mapping", description = "Assign, remove, and fetch categories for a task")
@@ -17,6 +18,7 @@ public class TaskCategoryController {
 
     private final TaskCategoryService taskCategoryService;
 
+    // Initializes task-category service dependency
     public TaskCategoryController(TaskCategoryService taskCategoryService) {
         this.taskCategoryService = taskCategoryService;
     }
@@ -47,7 +49,7 @@ public class TaskCategoryController {
         return ResponseEntity.noContent().build();
     }
 
-    // Fetches all categories assigned to a specific task
+    // Retrieves all categories assigned to a task
     @Operation(
             summary = "Get categories for task",
             description = "Fetches all categories assigned to a specific task"

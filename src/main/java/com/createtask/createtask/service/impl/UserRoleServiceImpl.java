@@ -10,74 +10,77 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.TreeSet;
 
-/**
- * UserRoleServiceImpl provides the concrete business logic for all role operations.
- * Uses constructor injection for the repository dependency.
- */
+// Service implementation class for role-related business logic
 @Service
 public class UserRoleServiceImpl implements UserRoleService {
 
+    // Repository dependency for database operations
     private final UserRoleRepository userRoleRepository;
 
+    // Constructor injection for UserRoleRepository
     public UserRoleServiceImpl(UserRoleRepository userRoleRepository) {
-        this.userRoleRepository = userRoleRepository;
+        this.userRoleRepository = userRoleRepository; // Assigns repository object
     }
 
-    /**
-     * Validates that the role name is unique before persisting.
-     * Role names serve as human-readable identifiers in the system.
-     */
+    // Creates a new role after validation
     @Override
     public UserRole createRole(UserRole userRole) {
 
-        // Prevent duplicate role ID
+        // Checks whether role ID already exists
         if (userRoleRepository.existsById(userRole.getUserRoleID())) {
+
             throw new RuntimeException(
                     "Role ID already exists"
-            );
+            ); // Throws exception for duplicate role ID
         }
 
-        // Prevent duplicate role name
+        // Checks whether role name already exists
         if (userRoleRepository.existsByRoleName(userRole.getRoleName())) {
-            throw new DuplicateRoleException(userRole.getRoleName());
+
+            throw new DuplicateRoleException(userRole.getRoleName()); // Throws duplicate role name exception
         }
 
-        // Allow only alphabets and spaces in role name
+        // Validates role name contains only letters and spaces
         if (!userRole.getRoleName().matches("^[A-Za-z ]+$")) {
+
             throw new RuntimeException(
                     "Role name must contain only letters"
-            );
+            ); // Throws exception for invalid role name
         }
 
+        // Saves role into database
         return userRoleRepository.save(userRole);
     }
 
+    // Retrieves all roles from database
     @Override
     public List<UserRole> getAllRoles() {
+
+        // Returns all roles as list
         return userRoleRepository.findAll();
     }
 
-    /**
-     * Returns all roles sorted by userRoleID in ascending order.
-     */
+    // Retrieves all roles sorted by role ID
     @Override
     public TreeSet<UserRole> getAllRolesSorted() {
 
+        // Creates TreeSet with custom sorting logic
         TreeSet<UserRole> sortedRoles = new TreeSet<>(
                 (r1, r2) -> Integer.compare(r1.getUserRoleID(), r2.getUserRoleID())
         );
 
+        // Adds all roles into TreeSet
         sortedRoles.addAll(userRoleRepository.findAll());
 
+        // Returns sorted roles
         return sortedRoles;
     }
 
-    /**
-     * Used by UserRolesServiceImpl to validate role existence
-     * before performing any assignment or removal operation.
-     */
+    // Retrieves role by role ID
     @Override
     public UserRole getRoleById(Integer roleId) {
+
+        // Finds role by ID or throws exception if absent
         return userRoleRepository.findById(roleId)
                 .orElseThrow(() -> new RoleNotFoundException(roleId));
     }

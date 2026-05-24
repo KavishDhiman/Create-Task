@@ -7,12 +7,13 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+// Repository interface for UserRoles mapping table operations
 @Repository
-public interface UserRolesRepository extends JpaRepository<UserRoles, UserRolesId> {
+public interface UserRolesRepository extends JpaRepository<UserRoles, UserRolesId> { // Extends JpaRepository for CRUD operations
 
+    // Retrieves all role mappings for a specific user
     List<UserRoles> findByUser_UserID(int userID);
 
-    List<UserRoles> findByUserRole_UserRoleID(int userRoleID);
-
+    // Checks whether a specific user-role mapping already exists
     boolean existsByUser_UserIDAndUserRole_UserRoleID(int userID, int userRoleID);
 }

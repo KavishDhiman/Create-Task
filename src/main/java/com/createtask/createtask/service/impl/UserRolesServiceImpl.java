@@ -14,86 +14,110 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * UserRolesServiceImpl manages the many-to-many relationship between
- * User and UserRole through the UserRoles junction table.
- * Delegates user and role existence validation to their respective services.
- */
+// Service implementation class for managing user-role mappings
 @Service
 public class UserRolesServiceImpl implements UserRolesService {
 
+    // Repository dependency for UserRoles database operations
     private final UserRolesRepository userRolesRepository;
 
-    /** Used to validate user existence and fetch the User entity for mapping. */
+    // Service dependency for user validation and retrieval
     private final UserService userService;
 
-    /** Used to validate role existence and fetch the UserRole entity for mapping. */
+    // Service dependency for role validation and retrieval
     private final UserRoleService userRoleService;
 
+    // Constructor injection for dependencies
     public UserRolesServiceImpl(UserRolesRepository userRolesRepository,
                                 UserService userService,
                                 UserRoleService userRoleService) {
-        this.userRolesRepository = userRolesRepository;
-        this.userService = userService;
-        this.userRoleService = userRoleService;
+
+        this.userRolesRepository = userRolesRepository; // Assigns UserRolesRepository object
+        this.userService = userService; // Assigns UserService object
+        this.userRoleService = userRoleService; // Assigns UserRoleService object
     }
 
-    /**
-     * Validates user exists, role exists, and mapping is not a duplicate.
-     * Constructs a composite key from userId and roleId before saving.
-     */
+    // Assigns a role to a user
     @Override
     public UserRoles assignRoleToUser(Integer userId, Integer roleId) {
+
+        // Retrieves user by ID
         AppUser user = userService.getUserById(userId);
+
+        // Retrieves role by ID
         UserRole userRole = userRoleService.getRoleById(roleId);
 
+        // Checks whether mapping already exists
         if (userRolesRepository.existsByUser_UserIDAndUserRole_UserRoleID(userId, roleId)) {
-            throw new RoleAlreadyAssignedException(userId, roleId);
+
+            throw new RoleAlreadyAssignedException(userId, roleId); // Throws duplicate mapping exception
         }
 
+        // Creates composite key object
         UserRoles.UserRolesId compositeId = new UserRoles.UserRolesId();
+
+        // Sets user ID into composite key
         compositeId.setUserID(userId);
+
+        // Sets role ID into composite key
         compositeId.setUserRoleID(roleId);
 
+        // Creates UserRoles mapping object
         UserRoles mapping = new UserRoles();
+
+        // Sets composite ID into mapping
         mapping.setId(compositeId);
+
+        // Sets user object into mapping
         mapping.setUser(user);
+
+        // Sets role object into mapping
         mapping.setUserRole(userRole);
 
+        // Saves mapping into database
         return userRolesRepository.save(mapping);
     }
 
-    /**
-     * Validates user, role, and existing mapping before deletion.
-     * Returns true after successful removal to confirm the operation completed.
-     * Throws RoleNotFoundException if the mapping does not currently exist.
-     */
+    // Removes role assignment from user
     @Override
     public boolean removeRoleFromUser(Integer userId, Integer roleId) {
+
+        // Validates user existence
         userService.getUserById(userId);
+
+        // Validates role existence
         userRoleService.getRoleById(roleId);
 
+        // Creates composite key object
         UserRoles.UserRolesId compositeId = new UserRoles.UserRolesId();
+
+        // Sets user ID into composite key
         compositeId.setUserID(userId);
+
+        // Sets role ID into composite key
         compositeId.setUserRoleID(roleId);
 
+        // Checks whether mapping exists
         if (!userRolesRepository.existsById(compositeId)) {
-            throw new RoleNotFoundException(roleId);
+
+            throw new RoleNotFoundException(roleId); // Throws exception if mapping missing
         }
 
+        // Deletes mapping from database
         userRolesRepository.deleteById(compositeId);
+
+        // Returns true after successful deletion
         return true;
     }
 
-    /**
-     * Retrieves all role mappings for the user, sorts them using
-     * UserRoles compareTo() via stream.sorted(), then extracts
-     * only the UserRole from each mapping using a method reference.
-     */
+    // Retrieves all roles assigned to a user
     @Override
     public List<UserRole> getRolesOfUser(Integer userId) {
+
+        // Validates user existence
         userService.getUserById(userId);
 
+        // Retrieves mappings, sorts them, extracts roles, and converts to list
         return userRolesRepository.findByUser_UserID(userId)
                 .stream()
                 .sorted()

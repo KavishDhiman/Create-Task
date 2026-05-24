@@ -5,89 +5,123 @@ import jakarta.validation.constraints.NotNull;
 
 import java.io.Serializable;
 import java.util.Objects;
+@Entity // Marks this class as a database entity
+@Table(name = "UserRoles") // Maps entity to UserRoles table
+public class UserRoles implements Comparable<UserRoles> { // Enables sorting of UserRoles objects
 
-@Entity
-@Table(name = "UserRoles")
-public class UserRoles implements Comparable<UserRoles> {
+    @EmbeddedId // Marks composite primary key
+    private UserRolesId id; // Stores composite key object
 
-    @EmbeddedId
-    private UserRolesId id;
+    @ManyToOne // Defines many-to-one relationship with AppUser
+    @MapsId("userID") // Maps userID from composite key
+    @JoinColumn(name = "UserID") // Maps UserID foreign key column
+    @NotNull(message = "User must not be null") // Validates non-null user
+    private AppUser user; // Stores AppUser object reference
 
-    @ManyToOne
-    @MapsId("userID")
-    @JoinColumn(name = "UserID")
-    @NotNull(message = "User must not be null")
-    private AppUser user;
+    @ManyToOne // Defines many-to-one relationship with UserRole
+    @MapsId("userRoleID") // Maps userRoleID from composite key
+    @JoinColumn(name = "UserRoleID") // Maps UserRoleID foreign key column
+    @NotNull(message = "UserRole must not be null") // Validates non-null role
+    private UserRole userRole; // Stores UserRole object reference
 
-    @ManyToOne
-    @MapsId("userRoleID")
-    @JoinColumn(name = "UserRoleID")
-    @NotNull(message = "UserRole must not be null")
-    private UserRole userRole;
+    // Getter method for composite ID
+    public UserRolesId getId() {
+        return id;
+    }
 
-    public UserRolesId getId() { return id; }
-    public void setId(UserRolesId id) { this.id = id; }
+    // Setter method for composite ID
+    public void setId(UserRolesId id) {
+        this.id = id;
+    }
 
-    public AppUser getUser() { return user; }
-    public void setUser(AppUser user) { this.user = user; }
+    // Getter method for user object
+    public AppUser getUser() {
+        return user;
+    }
 
-    public UserRole getUserRole() { return userRole; }
-    public void setUserRole(UserRole userRole) { this.userRole = userRole; }
+    // Setter method for user object
+    public void setUser(AppUser user) {
+        this.user = user;
+    }
 
-    @Override
+    // Getter method for role object
+    public UserRole getUserRole() {
+        return userRole;
+    }
+
+    // Setter method for role object
+    public void setUserRole(UserRole userRole) {
+        this.userRole = userRole;
+    }
+
+    @Override // Overrides default equals method
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof UserRoles)) return false;
-        UserRoles userRoles = (UserRoles) o;
-        return Objects.equals(id, userRoles.id);
+        if (this == o) return true; // Checks same object reference
+        if (!(o instanceof UserRoles)) return false; // Checks object type
+        UserRoles userRoles = (UserRoles) o; // Typecasts Object to UserRoles
+        return Objects.equals(id, userRoles.id); // Compares composite IDs
     }
 
-    @Override
+    @Override // Overrides default hashCode method
     public int hashCode() {
-        return Objects.hash(id);
+        return Objects.hash(id); // Generates hash using composite ID
     }
 
-    @Override
+    @Override // Overrides compareTo method for sorting
     public int compareTo(UserRoles other) {
-        int userCompare = Integer.compare(this.id.getUserID(), other.id.getUserID());
-        if (userCompare != 0) return userCompare;
-        return Integer.compare(this.id.getUserRoleID(), other.id.getUserRoleID());
+        int userCompare = Integer.compare(this.id.getUserID(), other.id.getUserID()); // Compares user IDs first
+        if (userCompare != 0) return userCompare; // Returns if user IDs differ
+        return Integer.compare(this.id.getUserRoleID(), other.id.getUserRoleID()); // Compares role IDs next
     }
 
-    @Override
+    @Override // Overrides default toString method
     public String toString() {
-        return "UserRoles{userID=" + id.getUserID() + ", userRoleID=" + id.getUserRoleID() + "}";
+        return "UserRoles{userID=" + id.getUserID() + ", userRoleID=" + id.getUserRoleID() + "}"; // Returns readable string
     }
 
-    @Embeddable
-    public static class UserRolesId implements Serializable {
+    @Embeddable // Marks this class as embeddable composite key class
+    public static class UserRolesId implements Serializable { // Composite key class implementing Serializable
 
-        @Column(name = "UserID")
-        @NotNull(message = "UserID must not be null")
-        private Integer userID;
+        @Column(name = "UserID") // Maps UserID column
+        @NotNull(message = "UserID must not be null") // Validates non-null userID
+        private Integer userID; // Stores user ID
 
-        @Column(name = "UserRoleID")
-        @NotNull(message = "UserRoleID must not be null")
-        private Integer userRoleID;
+        @Column(name = "UserRoleID") // Maps UserRoleID column
+        @NotNull(message = "UserRoleID must not be null") // Validates non-null role ID
+        private Integer userRoleID; // Stores role ID
 
-        public Integer getUserID() { return userID; }
-        public void setUserID(Integer userID) { this.userID = userID; }
-
-        public Integer getUserRoleID() { return userRoleID; }
-        public void setUserRoleID(Integer userRoleID) { this.userRoleID = userRoleID; }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (!(o instanceof UserRolesId)) return false;
-            UserRolesId that = (UserRolesId) o;
-            return Objects.equals(userID, that.userID) &&
-                    Objects.equals(userRoleID, that.userRoleID);
+        // Getter method for userID
+        public Integer getUserID() {
+            return userID;
         }
 
-        @Override
+        // Setter method for userID
+        public void setUserID(Integer userID) {
+            this.userID = userID;
+        }
+
+        // Getter method for userRoleID
+        public Integer getUserRoleID() {
+            return userRoleID;
+        }
+
+        // Setter method for userRoleID
+        public void setUserRoleID(Integer userRoleID) {
+            this.userRoleID = userRoleID;
+        }
+
+        @Override // Overrides default equals method
+        public boolean equals(Object o) {
+            if (this == o) return true; // Checks same object reference
+            if (!(o instanceof UserRolesId)) return false; // Checks object type
+            UserRolesId that = (UserRolesId) o; // Typecasts Object to UserRolesId
+            return Objects.equals(userID, that.userID) && // Compares user IDs
+                    Objects.equals(userRoleID, that.userRoleID); // Compares role IDs
+        }
+
+        @Override // Overrides default hashCode method
         public int hashCode() {
-            return Objects.hash(userID, userRoleID);
+            return Objects.hash(userID, userRoleID); // Generates hash using both IDs
         }
     }
 }

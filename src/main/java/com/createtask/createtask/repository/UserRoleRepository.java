@@ -4,12 +4,10 @@ import com.createtask.createtask.entity.UserRole;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.Optional;
-
+// Repository interface for UserRole database operations
 @Repository
-public interface UserRoleRepository extends JpaRepository<UserRole, Integer> {
+public interface UserRoleRepository extends JpaRepository<UserRole, Integer> { // Extends JpaRepository for CRUD operations
 
-    Optional<UserRole> findByRoleName(String roleName);
-
+    // Checks whether role name already exists
     boolean existsByRoleName(String roleName);
 }

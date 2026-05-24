@@ -1,35 +1,61 @@
 package com.createtask.createtask.dto.response;
 
-/**
- * UserResponseDTO is the output object returned to the client.
- * Password is intentionally excluded to prevent sensitive data exposure in API responses.
- */
+// DTO class for sending user response data
 public class UserResponseDTO {
 
-    private Integer userID;
-    private String username;
-    private String email;
-    private String fullName;
+    private Integer userID; // Stores user ID
+    private String username; // Stores username
+    private String email; // Stores email
+    private String fullName; // Stores full name
 
+    // Default constructor
     public UserResponseDTO() {}
 
-    /** Convenience constructor used in the controller to map from entity to DTO. */
+    // Parameterized constructor for initializing all fields
     public UserResponseDTO(Integer userID, String username, String email, String fullName) {
-        this.userID = userID;
-        this.username = username;
-        this.email = email;
-        this.fullName = fullName;
+        this.userID = userID; // Assigns userID value
+        this.username = username; // Assigns username value
+        this.email = email; // Assigns email value
+        this.fullName = fullName; // Assigns fullName value
     }
 
-    public Integer getUserID() { return userID; }
-    public void setUserID(Integer userID) { this.userID = userID; }
+    // Getter method for userID
+    public Integer getUserID() {
+        return userID;
+    }
 
-    public String getUsername() { return username; }
-    public void setUsername(String username) { this.username = username; }
+    // Setter method for userID
+    public void setUserID(Integer userID) {
+        this.userID = userID;
+    }
 
-    public String getEmail() { return email; }
-    public void setEmail(String email) { this.email = email; }
+    // Getter method for username
+    public String getUsername() {
+        return username;
+    }
 
-    public String getFullName() { return fullName; }
-    public void setFullName(String fullName) { this.fullName = fullName; }
+    // Setter method for username
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    // Getter method for email
+    public String getEmail() {
+        return email;
+    }
+
+    // Setter method for email
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    // Getter method for fullName
+    public String getFullName() {
+        return fullName;
+    }
+
+    // Setter method for fullName
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
 }

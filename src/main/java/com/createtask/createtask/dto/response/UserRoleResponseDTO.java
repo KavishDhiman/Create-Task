@@ -1,23 +1,37 @@
 package com.createtask.createtask.dto.response;
 
-/**
- * UserRoleResponseDTO is the output object returned to the client for role-related responses.
- */
+// DTO class for sending role response data
 public class UserRoleResponseDTO {
 
-    private Integer userRoleID;
-    private String roleName;
+    private Integer userRoleID; // Stores role ID
+    private String roleName; // Stores role name
 
+    // Default constructor
     public UserRoleResponseDTO() {}
 
+    // Parameterized constructor for initializing all fields
     public UserRoleResponseDTO(Integer userRoleID, String roleName) {
-        this.userRoleID = userRoleID;
-        this.roleName = roleName;
+        this.userRoleID = userRoleID; // Assigns role ID value
+        this.roleName = roleName; // Assigns role name value
     }
 
-    public Integer getUserRoleID() { return userRoleID; }
-    public void setUserRoleID(Integer userRoleID) { this.userRoleID = userRoleID; }
+    // Getter method for userRoleID
+    public Integer getUserRoleID() {
+        return userRoleID;
+    }
 
-    public String getRoleName() { return roleName; }
-    public void setRoleName(String roleName) { this.roleName = roleName; }
+    // Setter method for userRoleID
+    public void setUserRoleID(Integer userRoleID) {
+        this.userRoleID = userRoleID;
+    }
+
+    // Getter method for roleName
+    public String getRoleName() {
+        return roleName;
+    }
+
+    // Setter method for roleName
+    public void setRoleName(String roleName) {
+        this.roleName = roleName;
+    }
 }

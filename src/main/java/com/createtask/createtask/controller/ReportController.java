@@ -12,53 +12,57 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-/**
- * Exposes all reporting endpoints — kept separate from business CRUD controllers.
- * Both endpoints are read-only and return aggregated data for dashboard use.
- */
-@RestController
-@RequestMapping("/api/v1/reports")
-@Tag(name = "Reports", description = "High-impact reporting endpoints for business insights")
+@RestController // Marks this class as REST controller
+@RequestMapping("/api/v1/reports") // Base URL mapping for report APIs
+@Tag(name = "Reports", description = "High-impact reporting endpoints for business insights") // Swagger API documentation tag
 public class ReportController {
 
-    private final ReportService reportService;
+    private final ReportService reportService; // Service dependency for report operations
 
-    // Creates the report controller.
+    // Constructor injection for ReportService
     public ReportController(ReportService reportService) {
-        this.reportService = reportService;
+
+        this.reportService = reportService; // Assigns ReportService object
     }
 
-    /** Returns task completion statistics per user. */
-    @Operation(
+    @Operation( // Swagger operation details
             summary = "User Productivity Report",
             description = "Returns task completion statistics per user — totalTasks, completedTasks, pendingTasks, completionRate(%)"
     )
-    @ApiResponse(responseCode = "200", description = "Productivity report generated successfully")
-    @GetMapping("/users/productivity")
+    @ApiResponse(responseCode = "200", description = "Productivity report generated successfully") // Swagger response documentation
+    @GetMapping("/users/productivity") // Maps GET request
     public ResponseEntity<List<UserProductivityDTO>> getUserProductivityReport() {
-        return ResponseEntity.ok(reportService.getUserProductivityReport());
+
+        return ResponseEntity.ok( // Returns success response
+                reportService.getUserProductivityReport()
+        );
     }
 
-    /** Returns a health summary per project showing task breakdown and progress. */
-    @Operation(
+    @Operation( // Swagger operation details
             summary = "Project Summary Dashboard",
             description = "Returns task breakdown per project — totalTasks, completedTasks, inProgressTasks, pendingTasks, completionPercentage(%)"
     )
-    @ApiResponse(responseCode = "200", description = "Project summary report generated successfully")
-    @GetMapping("/projects/summary")
+    @ApiResponse(responseCode = "200", description = "Project summary report generated successfully") // Swagger response documentation
+    @GetMapping("/projects/summary") // Maps GET request
     public ResponseEntity<List<ProjectSummaryDTO>> getProjectSummaryReport() {
-        return ResponseEntity.ok(reportService.getProjectSummaryReport());
+
+        return ResponseEntity.ok( // Returns success response
+                reportService.getProjectSummaryReport()
+        );
     }
 
-    /** Returns tasks that are overdue by the requested threshold. */
-    @Operation(
+    @Operation( // Swagger operation details
             summary = "Overdue Tasks Report",
             description = "Returns tasks that are overdue beyond the requested number of days"
     )
-    @ApiResponse(responseCode = "200", description = "Overdue tasks report generated successfully")
-    @GetMapping("/tasks/overdue")
+    @ApiResponse(responseCode = "200", description = "Overdue tasks report generated successfully") // Swagger response documentation
+    @GetMapping("/tasks/overdue") // Maps GET request
     public ResponseEntity<List<OverdueTaskDTO>> getOverdueTasksReport(
-            @RequestParam(defaultValue = "7") int days) {
-        return ResponseEntity.ok(reportService.getOverdueTasksReport(days));
+
+            @RequestParam(defaultValue = "7") int days) { // Receives days parameter from request
+
+        return ResponseEntity.ok( // Returns success response
+                reportService.getOverdueTasksReport(days)
+        );
     }
 }

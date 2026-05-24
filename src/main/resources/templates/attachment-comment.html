@@ -11,6 +11,10 @@
     <link rel="stylesheet" th:href="@{/css/style.css}" />
 
     <style>
+        /* =========================================
+           PAGE HEADER STYLING
+        ========================================= */
+
         .page-header {
             padding: 2rem 2.5rem 1.5rem;
             border-bottom: 1px solid var(--border);
@@ -18,6 +22,7 @@
             position: relative;
         }
 
+        /* Decorative radial overlay for depth effect */
         .page-header::before {
             content: '';
             position: absolute;
@@ -26,6 +31,7 @@
             pointer-events: none;
         }
 
+        /* Top bar: back link on the left, logout on the right */
         .header-top-bar {
             display: flex;
             justify-content: space-between;
@@ -33,6 +39,7 @@
             margin-bottom: 1rem;
         }
 
+        /* Muted monospace back navigation link */
         .page-header .back-link {
             color: var(--muted);
             font-family: 'DM Mono', monospace;
@@ -40,10 +47,12 @@
             text-decoration: none;
         }
 
+        /* Accent colour on hover for back link */
         .page-header .back-link:hover {
             color: var(--accent);
         }
 
+        /* Gradient-clipped hero heading */
         .page-header h1 {
             font-family: 'Syne', sans-serif;
             font-weight: 800;
@@ -56,11 +65,17 @@
             margin-bottom: 0.4rem;
         }
 
+        /* Subdued subtitle text */
         .page-header p {
             color: var(--muted);
             font-size: 0.95rem;
         }
 
+        /* =========================================
+           LOGOUT BUTTON STYLING
+        ========================================= */
+
+        /* Destructive-style logout button using delete colour tokens */
         .logout-btn {
             background: var(--del-bg);
             border: 1px solid var(--del-border);
@@ -73,10 +88,16 @@
             transition: opacity 0.2s;
         }
 
+        /* Fade on hover for logout button */
         .logout-btn:hover {
             opacity: 0.8;
         }
 
+        /* =========================================
+           SECTION HEADING STYLING
+        ========================================= */
+
+        /* Section title row with inline badge */
         .section-heading {
             font-family: 'Syne', sans-serif;
             font-weight: 700;
@@ -89,6 +110,7 @@
             gap: 0.6rem;
         }
 
+        /* Pill badge showing endpoint count */
         .section-heading .section-badge {
             background: var(--tag-bg);
             border: 1px solid var(--tag-border);
@@ -99,22 +121,34 @@
             border-radius: 20px;
         }
 
+        /* =========================================
+           API SECTION & GRID LAYOUT
+        ========================================= */
+
+        /* Outer wrapper providing consistent horizontal padding */
         .api-section {
             padding: 1.5rem 2.5rem;
         }
 
+        /* Two-column card grid */
         .api-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 1.5rem;
         }
 
+        /* Collapse to single column on narrow viewports */
         @media (max-width: 700px) {
             .api-grid {
                 grid-template-columns: 1fr;
             }
         }
 
+        /* =========================================
+           API CARD STYLING
+        ========================================= */
+
+        /* Base card container with subtle hover border accent */
         .api-card {
             background: var(--card);
             border: 1px solid var(--border);
@@ -123,16 +157,19 @@
             transition: border-color 0.2s;
         }
 
+        /* Blue-tinted border glow on card hover */
         .api-card:hover {
             border-color: rgba(79,142,247,0.3);
         }
 
+        /* Card header: slightly elevated background to separate from body */
         .api-card-header {
             padding: 1.1rem 1.4rem;
             border-bottom: 1px solid var(--border);
             background: rgba(255,255,255,0.02);
         }
 
+        /* Flex row holding HTTP method badge and endpoint title */
         .api-card-header .header-top {
             display: flex;
             align-items: center;
@@ -140,6 +177,7 @@
             margin-bottom: 0.6rem;
         }
 
+        /* HTTP method badge (GET / POST / PUT / DELETE) */
         .api-card-header .method {
             font-family: 'DM Mono', monospace;
             font-size: 0.75rem;
@@ -150,6 +188,7 @@
             flex-shrink: 0;
         }
 
+        /* Human-readable endpoint label */
         .api-card-header .endpoint-title {
             font-family: 'Syne', sans-serif;
             font-weight: 700;
@@ -157,6 +196,7 @@
             color: var(--text);
         }
 
+        /* URL display strip with coloured method dot */
         .api-card-header .endpoint-url {
             display: flex;
             align-items: center;
@@ -167,6 +207,11 @@
             padding: 0.45rem 1rem;
         }
 
+        /* =========================================
+           URL METHOD DOTS
+        ========================================= */
+
+        /* Small circular indicator whose colour matches the HTTP method */
         .url-method-dot {
             width: 8px;
             height: 8px;
@@ -174,22 +219,27 @@
             flex-shrink: 0;
         }
 
+        /* GET — teal */
         .dot-get {
             background: #36c9a7;
         }
 
+        /* POST — purple */
         .dot-post {
             background: #9f82ff;
         }
 
+        /* DELETE — red */
         .dot-delete {
             background: #ff6363;
         }
 
+        /* PUT — orange */
         .dot-put {
             background: #ffb347;
         }
 
+        /* Monospace path string; path params are coloured separately */
         .api-card-header .url-path {
             font-family: 'DM Mono', monospace;
             font-size: 0.82rem;
@@ -197,18 +247,26 @@
             word-break: break-all;
         }
 
+        /* Highlighted {param} segments within URL paths */
         .api-card-header .url-path .path-param {
             color: var(--accent);
         }
 
+        /* Card body: input fields and action button */
         .api-card-body {
             padding: 1.4rem;
         }
 
+        /* =========================================
+           INPUT GROUP STYLING
+        ========================================= */
+
+        /* Vertical spacing wrapper for each label + input pair */
         .input-group {
             margin-bottom: 1rem;
         }
 
+        /* Uppercase monospace label above each input */
         .input-group label {
             display: block;
             font-family: 'DM Mono', monospace;
@@ -219,6 +277,7 @@
             margin-bottom: 0.4rem;
         }
 
+        /* Shared styles for text inputs and textareas */
         .input-group input,
         .input-group textarea {
             width: 100%;
@@ -234,16 +293,23 @@
             resize: vertical;
         }
 
+        /* Accent border on focus for keyboard-navigation clarity */
         .input-group input:focus,
         .input-group textarea:focus {
             border-color: var(--accent);
         }
 
+        /* Muted placeholder text */
         .input-group input::placeholder,
         .input-group textarea::placeholder {
             color: var(--muted);
         }
 
+        /* =========================================
+           SEND BUTTON STYLING
+        ========================================= */
+
+        /* Full-width action button shared by all API cards */
         .send-btn {
             width: 100%;
             margin-top: 0.6rem;
@@ -257,53 +323,71 @@
             transition: opacity 0.2s, transform 0.15s;
         }
 
+        /* Subtle lift + fade on hover */
         .send-btn:hover {
             opacity: 0.88;
             transform: translateY(-1px);
         }
 
+        /* =========================================
+           BUTTON THEME VARIANTS
+        ========================================= */
+
+        /* GET button — teal */
         .btn-get {
             background: var(--get-bg);
             border: 1px solid var(--get-border);
             color: #36c9a7;
         }
 
+        /* POST button — purple */
         .btn-post {
             background: var(--post-bg);
             border: 1px solid var(--post-border);
             color: #9f82ff;
         }
 
+        /* PUT button — orange */
         .btn-put {
             background: var(--put-bg);
             border: 1px solid var(--put-border);
             color: #ffb347;
         }
 
+        /* DELETE button — red */
         .btn-delete {
             background: var(--del-bg);
             border: 1px solid var(--del-border);
             color: #ff6363;
         }
 
+        /* =========================================
+           HTTP METHOD BADGE COLOUR CLASSES
+           (applied directly as class names on .method spans)
+        ========================================= */
+
+        /* GET badge — teal */
         .GET {
             background: var(--get-bg);
             border: 1px solid var(--get-border);
             color: #36c9a7;
         }
 
+        /* POST badge — purple */
         .POST {
             background: var(--post-bg);
             border: 1px solid var(--post-border);
             color: #9f82ff;
         }
 
+        /* PUT badge — orange */
         .PUT {
             background: var(--put-bg);
             border: 1px solid var(--put-border);
             color: #ffb347;
         }
 
+        /* DELETE badge — red */
         .DELETE {
             background: var(--del-bg);
             border: 1px solid var(--del-border);
@@ -534,8 +618,26 @@
 
 <script>
 
+    /**
+     * Base URL prefix for all API requests.
+     * Centralised here so every fetch call stays consistent
+     * and the path only needs updating in one place.
+     *
+     * @constant {string}
+     */
     const BASE = "/api/v1";
 
+    /**
+     * Extracts a human-readable error message from an API error response body.
+     *
+     * Prefers field-level validation errors (fieldErrors) when present;
+     * falls back to a top-level message string, or a generic fallback.
+     *
+     * @param {Object} d - Parsed JSON response body from the API.
+     * @param {Object} [d.fieldErrors] - Map of field names to validation messages.
+     * @param {string} [d.message]     - Top-level error message string.
+     * @returns {string} A comma-separated error string suitable for display.
+     */
     function extractError(d) {
         if (d.fieldErrors && Object.keys(d.fieldErrors).length > 0) {
             return Object.values(d.fieldErrors).join(", ");
@@ -543,6 +645,15 @@
         return d.message || "An error occurred";
     }
 
+    /**
+     * Serialises a response payload to JSON, appends an optional module name,
+     * then opens the shared response-view page in a new browser tab.
+     *
+     * @param {Object} payload          - Data to display (may contain `data` or `error` keys).
+     * @param {string} [moduleName=""]  - Friendly service name shown in the response view
+     *                                    (e.g. "Comment Service", "Attachment Service").
+     * @returns {void}
+     */
     function openResponse(payload, moduleName) {
         if (moduleName) payload.module = moduleName;
         const encoded = encodeURIComponent(JSON.stringify(payload));
@@ -552,6 +663,14 @@
         );
     }
 
+    /**
+     * Generic network-error handler invoked when a fetch() Promise rejects
+     * (e.g. server unreachable, CORS failure, DNS error).
+     *
+     * Displays a standardised error payload in the response view.
+     *
+     * @returns {void}
+     */
     function handleErr() {
         openResponse({ error: "Request failed" }, "API Service");
     }
@@ -560,6 +679,22 @@
     // COMMENT FUNCTIONS
     // =========================
 
+    /**
+     * POST /api/v1/tasks/{taskId}/comments
+     *
+     * Reads form inputs, validates required fields, then sends a POST request
+     * to create a new comment on the specified task.
+     *
+     * Validation rules:
+     *  - commentId  must be present and non-zero
+     *  - taskId     must be present and non-zero
+     *  - userId     must be present and non-zero
+     *
+     * On success, opens the created comment object in the response view.
+     * On failure, opens the extracted API error message.
+     *
+     * @returns {void}
+     */
     function addComment() {
 
         const taskId = document.getElementById("addCommentTaskId").value;
@@ -592,6 +727,21 @@
             .catch(handleErr);
     }
 
+    /**
+     * GET /api/v1/tasks/{taskId}/comments
+     *
+     * Reads the task ID input and fetches all comments belonging to that task.
+     *
+     * Validation rules:
+     *  - taskId must be present and non-zero
+     *
+     * Response handling:
+     *  - Empty array  → treated as "task not found or has no comments"
+     *  - Non-empty    → opens the comment list in the response view
+     *  - Error status → opens the extracted API error message
+     *
+     * @returns {void}
+     */
     function getCommentsByTaskId() {
 
         const taskId = document.getElementById("getCommentsTaskId").value;
@@ -612,6 +762,21 @@
             .catch(handleErr);
     }
 
+    /**
+     * DELETE /api/v1/comments/{commentId}
+     *
+     * Reads the comment ID input and sends a DELETE request to remove
+     * the specified comment.
+     *
+     * Validation rules:
+     *  - id must be present and non-zero
+     *
+     * On success, the server returns a plain-text confirmation message;
+     * this is wrapped alongside the deleted ID and shown in the response view.
+     * On failure, opens the extracted API error message.
+     *
+     * @returns {void}
+     */
     function deleteComment() {
 
         const id = document.getElementById("deleteCommentId").value;
@@ -630,6 +795,22 @@
     // ATTACHMENT FUNCTIONS
     // =========================
 
+    /**
+     * POST /api/v1/tasks/{taskId}/attachments
+     *
+     * Reads form inputs, validates required fields, then sends a POST request
+     * to associate a new file attachment with the specified task.
+     *
+     * Validation rules:
+     *  - attachmentId must be present and non-zero
+     *  - taskId       must be present and non-zero
+     *
+     * Request body includes attachmentID, fileName, and filePath.
+     * On success, opens the created attachment object in the response view.
+     * On failure, opens the extracted API error message.
+     *
+     * @returns {void}
+     */
     function addAttachment() {
 
         const taskId = document.getElementById("addAttachmentTaskId").value;
@@ -660,6 +841,21 @@
             .catch(handleErr);
     }
 
+    /**
+     * GET /api/v1/tasks/{taskId}/attachments
+     *
+     * Reads the task ID input and fetches all file attachments belonging to that task.
+     *
+     * Validation rules:
+     *  - taskId must be present and non-zero
+     *
+     * Response handling:
+     *  - Empty array  → treated as "task not found or has no attachments"
+     *  - Non-empty    → opens the attachment list in the response view
+     *  - Error status → opens the extracted API error message
+     *
+     * @returns {void}
+     */
     function getAttachmentsByTaskId() {
 
         const taskId = document.getElementById("getAttachmentsTaskId").value;
@@ -680,6 +876,21 @@
             .catch(handleErr);
     }
 
+    /**
+     * DELETE /api/v1/attachments/{attachmentId}
+     *
+     * Reads the attachment ID input and sends a DELETE request to remove
+     * the specified attachment record.
+     *
+     * Validation rules:
+     *  - id must be present and non-zero
+     *
+     * On success, the server returns a plain-text confirmation message;
+     * this is wrapped alongside the deleted ID and shown in the response view.
+     * On failure, opens the extracted API error message.
+     *
+     * @returns {void}
+     */
     function deleteAttachment() {
 
         const id = document.getElementById("deleteAttachmentId").value;

@@ -26,9 +26,12 @@ public class UserServiceImpl implements UserService {
     @Override
     public AppUser createUser(AppUser user) {
 
-        // Checks if username already exists
-        if (userRepository.existsByUsername(user.getUsername())) {
-            throw new DuplicateUserException("username", user.getUsername()); // Throws duplicate username exception
+        // Checks if user ID already exists
+        if (userRepository.existsById(user.getUserID())) {
+            throw new DuplicateUserException(
+                    "userID",
+                    String.valueOf(user.getUserID())
+            );
         }
 
         // Checks if email already exists
@@ -72,13 +75,6 @@ public class UserServiceImpl implements UserService {
         // Retrieves existing user or throws exception
         AppUser existing = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(userId));
-
-        // Checks duplicate username only if username changed
-        if (!existing.getUsername().equals(updatedUser.getUsername())
-                && userRepository.existsByUsername(updatedUser.getUsername())) {
-
-            throw new DuplicateUserException("username", updatedUser.getUsername()); // Throws duplicate username exception
-        }
 
         // Checks duplicate email only if email changed
         if (!existing.getEmail().equals(updatedUser.getEmail())

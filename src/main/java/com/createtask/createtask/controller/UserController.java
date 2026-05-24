@@ -17,39 +17,40 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@RestController
-@RequestMapping("/api/v1/users")
-@Tag(
+@RestController // Marks this class as REST controller
+@RequestMapping("/api/v1/users") // Base URL mapping for user APIs
+@Tag( // Swagger API documentation tag
         name = "User Management",
         description = "APIs for creating, retrieving, updating and deleting users"
 )
 public class UserController {
 
-    private final UserService userService;
+    private final UserService userService; // Service dependency for user operations
 
+    // Constructor injection for UserService
     public UserController(UserService userService) {
 
-        this.userService = userService;
+        this.userService = userService; // Assigns UserService object
     }
 
-    // Converts DTO to entity
+    // Converts request DTO into entity object
     private AppUser toEntity(UserRequestDTO dto) {
 
-        AppUser user = new AppUser();
+        AppUser user = new AppUser(); // Creates AppUser object
 
-        user.setUserID(dto.getUserID());
-        user.setUsername(dto.getUsername());
-        user.setPassword(dto.getPassword());
-        user.setEmail(dto.getEmail());
-        user.setFullName(dto.getFullName());
+        user.setUserID(dto.getUserID()); // Sets user ID
+        user.setUsername(dto.getUsername()); // Sets username
+        user.setPassword(dto.getPassword()); // Sets password
+        user.setEmail(dto.getEmail()); // Sets email
+        user.setFullName(dto.getFullName()); // Sets full name
 
-        return user;
+        return user; // Returns entity object
     }
 
-    // Converts entity to response DTO
+    // Converts entity object into response DTO
     private UserResponseDTO toResponse(AppUser user) {
 
-        return new UserResponseDTO(
+        return new UserResponseDTO( // Returns response DTO object
                 user.getUserID(),
                 user.getUsername(),
                 user.getEmail(),
@@ -57,69 +58,74 @@ public class UserController {
         );
     }
 
-    // CREATE USER
-    @Operation(summary = "Create a new user")
-    @PostMapping
+    // API for creating new user
+    @Operation(summary = "Create a new user") // Swagger operation summary
+    @PostMapping // Maps POST request
     public ResponseEntity<UserResponseDTO> createUser(
-            @Valid @RequestBody UserRequestDTO dto) {
 
-        AppUser saved = userService.createUser(toEntity(dto));
+            @Valid @RequestBody UserRequestDTO dto) { // Validates and receives request body
+
+        AppUser saved = userService.createUser(toEntity(dto)); // Saves user into database
 
         return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(toResponse(saved));
+                .status(HttpStatus.CREATED) // Sets HTTP status 201
+                .body(toResponse(saved)); // Returns created user response
     }
 
-    // GET USER BY ID
-    @Operation(summary = "Get user by ID")
-    @GetMapping("/{userId}")
+    // API for retrieving user by ID
+    @Operation(summary = "Get user by ID") // Swagger operation summary
+    @GetMapping("/{userId}") // Maps GET request with path variable
     public ResponseEntity<UserResponseDTO> getUserById(
-            @PathVariable Integer userId) {
 
-        return ResponseEntity.ok(
+            @PathVariable Integer userId) { // Receives user ID from URL
+
+        return ResponseEntity.ok( // Returns success response
                 toResponse(userService.getUserById(userId))
         );
     }
 
-    // GET ALL USERS
-    @Operation(summary = "List all users sorted by userID")
-    @GetMapping
+    // API for retrieving all users
+    @Operation(summary = "List all users sorted by userID") // Swagger operation summary
+    @GetMapping // Maps GET request
     public ResponseEntity<List<UserResponseDTO>> getAllUsers() {
 
-        List<UserResponseDTO> response =
+        List<UserResponseDTO> response = // Stores response DTO list
                 userService.getAllUsersSorted()
-                        .stream()
-                        .map(this::toResponse)
-                        .collect(Collectors.toList());
+                        .stream() // Converts collection into stream
+                        .map(this::toResponse) // Converts entity into DTO
+                        .collect(Collectors.toList()); // Converts stream into list
 
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(response); // Returns response list
     }
 
-    // UPDATE USER
-    @Operation(summary = "Update user profile")
-    @PutMapping("/{userId}")
+    // API for updating user
+    @Operation(summary = "Update user profile") // Swagger operation summary
+    @PutMapping("/{userId}") // Maps PUT request
     public ResponseEntity<UserResponseDTO> updateUser(
-            @PathVariable Integer userId,
-            @Valid @RequestBody UserRequestDTO dto) {
 
-        AppUser updated =
+            @PathVariable Integer userId, // Receives user ID from URL
+
+            @Valid @RequestBody UserRequestDTO dto) { // Validates request body
+
+        AppUser updated = // Stores updated user object
                 userService.updateUser(userId, toEntity(dto));
 
-        return ResponseEntity.ok(
+        return ResponseEntity.ok( // Returns updated response
                 toResponse(updated)
         );
     }
 
-    // DELETE USER
-    @Operation(summary = "Delete a user by ID")
-    @DeleteMapping("/{userId}")
+    // API for deleting user
+    @Operation(summary = "Delete a user by ID") // Swagger operation summary
+    @DeleteMapping("/{userId}") // Maps DELETE request
     public ResponseEntity<String> deleteUser(
-            @PathVariable Integer userId) {
 
-        boolean deleted =
+            @PathVariable Integer userId) { // Receives user ID from URL
+
+        boolean deleted = // Stores deletion result
                 userService.deleteUser(userId);
 
-        return ResponseEntity.ok(
+        return ResponseEntity.ok( // Returns deletion success message
                 "User with ID " + userId +
                         " deleted successfully. Status: " + deleted
         );

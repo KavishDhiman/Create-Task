@@ -7,46 +7,60 @@ import jakarta.validation.constraints.Size;
 
 import java.util.Objects;
 
-@Entity
-@Table(name = "UserRole")
-public class UserRole implements Comparable<UserRole> {
+@Entity // Marks this class as a database entity
+@Table(name = "UserRole") // Maps entity to UserRole table
+public class UserRole implements Comparable<UserRole> { // Enables sorting of UserRole objects
 
-    @Id
-    @Column(name = "UserRoleID")
-    @NotNull(message = "UserRoleID must not be null")
-    private Integer userRoleID;
+    @Id // Marks primary key
+    @Column(name = "UserRoleID") // Maps field to UserRoleID column
+    @NotNull(message = "UserRoleID must not be null") // Validates non-null ID
+    private Integer userRoleID; // Stores role ID
 
-    @Column(name = "RoleName", nullable = false, length = 255)
-    @NotBlank(message = "RoleName must not be blank")
-    @Size(max = 255, message = "RoleName must not exceed 255 characters")
-    private String roleName;
+    @Column(name = "RoleName", nullable = false, length = 255) // Maps RoleName column
+    @NotBlank(message = "RoleName must not be blank") // Prevents blank role name
+    @Size(max = 255, message = "RoleName must not exceed 255 characters") // Validates max length
+    private String roleName; // Stores role name
 
-    public Integer getUserRoleID() { return userRoleID; }
-    public void setUserRoleID(Integer userRoleID) { this.userRoleID = userRoleID; }
+    // Getter method for userRoleID
+    public Integer getUserRoleID() {
+        return userRoleID;
+    }
 
-    public String getRoleName() { return roleName; }
-    public void setRoleName(String roleName) { this.roleName = roleName; }
+    // Setter method for userRoleID
+    public void setUserRoleID(Integer userRoleID) {
+        this.userRoleID = userRoleID;
+    }
 
-    @Override
+    // Getter method for roleName
+    public String getRoleName() {
+        return roleName;
+    }
+
+    // Setter method for roleName
+    public void setRoleName(String roleName) {
+        this.roleName = roleName;
+    }
+
+    @Override // Overrides default equals method
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof UserRole)) return false;
-        UserRole userRole = (UserRole) o;
-        return Objects.equals(userRoleID, userRole.userRoleID);
+        if (this == o) return true; // Checks same object reference
+        if (!(o instanceof UserRole)) return false; // Checks object type
+        UserRole userRole = (UserRole) o; // Typecasts Object to UserRole
+        return Objects.equals(userRoleID, userRole.userRoleID); // Compares role IDs
     }
 
-    @Override
+    @Override // Overrides default hashCode method
     public int hashCode() {
-        return Objects.hash(userRoleID);
+        return Objects.hash(userRoleID); // Generates hash using role ID
     }
 
-    @Override
+    @Override // Overrides compareTo method for sorting
     public int compareTo(UserRole other) {
-        return this.roleName.compareTo(other.roleName);
+        return this.roleName.compareTo(other.roleName); // Compares role names alphabetically
     }
 
-    @Override
+    @Override // Overrides default toString method
     public String toString() {
-        return "UserRole{userRoleID=" + userRoleID + ", roleName='" + roleName + "'}";
+        return "UserRole{userRoleID=" + userRoleID + ", roleName='" + roleName + "'}"; // Returns readable string output
     }
 }

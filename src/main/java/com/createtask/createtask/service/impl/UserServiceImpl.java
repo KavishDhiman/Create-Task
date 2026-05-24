@@ -10,97 +10,113 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.TreeSet;
 
-/**
- * UserServiceImpl provides the concrete business logic for all user operations.
- * Uses constructor injection for the repository dependency.
- */
+// Service implementation class for user-related business logic
 @Service
 public class UserServiceImpl implements UserService {
 
+    // Repository dependency for database operations
     private final UserRepository userRepository;
 
+    // Constructor injection for UserRepository
     public UserServiceImpl(UserRepository userRepository) {
-        this.userRepository = userRepository;
+        this.userRepository = userRepository; // Assigns repository object
     }
 
-    /**
-     * Validates that username and email are not already taken before saving.
-     * Throws DuplicateUserException for either conflict.
-     */
+    // Creates a new user after validation
     @Override
     public AppUser createUser(AppUser user) {
+
+        // Checks if username already exists
         if (userRepository.existsByUsername(user.getUsername())) {
-            throw new DuplicateUserException("username", user.getUsername());
+            throw new DuplicateUserException("username", user.getUsername()); // Throws duplicate username exception
         }
+
+        // Checks if email already exists
         if (userRepository.existsByEmail(user.getEmail())) {
-            throw new DuplicateUserException("email", user.getEmail());
+            throw new DuplicateUserException("email", user.getEmail()); // Throws duplicate email exception
         }
+
+        // Saves user into database
         return userRepository.save(user);
     }
 
-    /**
-     * Uses Optional.orElseThrow to avoid returning null
-     * and ensure a proper exception is raised when the user is missing.
-     */
+    // Retrieves user by user ID
     @Override
     public AppUser getUserById(Integer userId) {
+
+        // Finds user by ID or throws exception if absent
         return userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(userId));
     }
 
-    /** Returns all users from the database as an unordered list. */
+    // Retrieves all users from database
     @Override
     public List<AppUser> getAllUsers() {
+
+        // Returns all users as list
         return userRepository.findAll();
     }
 
-    /**
-     * TreeSet automatically calls User's compareTo() on each insertion,
-     * producing a set sorted by userID without an explicit sort call.
-     */
+    // Retrieves all users sorted using TreeSet
     @Override
     public TreeSet<AppUser> getAllUsersSorted() {
+
+        // Converts list into sorted TreeSet
         return new TreeSet<>(userRepository.findAll());
     }
 
-    /**
-     * Fetches the existing record first to confirm it exists.
-     * Skips uniqueness check on username/email if the value has not changed,
-     * to avoid a false conflict when updating other fields only.
-     */
+    // Updates existing user details
     @Override
     public AppUser updateUser(Integer userId, AppUser updatedUser) {
+
+        // Retrieves existing user or throws exception
         AppUser existing = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(userId));
 
+        // Checks duplicate username only if username changed
         if (!existing.getUsername().equals(updatedUser.getUsername())
                 && userRepository.existsByUsername(updatedUser.getUsername())) {
-            throw new DuplicateUserException("username", updatedUser.getUsername());
+
+            throw new DuplicateUserException("username", updatedUser.getUsername()); // Throws duplicate username exception
         }
+
+        // Checks duplicate email only if email changed
         if (!existing.getEmail().equals(updatedUser.getEmail())
                 && userRepository.existsByEmail(updatedUser.getEmail())) {
-            throw new DuplicateUserException("email", updatedUser.getEmail());
+
+            throw new DuplicateUserException("email", updatedUser.getEmail()); // Throws duplicate email exception
         }
 
+        // Updates username field
         existing.setUsername(updatedUser.getUsername());
+
+        // Updates password field
         existing.setPassword(updatedUser.getPassword());
+
+        // Updates email field
         existing.setEmail(updatedUser.getEmail());
+
+        // Updates full name field
         existing.setFullName(updatedUser.getFullName());
 
+        // Saves updated user into database
         return userRepository.save(existing);
     }
 
-    /**
-     * Validates user exists before deletion.
-     * Returns true after successful deletion to confirm the operation completed.
-     * Throws UserNotFoundException if the ID does not exist.
-     */
+    // Deletes user by ID
     @Override
     public boolean deleteUser(Integer userId) {
+
+        // Checks whether user exists
         if (!userRepository.existsById(userId)) {
-            throw new UserNotFoundException(userId);
+
+            throw new UserNotFoundException(userId); // Throws exception if user missing
         }
+
+        // Deletes user from database
         userRepository.deleteById(userId);
+
+        // Returns true after successful deletion
         return true;
     }
 }

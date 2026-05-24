@@ -1,18 +1,18 @@
 package com.createtask.createtask.exception;
 
-/**
- * Thrown when a role lookup by ID finds no matching record,
- * or when a role mapping being removed does not exist.
- * Mapped to HTTP 404 by GlobalExceptionHandler.
- */
+// Custom exception for role not found cases
 public class RoleNotFoundException extends RuntimeException {
 
-    private final Integer roleId;
+    private final Integer roleId; // Stores missing role ID
 
+    // Constructor for initializing exception
     public RoleNotFoundException(Integer roleId) {
-        super("Role not found with ID: " + roleId);
-        this.roleId = roleId;
+        super("Role not found with ID: " + roleId); // Passes error message to parent exception class
+        this.roleId = roleId; // Assigns role ID value
     }
 
-    public Integer getRoleId() { return roleId; }
+    // Getter method for roleId
+    public Integer getRoleId() {
+        return roleId; // Returns missing role ID
+    }
 }

@@ -1,21 +1,25 @@
 package com.createtask.createtask.exception;
 
-/**
- * Thrown when a create or update operation uses a username or email
- * that already exists in the database.
- * Mapped to HTTP 409 by GlobalExceptionHandler.
- */
+// Custom exception for duplicate user cases
 public class DuplicateUserException extends RuntimeException {
 
-    private final String field;
-    private final String value;
+    private final String field; // Stores duplicate field name
+    private final String value; // Stores duplicate field value
 
+    // Constructor for initializing exception
     public DuplicateUserException(String field, String value) {
-        super("User already exists with " + field + ": " + value);
-        this.field = field;
-        this.value = value;
+        super("User already exists with " + field + ": " + value); // Passes error message to parent exception class
+        this.field = field; // Assigns duplicate field name
+        this.value = value; // Assigns duplicate field value
     }
 
-    public String getField() { return field; }
-    public String getValue() { return value; }
+    // Getter method for field
+    public String getField() {
+        return field; // Returns duplicate field name
+    }
+
+    // Getter method for value
+    public String getValue() {
+        return value; // Returns duplicate field value
+    }
 }

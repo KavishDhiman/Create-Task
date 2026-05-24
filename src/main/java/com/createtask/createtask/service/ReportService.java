@@ -6,18 +6,15 @@ import com.createtask.createtask.dto.response.UserProductivityDTO;
 
 import java.util.List;
 
-/**
- * ReportService defines the contract for all high-impact reporting operations.
- * Kept separate from TaskService and UserService to follow single responsibility.
- */
+// Service interface for report-related business operations
 public interface ReportService {
 
-    /** Generates a productivity report for every user. */
+    // Generates productivity report for all users
     List<UserProductivityDTO> getUserProductivityReport();
 
-    /** Generates a summary dashboard for every project showing task breakdown and progress. */
+    // Generates project summary report for all projects
     List<ProjectSummaryDTO> getProjectSummaryReport();
 
-    /** Generates a list of overdue tasks based on the provided overdue threshold. */
+    // Generates overdue tasks report based on days input
     List<OverdueTaskDTO> getOverdueTasksReport(int days);
 }

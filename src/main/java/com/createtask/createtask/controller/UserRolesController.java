@@ -13,58 +13,68 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * UserRolesController exposes REST endpoints for managing the
- * many-to-many relationship between users and roles.
- * Endpoints are nested under /api/v1/users/{userId}/roles
- * as per the API specification.
- */
-@RestController
-@RequestMapping("/api/v1/users")
-@Tag(name = "User-Role Mapping", description = "APIs for assigning and removing roles from users")
+@RestController // Marks this class as REST controller
+@RequestMapping("/api/v1/users") // Base URL mapping for user-role APIs
+@Tag(name = "User-Role Mapping", description = "APIs for assigning and removing roles from users") // Swagger API documentation tag
 public class UserRolesController {
 
-    private final UserRolesService userRolesService;
+    private final UserRolesService userRolesService; // Service dependency for user-role mapping operations
 
+    // Constructor injection for UserRolesService
     public UserRolesController(UserRolesService userRolesService) {
-        this.userRolesService = userRolesService;
+
+        this.userRolesService = userRolesService; // Assigns UserRolesService object
     }
 
-    /** Converts a UserRole entity to a response DTO for API output. */
+    // Converts UserRole entity into response DTO
     private UserRoleResponseDTO toResponse(UserRole role) {
-        return new UserRoleResponseDTO(role.getUserRoleID(), role.getRoleName());
+
+        return new UserRoleResponseDTO( // Returns response DTO object
+                role.getUserRoleID(),
+                role.getRoleName()
+        );
     }
 
-    @Operation(summary = "Assign a role to a user")
-    @PostMapping("/{userId}/roles/{roleId}")
+    @Operation(summary = "Assign a role to a user") // Swagger operation summary
+    @PostMapping("/{userId}/roles/{roleId}") // Maps POST request with path variables
     public ResponseEntity<String> assignRole(
-            @PathVariable Integer userId,
-            @PathVariable Integer roleId) {
-        UserRoles mapping = userRolesService.assignRoleToUser(userId, roleId);
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body("Role " + roleId + " assigned to User " + userId + " successfully.");
+
+            @PathVariable Integer userId, // Receives user ID from URL
+
+            @PathVariable Integer roleId) { // Receives role ID from URL
+
+        UserRoles mapping = userRolesService.assignRoleToUser(userId, roleId); // Assigns role to user
+
+        return ResponseEntity.status(HttpStatus.CREATED) // Sets HTTP status 201
+                .body("Role " + roleId + " assigned to User " + userId + " successfully."); // Returns success message
     }
 
-    /**
-     * Calls removeRoleFromUser which returns true on success.
-     * Returns a confirmation message to the client with HTTP 200.
-     */
-    @Operation(summary = "Remove a role from a user")
-    @DeleteMapping("/{userId}/roles/{roleId}")
+    @Operation(summary = "Remove a role from a user") // Swagger operation summary
+    @DeleteMapping("/{userId}/roles/{roleId}") // Maps DELETE request
     public ResponseEntity<String> removeRole(
-            @PathVariable Integer userId,
-            @PathVariable Integer roleId) {
-        boolean removed = userRolesService.removeRoleFromUser(userId, roleId);
-        return ResponseEntity.ok("Role " + roleId + " removed from User " + userId + " successfully. Status: " + removed);
+
+            @PathVariable Integer userId, // Receives user ID from URL
+
+            @PathVariable Integer roleId) { // Receives role ID from URL
+
+        boolean removed = userRolesService.removeRoleFromUser(userId, roleId); // Removes role mapping
+
+        return ResponseEntity.ok( // Returns success response
+                "Role " + roleId + " removed from User " + userId + " successfully. Status: " + removed
+        );
     }
 
-    @Operation(summary = "Get all roles assigned to a user")
-    @GetMapping("/{userId}/roles")
-    public ResponseEntity<List<UserRoleResponseDTO>> getRolesOfUser(@PathVariable Integer userId) {
-        List<UserRoleResponseDTO> roles = userRolesService.getRolesOfUser(userId)
-                .stream()
-                .map(this::toResponse)
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(roles);
+    @Operation(summary = "Get all roles assigned to a user") // Swagger operation summary
+    @GetMapping("/{userId}/roles") // Maps GET request
+    public ResponseEntity<List<UserRoleResponseDTO>> getRolesOfUser(
+
+            @PathVariable Integer userId) { // Receives user ID from URL
+
+        List<UserRoleResponseDTO> roles = userRolesService.getRolesOfUser(userId) // Retrieves assigned roles
+                .stream() // Converts collection into stream
+                .map(this::toResponse) // Converts entity into DTO
+                .collect(Collectors.toList()); // Converts stream into list
+
+        return ResponseEntity.ok(roles); // Returns response list
     }
 }

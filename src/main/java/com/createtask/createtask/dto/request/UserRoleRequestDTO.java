@@ -4,22 +4,33 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
-/**
- * UserRoleRequestDTO is the input object for creating a new role.
- * Validated by @Valid in the controller before reaching the service.
- */
+// DTO class for receiving role request data
 public class UserRoleRequestDTO {
 
-    @NotNull(message = "UserRoleID must not be null")
-    private Integer userRoleID;
+    @NotNull(message = "UserRoleID must not be null") // Validates non-null role ID
+    private Integer userRoleID; // Stores role ID
 
-    @NotBlank(message = "RoleName must not be blank")
-    @Size(max = 255, message = "RoleName must not exceed 255 characters")
-    private String roleName;
+    @NotBlank(message = "RoleName must not be blank") // Prevents blank role name
+    @Size(max = 255, message = "RoleName must not exceed 255 characters") // Validates role name length
+    private String roleName; // Stores role name
 
-    public Integer getUserRoleID() { return userRoleID; }
-    public void setUserRoleID(Integer userRoleID) { this.userRoleID = userRoleID; }
+    // Getter method for userRoleID
+    public Integer getUserRoleID() {
+        return userRoleID;
+    }
 
-    public String getRoleName() { return roleName; }
-    public void setRoleName(String roleName) { this.roleName = roleName; }
+    // Setter method for userRoleID
+    public void setUserRoleID(Integer userRoleID) {
+        this.userRoleID = userRoleID;
+    }
+
+    // Getter method for roleName
+    public String getRoleName() {
+        return roleName;
+    }
+
+    // Setter method for roleName
+    public void setRoleName(String roleName) {
+        this.roleName = roleName;
+    }
 }

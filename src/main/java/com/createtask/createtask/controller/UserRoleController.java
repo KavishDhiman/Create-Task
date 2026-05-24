@@ -14,48 +14,60 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * UserRoleController exposes REST endpoints for role management.
- * All endpoints follow the /api/v1/roles base path as per the API specification.
- */
-@RestController
-@RequestMapping("/api/v1/roles")
-@Tag(name = "Role Management", description = "APIs for creating and listing user roles")
+@RestController // Marks this class as REST controller
+@RequestMapping("/api/v1/roles") // Base URL mapping for role APIs
+@Tag(name = "Role Management", description = "APIs for creating and listing user roles") // Swagger API documentation tag
 public class UserRoleController {
 
-    private final UserRoleService userRoleService;
+    private final UserRoleService userRoleService; // Service dependency for role operations
 
+    // Constructor injection for UserRoleService
     public UserRoleController(UserRoleService userRoleService) {
-        this.userRoleService = userRoleService;
+
+        this.userRoleService = userRoleService; // Assigns UserRoleService object
     }
 
-    /** Converts UserRoleRequestDTO to UserRole entity for service processing. */
+    // Converts request DTO into entity object
     private UserRole toEntity(UserRoleRequestDTO dto) {
-        UserRole role = new UserRole();
-        role.setUserRoleID(dto.getUserRoleID());
-        role.setRoleName(dto.getRoleName());
-        return role;
+
+        UserRole role = new UserRole(); // Creates UserRole object
+
+        role.setUserRoleID(dto.getUserRoleID()); // Sets role ID
+        role.setRoleName(dto.getRoleName()); // Sets role name
+
+        return role; // Returns entity object
     }
 
-    /** Converts UserRole entity to UserRoleResponseDTO for the API response. */
+    // Converts entity object into response DTO
     private UserRoleResponseDTO toResponse(UserRole role) {
-        return new UserRoleResponseDTO(role.getUserRoleID(), role.getRoleName());
+
+        return new UserRoleResponseDTO( // Returns response DTO object
+                role.getUserRoleID(),
+                role.getRoleName()
+        );
     }
 
-    @Operation(summary = "Create a new role")
-    @PostMapping
-    public ResponseEntity<UserRoleResponseDTO> createRole(@Valid @RequestBody UserRoleRequestDTO dto) {
-        UserRole saved = userRoleService.createRole(toEntity(dto));
-        return ResponseEntity.status(HttpStatus.CREATED).body(toResponse(saved));
+    @Operation(summary = "Create a new role") // Swagger operation summary
+    @PostMapping // Maps POST request
+    public ResponseEntity<UserRoleResponseDTO> createRole(
+
+            @Valid @RequestBody UserRoleRequestDTO dto) { // Validates and receives request body
+
+        UserRole saved = userRoleService.createRole(toEntity(dto)); // Saves role into database
+
+        return ResponseEntity.status(HttpStatus.CREATED) // Sets HTTP status 201
+                .body(toResponse(saved)); // Returns created role response
     }
 
-    @Operation(summary = "List all roles sorted alphabetically by role name")
-    @GetMapping
+    @Operation(summary = "List all roles sorted alphabetically by role name") // Swagger operation summary
+    @GetMapping // Maps GET request
     public ResponseEntity<List<UserRoleResponseDTO>> getAllRoles() {
-        List<UserRoleResponseDTO> response = userRoleService.getAllRolesSorted()
-                .stream()
-                .map(this::toResponse)
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(response);
+
+        List<UserRoleResponseDTO> response = userRoleService.getAllRolesSorted() // Retrieves sorted roles
+                .stream() // Converts collection into stream
+                .map(this::toResponse) // Converts entity into DTO
+                .collect(Collectors.toList()); // Converts stream into list
+
+        return ResponseEntity.ok(response); // Returns response list
     }
 }

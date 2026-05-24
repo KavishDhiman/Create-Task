@@ -12,18 +12,30 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/*
+ * REST Controller handling all project-related API requests.
+ * Delegates business operations to the service layer.
+ */
 @RestController
 @RequestMapping("/api/v1")
 public class ProjectController {
 
+    /*
+     * Dependency Injection keeps the controller
+     * loosely coupled with the service layer.
+     */
     private final ProjectService projectService;
 
     public ProjectController(ProjectService projectService) {
         this.projectService = projectService;
     }
 
-    // CREATE PROJECT
+    // ==================== CREATE PROJECT ====================
 
+    /*
+     * Creates a new project using validated request data.
+     * Returns the created project details to the client.
+     */
     @PostMapping("/projects")
     public ResponseEntity<ProjectResponseDTO> createProject(
             @Valid @RequestBody ProjectRequestDTO requestDTO) {
@@ -33,8 +45,9 @@ public class ProjectController {
         );
     }
 
-    // GET ALL PROJECTS
+    // ==================== GET ALL PROJECTS ====================
 
+    // Retrieves all available projects from the system.
     @GetMapping("/projects")
     public ResponseEntity<List<ProjectResponseDTO>> getAllProjects() {
 
@@ -43,8 +56,9 @@ public class ProjectController {
         );
     }
 
-    // GET PROJECT BY ID
+    // ==================== GET PROJECT BY ID ====================
 
+    // Retrieves project details using the provided project ID.
     @GetMapping("/projects/{projectId}")
     public ResponseEntity<ProjectResponseDTO> getProjectById(
             @PathVariable Integer projectId) {
@@ -54,8 +68,12 @@ public class ProjectController {
         );
     }
 
-    // UPDATE PROJECT
+    // ==================== UPDATE PROJECT ====================
 
+    /*
+     * Updates an existing project using validated request data.
+     * Existing project details are replaced with updated values.
+     */
     @PutMapping("/projects/{projectId}")
     public ResponseEntity<ProjectResponseDTO> updateProject(
             @PathVariable Integer projectId,
@@ -66,8 +84,9 @@ public class ProjectController {
         );
     }
 
-    // DELETE PROJECT
+    // ==================== DELETE PROJECT ====================
 
+    // Deletes the specified project and returns confirmation message.
     @DeleteMapping("/projects/{projectId}")
     public ResponseEntity<String> deleteProject(
             @PathVariable Integer projectId) {
@@ -76,9 +95,15 @@ public class ProjectController {
                 projectService.deleteProject(projectId)
         );
     }
-    // GET PROJECTS BY USER
+
+    // ==================== GET PROJECTS BY USER ====================
 
     @Operation(summary = "Get all projects belonging to a user")
+
+    /*
+     * Fetches all projects associated with a specific user.
+     * Supports user-based project filtering functionality.
+     */
     @GetMapping("/users/{userId}/projects")
     public ResponseEntity<List<ProjectResponseDTO>> getProjectsByUser(
             @PathVariable Integer userId) {
@@ -87,5 +112,4 @@ public class ProjectController {
                 projectService.getProjectsByUser(userId)
         );
     }
-
 }

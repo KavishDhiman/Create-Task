@@ -15,22 +15,34 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 
-// Holds all the actual business logic for project operations.
-// @Service marks it as a Spring-managed bean so it can be injected anywhere.
+/*
+ * Service implementation containing all project-related business logic.
+ * Spring manages this class using Dependency Injection.
+ */
 @Service
 public class ProjectServiceImpl implements ProjectService {
 
-    // We inject both repos because a project is always linked to a user.
+    /*
+     * Repository Pattern is used to separate
+     * database access from business logic.
+     */
     private final ProjectRepository projectRepository;
     private final UserRepository userRepository;
 
+    /*
+     * Constructor Injection improves maintainability
+     * and supports loose coupling between components.
+     */
     public ProjectServiceImpl(ProjectRepository projectRepository,
                               UserRepository userRepository) {
         this.projectRepository = projectRepository;
         this.userRepository    = userRepository;
     }
 
-    // Converts a Project entity into a response DTO — keeps entity internals away from the client.
+    /*
+     * Converts Project entity into response DTO.
+     * Prevents exposing internal entity structure to the client.
+     */
     private ProjectResponseDTO toResponseDTO(Project project) {
 
         Integer userId = null;
@@ -53,7 +65,10 @@ public class ProjectServiceImpl implements ProjectService {
         );
     }
 
-    // Converts incoming request DTO into a Project entity ready to be saved.
+    /*
+     * Converts incoming request DTO into Project entity.
+     * Keeps controller and service layers clean and reusable.
+     */
     private Project toEntity(ProjectRequestDTO dto, AppUser user) {
         Project project = new Project();
         project.setProjectID(dto.getProjectID());
@@ -65,7 +80,10 @@ public class ProjectServiceImpl implements ProjectService {
         return project;
     }
 
-    // Creates a new project after verifying the user exists and the project ID isn't already taken.
+    /*
+     * Creates a new project after validating
+     * project uniqueness and user availability.
+     */
     @Override
     public ProjectResponseDTO createProject(ProjectRequestDTO requestDTO) {
 
@@ -83,7 +101,7 @@ public class ProjectServiceImpl implements ProjectService {
         return toResponseDTO(saved);
     }
 
-    // Fetches a single project by ID — throws a descriptive error if it doesn't exist.
+    // Retrieves project details using the provided project ID.
     @Override
     public ProjectResponseDTO getProjectById(Integer projectID) {
         Project project = projectRepository.findById(projectID)
@@ -94,18 +112,26 @@ public class ProjectServiceImpl implements ProjectService {
         return toResponseDTO(project);
     }
 
-    // Returns every project in the system — loops through and maps each to a response DTO.
+    /*
+     * Fetches all projects from the database
+     * and converts them into response DTOs.
+     */
     @Override
     public List<ProjectResponseDTO> getAllProjects() {
         List<Project> projects = projectRepository.findAll();
         List<ProjectResponseDTO> response = new ArrayList<>();
+
         for (Project p : projects) {
             response.add(toResponseDTO(p));
         }
+
         return response;
     }
 
-    // Updates an existing project — verifies both project and new owner user exist before saving.
+    /*
+     * Updates existing project details after validating
+     * both project and associated user information.
+     */
     @Override
     public ProjectResponseDTO updateProject(Integer projectID, ProjectRequestDTO requestDTO) {
 
@@ -118,7 +144,7 @@ public class ProjectServiceImpl implements ProjectService {
         AppUser user = userRepository.findById(requestDTO.getUserID())
                 .orElseThrow(() -> new UserNotFoundException(requestDTO.getUserID()));
 
-        // Updating fields on the existing entity preserves the same DB row — no duplicate created.
+        // Updating the existing entity avoids duplicate record creation.
         existing.setProjectName(requestDTO.getProjectName());
         existing.setDescription(requestDTO.getDescription());
         existing.setStartDate(requestDTO.getStartDate());
@@ -129,20 +155,26 @@ public class ProjectServiceImpl implements ProjectService {
         return toResponseDTO(updated);
     }
 
-    // Deletes the project and returns a confirmation string instead of void.
+    // Deletes the project and returns a confirmation response.
     @Override
     public String deleteProject(Integer projectID) {
+
         if (!projectRepository.existsById(projectID)) {
             throw new ProjectNotFoundException(
                     "Project with ID " + projectID +
                             " was not found. Cannot delete a project that does not exist."
             );
         }
+
         projectRepository.deleteById(projectID);
+
         return "Project with ID " + projectID + " has been deleted successfully.";
     }
 
-    // Returns all projects belonging to a specific user — checks user exists first.
+    /*
+     * Retrieves all projects associated with a user.
+     * Validates user existence before fetching records.
+     */
     @Override
     public List<ProjectResponseDTO> getProjectsByUser(Integer userID) {
 
@@ -152,9 +184,11 @@ public class ProjectServiceImpl implements ProjectService {
 
         List<Project> projects = projectRepository.findByUser_UserID(userID);
         List<ProjectResponseDTO> response = new ArrayList<>();
+
         for (Project p : projects) {
             response.add(toResponseDTO(p));
         }
+
         return response;
     }
 }

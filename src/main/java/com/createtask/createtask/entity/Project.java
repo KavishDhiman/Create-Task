@@ -5,6 +5,10 @@ import jakarta.validation.constraints.*;
 import java.time.LocalDate;
 import java.util.Objects;
 
+/*
+ * Entity class representing project information in the system.
+ * Stores project details and mapping with the assigned user.
+ */
 @Entity
 @Table(name = "Project")
 public class Project implements Comparable<Project> {
@@ -19,6 +23,7 @@ public class Project implements Comparable<Project> {
     @Column(name = "ProjectName", nullable = false, length = 255)
     private String projectName;
 
+    // Stores additional details related to the project.
     @Column(name = "Description", columnDefinition = "TEXT")
     private String description;
 
@@ -29,8 +34,12 @@ public class Project implements Comparable<Project> {
     @Column(name = "EndDate")
     private LocalDate endDate;
 
+    /*
+     * Many projects can belong to one user.
+     * Lazy loading improves performance during data retrieval.
+     */
     @NotNull(message = "User must not be null. Every project must be assigned to a valid registered user.")
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "UserID")
     private AppUser user;
 
@@ -51,15 +60,16 @@ public class Project implements Comparable<Project> {
     public String getDescription()     { return description; }
     public LocalDate getStartDate()    { return startDate; }
     public LocalDate getEndDate()      { return endDate; }
-    public AppUser getUser()              { return user; }
+    public AppUser getUser()           { return user; }
 
     public void setProjectID(Integer projectID)        { this.projectID = projectID; }
     public void setProjectName(String projectName)     { this.projectName = projectName; }
     public void setDescription(String description)     { this.description = description; }
     public void setStartDate(LocalDate startDate)      { this.startDate = startDate; }
     public void setEndDate(LocalDate endDate)          { this.endDate = endDate; }
-    public void setUser(AppUser user)                     { this.user = user; }
+    public void setUser(AppUser user)                  { this.user = user; }
 
+    // Projects are compared using their unique project ID.
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -73,16 +83,19 @@ public class Project implements Comparable<Project> {
         return Objects.hash(projectID);
     }
 
-
+    /*
+     * Sorts projects based on start date.
+     * Projects with null dates are placed at the end.
+     */
     @Override
     public int compareTo(Project other) {
         if (this.startDate == null && other.startDate == null) return 0;
-        if (this.startDate == null) return 1;   // null dates go last
+        if (this.startDate == null) return 1;
         if (other.startDate == null) return -1;
         return this.startDate.compareTo(other.startDate);
     }
 
-
+    // Returns project details for logging and debugging purposes.
     @Override
     public String toString() {
         return "Project{" +

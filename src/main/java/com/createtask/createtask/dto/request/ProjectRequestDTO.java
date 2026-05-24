@@ -15,6 +15,7 @@ public class ProjectRequestDTO {
     @Size(max = 255, message = "Project name must not exceed 255 characters. Please shorten the project name.")
     private String projectName;
 
+    // Stores additional project-related information from the client.
     @Size(max = 1000, message = "Description must not exceed 1000 characters. Please provide a concise project description.")
     private String description;
 
@@ -23,6 +24,10 @@ public class ProjectRequestDTO {
 
     private LocalDate endDate;
 
+    /*
+     * Only user ID is accepted from the client.
+     * Full user object is fetched in the service layer.
+     */
     @NotNull(message = "User ID must not be null. Every project must be associated with a valid registered user.")
     private Integer userID;
 
@@ -52,6 +57,7 @@ public class ProjectRequestDTO {
     public void setEndDate(LocalDate endDate)          { this.endDate = endDate; }
     public void setUserID(Integer userID)              { this.userID = userID; }
 
+    // Returns request details for debugging and logging purposes.
     @Override
     public String toString() {
         return "ProjectRequestDTO{" +

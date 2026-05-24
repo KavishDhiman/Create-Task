@@ -1,9 +1,12 @@
 package com.createtask.createtask.dto.response;
+
 import java.time.LocalDate;
 import java.util.Objects;
 
-// Carries data going OUT to the client (GET/POST/PUT responses).
-// We expose userName and userID so the client gets readable info without the full User object.
+/*
+ * DTO used for sending project data back to the client.
+ * Keeps response data separate from the entity layer.
+ */
 public class ProjectResponseDTO {
 
     private Integer projectID;
@@ -12,7 +15,9 @@ public class ProjectResponseDTO {
     private LocalDate startDate;
     private LocalDate endDate;
     private Integer userID;
-    private String userName;   // human-readable owner name for the response
+
+    // Human-readable user name included for better client response readability.
+    private String userName;
 
     // ==================== Constructors ====================
     public ProjectResponseDTO() {}
@@ -47,7 +52,7 @@ public class ProjectResponseDTO {
     public void setUserID(Integer userID)              { this.userID = userID; }
     public void setUserName(String userName)           { this.userName = userName; }
 
-    // ==================== toString ====================
+    // Returns response details for debugging and logging purposes.
     @Override
     public String toString() {
         return "ProjectResponseDTO{" +

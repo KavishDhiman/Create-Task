@@ -255,12 +255,6 @@ The schema includes:
 | GET | `/api/v1/users/{userId}/notifications` | User notifications |
 | DELETE | `/api/v1/notifications/{notificationId}` | Delete notification |
 
-## Advanced Notification APIs
-
-| Method | Endpoint | Description |
-|---|---|---|
-| GET | `/api/v1/users/{userId}/notifications/unread` | Get unread notifications |
-| PUT | `/api/v1/notifications/{notificationId}/read` | Mark notification as read |
 
 ---
 

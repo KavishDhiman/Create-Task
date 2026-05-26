@@ -4,11 +4,13 @@ import com.createtask.createtask.dto.request.UserRequestDTO;
 import com.createtask.createtask.dto.response.UserResponseDTO;
 import com.createtask.createtask.entity.AppUser;
 import com.createtask.createtask.service.UserService;
+import org.springframework.validation.annotation.Validated;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +25,7 @@ import java.util.stream.Collectors;
         name = "User Management",
         description = "APIs for creating, retrieving, updating and deleting users"
 )
+@Validated
 public class UserController {
 
     private final UserService userService; // Service dependency for user operations
@@ -77,7 +80,7 @@ public class UserController {
     @GetMapping("/{userId}") // Maps GET request with path variable
     public ResponseEntity<UserResponseDTO> getUserById(
 
-            @PathVariable Integer userId) { // Receives user ID from URL
+            @PathVariable @Positive(message = "User ID must be positive") Integer userId) { // Receives user ID from URL
 
         return ResponseEntity.ok( // Returns success response
                 toResponse(userService.getUserById(userId))
@@ -103,7 +106,7 @@ public class UserController {
     @PutMapping("/{userId}") // Maps PUT request
     public ResponseEntity<UserResponseDTO> updateUser(
 
-            @PathVariable Integer userId, // Receives user ID from URL
+            @PathVariable @Positive(message = "User ID must be positive") Integer userId, // Receives user ID from URL
 
             @Valid @RequestBody UserRequestDTO dto) { // Validates request body
 
@@ -120,7 +123,7 @@ public class UserController {
     @DeleteMapping("/{userId}") // Maps DELETE request
     public ResponseEntity<String> deleteUser(
 
-            @PathVariable Integer userId) { // Receives user ID from URL
+            @PathVariable @Positive(message = "User ID must be positive") Integer userId) { // Receives user ID from URL
 
         boolean deleted = // Stores deletion result
                 userService.deleteUser(userId);

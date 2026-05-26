@@ -2,28 +2,42 @@ package com.createtask.createtask.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 
-// DTO to receive category creation data from the client
+/**
+ * DTO for creating a Category.
+ *
+ * Same layering principle as TaskRequestDTO:
+ *   - Validation belongs on the DTO, not the Entity.
+ *   - Remove @NotBlank from Category.java entity.
+ */
 public class CategoryRequestDTO {
 
-    // Client must supply the ID manually (matches DB script — no auto-increment)
+    /**
+     * categoryID — client-supplied manual ID.
+     *
+     * Use Integer (boxed), not int, so @NotNull fires correctly.
+     * @Positive rejects 0 and negative values.
+     */
     @NotNull(message = "Category ID is required")
+    @Positive(message = "Category ID must be a positive number")
     private Integer categoryID;
 
-    // Category must have a name — blank strings are rejected
+    /**
+     * @NotBlank covers null, empty string, and whitespace-only strings.
+     */
     @NotBlank(message = "Category name is required")
     private String categoryName;
 
-    // Default constructor required by Jackson for JSON deserialization
+    // ── Constructors ──────────────────────────────────────────────────────────
+
     public CategoryRequestDTO() {}
 
-    // Returns the category ID supplied by the client
+    // ── Getters & Setters ─────────────────────────────────────────────────────
+
     public Integer getCategoryID() { return categoryID; }
-    // Sets the category ID
     public void setCategoryID(Integer categoryID) { this.categoryID = categoryID; }
 
-    // Returns the category name
     public String getCategoryName() { return categoryName; }
-    // Sets the category name — must not be blank
     public void setCategoryName(String categoryName) { this.categoryName = categoryName; }
 }

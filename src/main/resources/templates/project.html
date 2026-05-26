@@ -667,11 +667,23 @@
 
             // PROJECT ID VALIDATION
 
-            if(projectIdValue === "" || parseInt(projectIdValue) <= 0){
+            if(projectIdValue === ""){
 
                 openResponse({
                     error:"Project ID must not be null. Please provide a valid project identifier.",
                     message:"Project ID must not be null. Please provide a valid project identifier.",
+                    status:400,
+                    timestamp:new Date().toISOString()
+                });
+
+                return;
+            }
+
+            if(parseInt(projectIdValue) <= 0){
+
+                openResponse({
+                    error:"Project ID must be greater than 0. Please provide a positive project identifier.",
+                    message:"Project ID must be greater than 0. Please provide a positive project identifier.",
                     status:400,
                     timestamp:new Date().toISOString()
                 });
@@ -709,11 +721,23 @@
 
             // USER VALIDATION
 
-            if(userIdValue === "" || parseInt(userIdValue) <= 0){
+            if(userIdValue === ""){
 
                 openResponse({
                     error:"User must not be null. Every project must be assigned to a valid registered user.",
                     message:"User must not be null. Every project must be assigned to a valid registered user.",
+                    status:400,
+                    timestamp:new Date().toISOString()
+                });
+
+                return;
+            }
+
+            if(parseInt(userIdValue) <= 0){
+
+                openResponse({
+                    error:"User ID must be greater than 0. Please provide a positive user identifier.",
+                    message:"User ID must be greater than 0. Please provide a positive user identifier.",
                     status:400,
                     timestamp:new Date().toISOString()
                 });
@@ -762,7 +786,11 @@
             const data = await response.json();
 
             if(response.ok){
+
                 data.message = "Project created successfully";
+
+                // FORCE 201 CREATED FOR POST
+                data.status = 201;
             }
 
             openResponse(data);
@@ -788,7 +816,10 @@
                 await response.json();
 
             if(response.ok){
+
                 data.message = "Projects fetched successfully";
+
+                data.status = 200;
             }
 
             openResponse(data);
@@ -810,11 +841,23 @@
             const id =
                 document.getElementById("getProjectId").value;
 
-            if(id === "" || parseInt(id) <= 0){
+            if(id === ""){
 
                 openResponse({
                     error:"Project ID must not be null. Please provide a valid project identifier.",
                     message:"Project ID must not be null. Please provide a valid project identifier.",
+                    status:400,
+                    timestamp:new Date().toISOString()
+                });
+
+                return;
+            }
+
+            if(parseInt(id) <= 0){
+
+                openResponse({
+                    error:"Project ID must be greater than 0. Please provide a positive project identifier.",
+                    message:"Project ID must be greater than 0. Please provide a positive project identifier.",
                     status:400,
                     timestamp:new Date().toISOString()
                 });
@@ -829,7 +872,10 @@
                 await response.json();
 
             if(response.ok){
+
                 data.message = "Project fetched successfully";
+
+                data.status = 200;
             }
 
             openResponse(data);
@@ -865,11 +911,23 @@
 
             // PROJECT ID VALIDATION
 
-            if(id === "" || parseInt(id) <= 0){
+            if(id === ""){
 
                 openResponse({
                     error:"Project ID must not be null. Please provide a valid project identifier.",
                     message:"Project ID must not be null. Please provide a valid project identifier.",
+                    status:400,
+                    timestamp:new Date().toISOString()
+                });
+
+                return;
+            }
+
+            if(parseInt(id) <= 0){
+
+                openResponse({
+                    error:"Project ID must be greater than 0. Please provide a positive project identifier.",
+                    message:"Project ID must be greater than 0. Please provide a positive project identifier.",
                     status:400,
                     timestamp:new Date().toISOString()
                 });
@@ -907,11 +965,23 @@
 
             // USER VALIDATION
 
-            if(userIdValue === "" || parseInt(userIdValue) <= 0){
+            if(userIdValue === ""){
 
                 openResponse({
                     error:"User must not be null. Every project must be assigned to a valid registered user.",
                     message:"User must not be null. Every project must be assigned to a valid registered user.",
+                    status:400,
+                    timestamp:new Date().toISOString()
+                });
+
+                return;
+            }
+
+            if(parseInt(userIdValue) <= 0){
+
+                openResponse({
+                    error:"User ID must be greater than 0. Please provide a positive user identifier.",
+                    message:"User ID must be greater than 0. Please provide a positive user identifier.",
                     status:400,
                     timestamp:new Date().toISOString()
                 });
@@ -960,7 +1030,10 @@
             const data = await response.json();
 
             if(response.ok){
+
                 data.message = "Project updated successfully";
+
+                data.status = 200;
             }
 
             openResponse(data);
@@ -982,11 +1055,23 @@
             const id =
                 document.getElementById("deleteProjectId").value;
 
-            if(id === "" || parseInt(id) <= 0){
+            if(id === ""){
 
                 openResponse({
                     error:"Project ID must not be null. Please provide a valid project identifier.",
                     message:"Project ID must not be null. Please provide a valid project identifier.",
+                    status:400,
+                    timestamp:new Date().toISOString()
+                });
+
+                return;
+            }
+
+            if(parseInt(id) <= 0){
+
+                openResponse({
+                    error:"Project ID must be greater than 0. Please provide a positive project identifier.",
+                    message:"Project ID must be greater than 0. Please provide a positive project identifier.",
                     status:400,
                     timestamp:new Date().toISOString()
                 });
@@ -1014,7 +1099,7 @@
                     isDelete:true,
                     message:data.message || "Project deleted successfully",
                     projectId:id,
-                    status:response.status,
+                    status:200,
                     timestamp:new Date().toISOString()
                 });
 
@@ -1049,11 +1134,23 @@
             const userId =
                 document.getElementById("getUserProjectId").value;
 
-            if(userId === "" || parseInt(userId) <= 0){
+            if(userId === ""){
 
                 openResponse({
                     error:"User must not be null. Every project must be assigned to a valid registered user.",
                     message:"User must not be null. Every project must be assigned to a valid registered user.",
+                    status:400,
+                    timestamp:new Date().toISOString()
+                });
+
+                return;
+            }
+
+            if(parseInt(userId) <= 0){
+
+                openResponse({
+                    error:"User ID must be greater than 0. Please provide a positive user identifier.",
+                    message:"User ID must be greater than 0. Please provide a positive user identifier.",
                     status:400,
                     timestamp:new Date().toISOString()
                 });
@@ -1068,7 +1165,10 @@
                 await response.json();
 
             if(response.ok){
+
                 data.message = "User projects fetched successfully";
+
+                data.status = 200;
             }
 
             openResponse(data);
@@ -1094,7 +1194,10 @@
                 await response.json();
 
             if(response.ok){
+
                 data.message = "Project summary fetched successfully";
+
+                data.status = 200;
             }
 
             openResponse(data);

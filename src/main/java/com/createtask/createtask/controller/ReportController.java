@@ -12,57 +12,46 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@RestController // Marks this class as REST controller
-@RequestMapping("/api/v1/reports") // Base URL mapping for report APIs
-@Tag(name = "Reports", description = "High-impact reporting endpoints for business insights") // Swagger API documentation tag
+@RestController
+@RequestMapping("/api/v1/reports")
+@Tag(name = "Reports", description = "High-impact reporting endpoints for business insights")
 public class ReportController {
 
-    private final ReportService reportService; // Service dependency for report operations
+    private final ReportService reportService;
 
-    // Constructor injection for ReportService
     public ReportController(ReportService reportService) {
-
-        this.reportService = reportService; // Assigns ReportService object
+        this.reportService = reportService;
     }
 
-    @Operation( // Swagger operation details
+    @Operation(
             summary = "User Productivity Report",
             description = "Returns task completion statistics per user — totalTasks, completedTasks, pendingTasks, completionRate(%)"
     )
-    @ApiResponse(responseCode = "200", description = "Productivity report generated successfully") // Swagger response documentation
-    @GetMapping("/users/productivity") // Maps GET request
+    @ApiResponse(responseCode = "200", description = "Productivity report generated successfully")
+    @GetMapping("/users/productivity")
     public ResponseEntity<List<UserProductivityDTO>> getUserProductivityReport() {
-
-        return ResponseEntity.ok( // Returns success response
-                reportService.getUserProductivityReport()
-        );
+        return ResponseEntity.ok(reportService.getUserProductivityReport());
     }
 
-    @Operation( // Swagger operation details
+    @Operation(
             summary = "Project Summary Dashboard",
             description = "Returns task breakdown per project — totalTasks, completedTasks, inProgressTasks, pendingTasks, completionPercentage(%)"
     )
-    @ApiResponse(responseCode = "200", description = "Project summary report generated successfully") // Swagger response documentation
-    @GetMapping("/projects/summary") // Maps GET request
+    @ApiResponse(responseCode = "200", description = "Project summary report generated successfully")
+    @GetMapping("/projects/summary")
     public ResponseEntity<List<ProjectSummaryDTO>> getProjectSummaryReport() {
-
-        return ResponseEntity.ok( // Returns success response
-                reportService.getProjectSummaryReport()
-        );
+        return ResponseEntity.ok(reportService.getProjectSummaryReport());
     }
 
-    @Operation( // Swagger operation details
+    @Operation(
             summary = "Overdue Tasks Report",
             description = "Returns tasks that are overdue beyond the requested number of days"
     )
-    @ApiResponse(responseCode = "200", description = "Overdue tasks report generated successfully") // Swagger response documentation
-    @GetMapping("/tasks/overdue") // Maps GET request
+    @ApiResponse(responseCode = "200", description = "Overdue tasks report generated successfully")
+    @GetMapping("/tasks/overdue")
     public ResponseEntity<List<OverdueTaskDTO>> getOverdueTasksReport(
+            @RequestParam int days) {
 
-            @RequestParam(defaultValue = "7") int days) { // Receives days parameter from request
-
-        return ResponseEntity.ok( // Returns success response
-                reportService.getOverdueTasksReport(days)
-        );
+        return ResponseEntity.ok(reportService.getOverdueTasksReport(days));
     }
 }

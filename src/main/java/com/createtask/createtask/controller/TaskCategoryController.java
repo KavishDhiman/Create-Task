@@ -5,6 +5,7 @@ import com.createtask.createtask.service.TaskCategoryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,7 +34,7 @@ public class TaskCategoryController {
     public ResponseEntity<Void> assignCategoryToTask(@PathVariable int taskId,
                                                      @PathVariable int categoryId) {
         taskCategoryService.assignCategoryToTask(taskId, categoryId);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     // Removes a category from a specific task

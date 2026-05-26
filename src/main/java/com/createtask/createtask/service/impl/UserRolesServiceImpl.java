@@ -100,7 +100,7 @@ public class UserRolesServiceImpl implements UserRolesService {
         // Checks whether mapping exists
         if (!userRolesRepository.existsById(compositeId)) {
 
-            throw new RuntimeException(
+            throw new RoleNotFoundException(
                     "Role mapping does not exist for this user"
             );
         }

@@ -24,8 +24,8 @@ public class NotificationRequestDTO {
     // Stores the notification message text
     // Validation prevents null, blank, or excessively large content
     @NotNull(message = "Notification text must not be null")
-    @NotBlank(message = "Notification text must not be blank")
-    @Size(min = 1, max = 2000, message = "Notification text must not exceed 2000 characters")
+    @NotBlank(message = "Notification text must not be null or blank")
+    @Size( max = 2000, message = "Notification text must not exceed 2000 characters")
     private String text;
 
     // Default constructor required by frameworks like Spring and Jackson

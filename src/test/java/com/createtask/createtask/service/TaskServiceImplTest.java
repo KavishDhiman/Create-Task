@@ -295,17 +295,18 @@ class TaskServiceImplTest {
     // ─────────────────────────────────────────────────────────────────────────
 
     @Test
-    @DisplayName("deleteTask — positive: deletes task and returns deleted task DTO")
+    @DisplayName("deleteTask — positive: deletes task and returns success message")
     void deleteTask_success() {
+        // Arrange
         when(taskRepository.findById(1)).thenReturn(Optional.of(testTask));
 
+        // Act
         TaskResponseDTO result = taskService.deleteTask(1);
 
-        // Returned DTO should match the task that was deleted
-        assertThat(result.getTaskID()).isEqualTo(1);
-        assertThat(result.getTaskName()).isEqualTo("Task One");
+        // Assert
+        assertThat(result.getMessage())
+                .isEqualTo("Task with ID 1 deleted successfully");
 
-        // Verify actual deletion was invoked
         verify(taskRepository, times(1)).delete(testTask);
     }
 

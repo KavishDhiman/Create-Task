@@ -1,5 +1,5 @@
 package com.createtask.createtask.entity;
-
+import jakarta.validation.constraints.Positive;
 import jakarta.persistence.*; // JPA annotations for entity mapping
 import jakarta.validation.constraints.NotBlank; // Ensures string fields are not null, empty, or whitespace
 import jakarta.validation.constraints.NotNull; // Ensures fields are not null
@@ -14,7 +14,8 @@ public class Project implements Comparable<Project> {
     @Id // Marks this field as the primary key
     @Column(name = "ProjectID") // Maps to the ProjectID column in the DB
     @NotNull(message = "Project ID must not be null. Please provide a valid project identifier.")
-    private Integer projectID; // Unique identifier for each project
+    @Positive(message = "Project ID must be greater than 0. Please provide a positive project identifier.")
+    private Integer projectID;
 
     @NotBlank(message = "Project name must not be blank. Please provide a meaningful name for the project.")
     @Size(max = 255, message = "Project name must not exceed 255 characters. Please shorten the project name.")

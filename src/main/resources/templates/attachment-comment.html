@@ -620,9 +620,11 @@
         const userId = document.getElementById("addCommentUserId").value;
 
         if (!commentId || commentId === "0") return openResponse({ error: "Please enter a valid Comment ID" }, "Comment Service", 400);
+        if (parseInt(commentId) < 0) return openResponse({ error: "Please enter a valid Comment ID" }, "Comment Service", 400);
         if (!taskId || taskId === "0") return openResponse({ error: "Task ID is required" }, "Comment Service", 400);
         if (parseInt(taskId) < 0) return openResponse({ error: "Please enter a valid Task ID" }, "Comment Service", 400);
         if (!userId || userId === "0") return openResponse({ error: "Please enter a valid User ID" }, "Comment Service", 400);
+        if (parseInt(userId) < 0) return openResponse({ error: "Please enter a valid User ID" }, "Comment Service", 400);
 
         const body = {
             commentID: parseInt(commentId),
@@ -737,6 +739,7 @@
         const attachmentId = document.getElementById("addAttachmentId").value;
 
         if (!attachmentId || attachmentId === "0") return openResponse({ error: "Please enter a valid Attachment ID" }, "Attachment Service", 400);
+        if (parseInt(attachmentId) < 0) return openResponse({ error: "Please enter a valid Attachment ID" }, "Attachment Service", 400);
         if (!taskId || taskId === "0") return openResponse({ error: "Task ID is required" }, "Attachment Service", 400);
         if (parseInt(taskId) < 0) return openResponse({ error: "Please enter a valid Task ID" }, "Attachment Service", 400);
 

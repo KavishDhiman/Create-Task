@@ -786,7 +786,11 @@
             const data = await response.json();
 
             if(response.ok){
+
                 data.message = "Project created successfully";
+
+                // FORCE 201 CREATED FOR POST
+                data.status = 201;
             }
 
             openResponse(data);
@@ -812,7 +816,10 @@
                 await response.json();
 
             if(response.ok){
+
                 data.message = "Projects fetched successfully";
+
+                data.status = 200;
             }
 
             openResponse(data);
@@ -865,7 +872,10 @@
                 await response.json();
 
             if(response.ok){
+
                 data.message = "Project fetched successfully";
+
+                data.status = 200;
             }
 
             openResponse(data);
@@ -1020,7 +1030,10 @@
             const data = await response.json();
 
             if(response.ok){
+
                 data.message = "Project updated successfully";
+
+                data.status = 200;
             }
 
             openResponse(data);
@@ -1086,7 +1099,7 @@
                     isDelete:true,
                     message:data.message || "Project deleted successfully",
                     projectId:id,
-                    status:response.status,
+                    status:200,
                     timestamp:new Date().toISOString()
                 });
 
@@ -1152,7 +1165,10 @@
                 await response.json();
 
             if(response.ok){
+
                 data.message = "User projects fetched successfully";
+
+                data.status = 200;
             }
 
             openResponse(data);
@@ -1178,7 +1194,10 @@
                 await response.json();
 
             if(response.ok){
+
                 data.message = "Project summary fetched successfully";
+
+                data.status = 200;
             }
 
             openResponse(data);

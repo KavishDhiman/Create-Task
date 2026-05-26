@@ -4,10 +4,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
+import jakarta.validation.ConstraintViolationException;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -126,6 +129,29 @@ public class GlobalExceptionHandler {
                 .body(body);
     }
 
+    // 400 - validation errors from @Positive on path variables
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<Map<String, Object>> handleConstraintViolation(
+            ConstraintViolationException ex) {
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(buildError(
+                        HttpStatus.BAD_REQUEST,
+                        ex.getMessage()
+                ));
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<Map<String, Object>> handleIllegalArgument(
+            IllegalArgumentException ex) {
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(buildError(
+                        HttpStatus.BAD_REQUEST,
+                        ex.getMessage()
+                ));
+    }
+
     // 500 - catch-all
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handleGeneric(Exception ex) {
@@ -155,6 +181,13 @@ public class GlobalExceptionHandler {
                 .body(buildError(HttpStatus.NOT_FOUND, ex.getMessage()));
     }
 
+    @ExceptionHandler(NotificationRecipientNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleNotificationRecipientNotFound(
+            NotificationRecipientNotFoundException ex) {
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(buildError(HttpStatus.NOT_FOUND, ex.getMessage()));
+    }
     // 404 - notification not found by ID
     @ExceptionHandler(NotificationNotFoundException.class)
     public ResponseEntity<Map<String, Object>> handleNotificationNotFound(NotificationNotFoundException ex) {
@@ -171,7 +204,7 @@ public class GlobalExceptionHandler {
                 .body(buildError(HttpStatus.CONFLICT, ex.getMessage()));
     }
 
-    // Handles invalid datatype inputs like entering text instead of numbers
+    // Handles invalid datatype inputs — includes parameter name for clearer error message
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<Map<String, Object>> handleTypeMismatch(
             MethodArgumentTypeMismatchException ex) {
@@ -179,7 +212,7 @@ public class GlobalExceptionHandler {
         Map<String, Object> error = new HashMap<>();
 
         error.put("error", "Invalid Input");
-        error.put("message", "Please enter valid numeric values only.");
+        error.put("message", "Invalid value for parameter '" + ex.getName() + "': expected a numeric value.");
         error.put("status", 400);
         error.put("timestamp", LocalDateTime.now().toString());
 
@@ -199,6 +232,77 @@ public class GlobalExceptionHandler {
         error.put("timestamp", LocalDateTime.now().toString());
 
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    }
+
+    // Handles invalid or non-existing API endpoint requests and returns HTTP 404 response
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleNoResourceFound(
+            NoResourceFoundException ex) {
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(buildError(
+                        HttpStatus.NOT_FOUND,
+                        "Invalid API endpoint: " + ex.getResourcePath()
+                ));
+    }
+
+    // ── Task & Category module handlers (added by Jayanthi) ──────────────────
+
+    // 404 - task not found by ID
+    @ExceptionHandler(TaskNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleTaskNotFound(
+            TaskNotFoundException ex) {
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(buildError(HttpStatus.NOT_FOUND, ex.getMessage()));
+    }
+
+    // 404 - category not found by ID
+    @ExceptionHandler(CategoryNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleCategoryNotFound(
+            CategoryNotFoundException ex) {
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(buildError(HttpStatus.NOT_FOUND, ex.getMessage()));
+    }
+
+    // 404 - task-category mapping not found
+    @ExceptionHandler(TaskCategoryMappingNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleTaskCategoryMappingNotFound(
+            TaskCategoryMappingNotFoundException ex) {
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(buildError(HttpStatus.NOT_FOUND, ex.getMessage()));
+    }
+
+    // 409 - duplicate category name or ID
+    @ExceptionHandler(DuplicateCategoryException.class)
+    public ResponseEntity<Map<String, Object>> handleDuplicateCategory(
+            DuplicateCategoryException ex) {
+
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(buildError(HttpStatus.CONFLICT, ex.getMessage()));
+    }
+
+    // 409 - category already assigned to this task
+    @ExceptionHandler(TaskCategoryAlreadyAssignedException.class)
+    public ResponseEntity<Map<String, Object>> handleTaskCategoryAlreadyAssigned(
+            TaskCategoryAlreadyAssignedException ex) {
+
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(buildError(HttpStatus.CONFLICT, ex.getMessage()));
+    }
+
+    // 400 - required @RequestParam missing from URL (e.g. ?days= omitted)
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<Map<String, Object>> handleMissingParam(
+            MissingServletRequestParameterException ex) {
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(buildError(
+                        HttpStatus.BAD_REQUEST,
+                        "Required request parameter '" + ex.getParameterName() + "' is missing."
+                ));
     }
 
 }

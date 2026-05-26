@@ -2,77 +2,131 @@ package com.createtask.createtask.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Positive;
+
 import java.time.LocalDate;
 
-// DTO to receive task data from the client during create/update operations
+/**
+ * DTO for creating or updating a Task.
+ *
+ * Validation lives HERE — on the DTO, not the Entity.
+ *
+ * Reasoning:
+ *   - The Entity is a JPA/DB mapping concern. Mixing @NotBlank there
+ *     couples your database layer to your API contract.
+ *   - The DTO is the API contract. Validate at the boundary where
+ *     untrusted input enters the system.
+ *   - The Controller uses @Valid on the @RequestBody DTO, so Spring
+ *     fires these constraints before the service is ever called.
+ *   - The Entity can keep @Column(nullable=false) as a DB-level safety
+ *     net, but @NotBlank / @NotNull on the entity are redundant and
+ *     confusing — remove them from Task.java and Category.java.
+ */
 public class TaskRequestDTO {
 
-    // Client must supply the ID manually (no auto-increment in DB)
+    /**
+     * taskID — supplied by the client (manual ID, no auto-increment).
+     *
+     * @Positive rejects 0 and negatives. Null is rejected by @NotNull.
+     * Use Integer (boxed) so @NotNull can fire; int primitives can't be null.
+     */
     @NotNull(message = "Task ID is required")
+    @Positive(message = "Task ID must be a positive number")
     private Integer taskID;
 
-    // Task must have a name — blank strings are rejected
+    /**
+     * @NotBlank covers: null, "", "   " (blank string).
+     * Plain @NotNull would allow "   " through — always prefer @NotBlank for strings.
+     */
     @NotBlank(message = "Task name is required")
     private String taskName;
 
-    // Optional long-form description of what the task involves
+    /**
+     * description is optional — no annotation needed.
+     * If you want a max length, add @Size(max=1000).
+     */
+    @NotBlank(message = "Description is required")
     private String description;
 
-    // The deadline by which this task should be completed
+    /**
+     * dueDate is optional. If you want to require it, add @NotNull.
+     * No @NotBlank — LocalDate is not a String.
+     */
     private LocalDate dueDate;
 
-    // Priority level: High / Medium / Low
+    /**
+     * @Pattern restricts to exactly the three allowed values.
+     * @NotBlank added so an empty string also fails cleanly.
+     *
+     * Why @Pattern and not an Enum?
+     *   Enums require a custom deserializer for friendly error messages.
+     *   @Pattern gives a clear, immediate validation message.
+     *   Switch to an Enum + @NotNull if you want compile-time safety later.
+     */
+    @NotBlank(message = "Priority is required")
+    @Pattern(
+            regexp = "High|Medium|Low",
+            message = "Priority must be one of: High, Medium, Low"
+    )
     private String priority;
 
-    // Current state of the task: Pending / In Progress / Completed
+    /**
+     * Same pattern approach as priority.
+     */
+    @NotBlank(message = "Status is required")
+    @Pattern(
+            regexp = "Pending|In Progress|Completed",
+            message = "Status must be one of: Pending, In Progress, Completed"
+    )
     private String status;
 
-    // Foreign key — the project this task belongs to
+    /**
+     * projectID links to an existing Project entity.
+     * @NotNull — must be provided.
+     * @Positive — must be a real ID, not 0 or negative.
+     *
+     * Note: @Positive on Integer (boxed) works correctly.
+     * Do NOT use int (primitive) here — @NotNull cannot fire on primitives.
+     */
+    @NotNull(message = "Project ID is required")
+    @Positive(message = "Project ID must be a positive number")
     private Integer projectID;
 
-    // Foreign key — the user this task is assigned to
+    /**
+     * userID — same rules as projectID.
+     */
+    @NotNull(message = "User ID is required")
+    @Positive(message = "User ID must be a positive number")
     private Integer userID;
 
-    // Default constructor required by Jackson for JSON deserialization
+    // ── Constructors ──────────────────────────────────────────────────────────
+
     public TaskRequestDTO() {}
 
-    // Returns the manually assigned task ID
+    // ── Getters & Setters ─────────────────────────────────────────────────────
+
     public Integer getTaskID() { return taskID; }
-    // Sets the task ID provided by the client
     public void setTaskID(Integer taskID) { this.taskID = taskID; }
 
-    // Returns the task's name
     public String getTaskName() { return taskName; }
-    // Sets the task name — must not be blank
     public void setTaskName(String taskName) { this.taskName = taskName; }
 
-    // Returns the optional description
     public String getDescription() { return description; }
-    // Sets the task description
     public void setDescription(String description) { this.description = description; }
 
-    // Returns the due date for this task
     public LocalDate getDueDate() { return dueDate; }
-    // Sets the due date
     public void setDueDate(LocalDate dueDate) { this.dueDate = dueDate; }
 
-    // Returns the priority string (High / Medium / Low)
     public String getPriority() { return priority; }
-    // Sets the priority
     public void setPriority(String priority) { this.priority = priority; }
 
-    // Returns the current status string
     public String getStatus() { return status; }
-    // Sets the status (Pending / In Progress / Completed)
     public void setStatus(String status) { this.status = status; }
 
-    // Returns the project ID this task is linked to
     public Integer getProjectID() { return projectID; }
-    // Sets the project FK
     public void setProjectID(Integer projectID) { this.projectID = projectID; }
 
-    // Returns the user ID this task is assigned to
     public Integer getUserID() { return userID; }
-    // Sets the user FK
     public void setUserID(Integer userID) { this.userID = userID; }
 }

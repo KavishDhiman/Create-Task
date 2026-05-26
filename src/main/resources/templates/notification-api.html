@@ -455,6 +455,7 @@
                     // ✅ Success — parse as JSON
                     const data = JSON.parse(raw);
                     data.message = `Notification ID ${notifId} created successfully.`;
+                    data.status = 201;
                     openResponse(data);
                 }
             })

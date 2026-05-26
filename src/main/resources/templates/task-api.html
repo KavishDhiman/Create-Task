@@ -8,7 +8,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" th:href="@{/css/style.css}" />
   <style>
-    /* ── Page header — same as users.html ── */
+    /* ── Page header ── */
     .page-header {
         padding: 2rem 2.5rem 1.5rem;
         border-bottom: 1px solid var(--border);
@@ -48,7 +48,7 @@
     }
     .page-header p { color: var(--muted); font-size: 0.95rem; }
 
-    /* ── Section heading — same as users.html ── */
+    /* ── Section heading ── */
     .section-heading {
         font-family: 'Syne', sans-serif;
         font-weight: 700;
@@ -70,7 +70,7 @@
         border-radius: 20px;
     }
 
-    /* ── API grid — 2 columns, same as users.html ── */
+    /* ── API grid ── */
     .api-section { padding: 1.5rem 2.5rem; }
     .api-grid {
         display: grid;
@@ -82,7 +82,7 @@
         .api-section { padding: 1rem; }
     }
 
-    /* ── API card — same as users.html ── */
+    /* ── API card ── */
     .api-card {
         background: var(--card);
         border: 1px solid var(--border);
@@ -91,7 +91,6 @@
         transition: border-color 0.2s;
     }
     .api-card:hover { border-color: rgba(79,142,247,0.3); }
-
     .api-card-header {
         padding: 1.1rem 1.4rem;
         border-bottom: 1px solid var(--border);
@@ -143,7 +142,7 @@
     }
     .api-card-header .url-path .path-param { color: var(--accent); }
 
-    /* ── Card body — same as users.html ── */
+    /* ── Card body ── */
     .api-card-body { padding: 1.4rem; }
     .input-group { margin-bottom: 1rem; }
     .input-group label {
@@ -172,7 +171,7 @@
     .input-group input::placeholder { color: var(--muted); }
     .input-group select option { background: var(--card); color: var(--text); }
 
-    /* ── Send buttons — same as users.html ── */
+    /* ── Send buttons ── */
     .send-btn {
         width: 100%;
         margin-top: 0.6rem;
@@ -214,6 +213,7 @@
 <div class="api-section">
   <div class="api-grid">
 
+    <!-- CREATE TASK -->
     <div class="api-card">
       <div class="api-card-header">
         <div class="header-top">
@@ -272,6 +272,7 @@
       </div>
     </div>
 
+    <!-- GET TASK BY ID -->
     <div class="api-card">
       <div class="api-card-header">
         <div class="header-top">
@@ -292,6 +293,7 @@
       </div>
     </div>
 
+    <!-- LIST ALL TASKS -->
     <div class="api-card">
       <div class="api-card-header">
         <div class="header-top">
@@ -308,6 +310,7 @@
       </div>
     </div>
 
+    <!-- UPDATE TASK -->
     <div class="api-card">
       <div class="api-card-header">
         <div class="header-top">
@@ -366,6 +369,7 @@
       </div>
     </div>
 
+    <!-- DELETE TASK -->
     <div class="api-card">
       <div class="api-card-header">
         <div class="header-top">
@@ -636,12 +640,12 @@
         </div>
         <div class="endpoint-url">
           <span class="url-method-dot dot-get"></span>
-          <span class="url-path">/api/v1/reports/tasks/overdue?days=7</span>
+          <span class="url-path">/api/v1/reports/tasks/overdue?days=<span class="path-param">{days}</span></span>
         </div>
       </div>
       <div class="api-card-body">
         <div class="input-group">
-          <label>Days</label>
+          <label>Days (must be ≥ 1)</label>
           <input id="overdueDays" placeholder="e.g. 7" />
         </div>
         <button class="send-btn btn-get" onclick="getOverdueTasksReport()">Send GET →</button>
@@ -652,294 +656,541 @@
 </div>
 
 <script>
-  const BASE = "/api/v1";
+  // ─────────────────────────────────────────────────────────────────────────
+  // CONSTANTS
+  // ─────────────────────────────────────────────────────────────────────────
+
+  const BASE         = "/api/v1";
   const MODULE_TITLE = "Tasks & Categories";
 
+  // ─────────────────────────────────────────────────────────────────────────
+  // RESPONSE NAVIGATION
+  //
+  // FIX: switched from localStorage to URL query param (?data=...).
+  //
+  // Why this is better than localStorage:
+  //   1. localStorage is shared across all tabs of the same origin.
+  //      If a teammate opens response-view.html at the same time as you,
+  //      your data overwrites theirs (and vice versa). URL params are
+  //      per-tab and isolated.
+  //   2. Each response-view tab is completely self-contained — the data
+  //      travels with the URL, not a side-channel.
+  //   3. No need for localStorage.removeItem() cleanup.
+  //   4. Bookmarkable / shareable for debugging.
+  //
+  // response-view.html already supports ?data= param — see its script block.
+  // ─────────────────────────────────────────────────────────────────────────
+
+  /**
+   * Opens the response-view tab with the given payload encoded in the URL.
+   * Does NOT touch localStorage — zero impact on teammates.
+   *
+   * @param {object} payload - The data object to render
+   * @param {string} [title]  - Module label shown in the response view header
+   */
   function openResponseTab(payload, title = MODULE_TITLE) {
-    localStorage.setItem("apiResponsePayload", JSON.stringify({
+    // response-view.html reads payload.status for the status pill.
+    // All callers pass httpStatus, so we normalise it here once.
+    const { httpStatus, ...rest } = payload;
+    const fullPayload = {
       module: title,
-      ...payload
-    }));
-    window.open("/response-view", "_blank");
+      status: httpStatus !== undefined ? httpStatus : rest.status,
+      ...rest
+    };
+    const encoded = encodeURIComponent(JSON.stringify(fullPayload));
+    window.open("/response-view?data=" + encoded, "_blank");
   }
 
-  function openErrorTab(message, status = 500, title = MODULE_TITLE) {
+  /**
+   * Convenience wrapper for error responses.
+   *
+   * FIX: previously passed hardcoded error:"Error" — now passes through
+   * the actual error text from the backend response.
+   *
+   * @param {string} message   - Backend error message
+   * @param {number} [status]  - HTTP status code (e.g. 404, 409)
+   * @param {string} [error]   - Backend error label (e.g. "Not Found")
+   * @param {string} [ts]      - Timestamp string from backend
+   * @param {string} [title]   - Module label
+   */
+  function openErrorTab(message, status = 500, error = "Error", ts = null, title = MODULE_TITLE) {
     openResponseTab({
+      isError   : true,
       httpStatus: status,
-      error: message
+      error     : error,
+      message   : message,
+      timestamp : ts || new Date().toISOString()
     }, title);
   }
 
+  // ─────────────────────────────────────────────────────────────────────────
+  // UTILITY HELPERS
+  // ─────────────────────────────────────────────────────────────────────────
+
+  /** Safely parse a JSON text; returns the raw text if it isn't valid JSON. */
   function parseBody(text) {
     if (!text) return null;
-    try {
-      return JSON.parse(text);
-    } catch {
-      return text;
-    }
+    try { return JSON.parse(text); }
+    catch { return text; }
   }
 
+  /**
+   * Central fetch wrapper.
+   *
+   * On success: returns { status, body }
+   * On error  : throws  { status, message, error, timestamp, body }
+   *
+   * FIX: previously extracted only body.message || body.error.
+   * Now also extracts body.timestamp so the response-view table can show it.
+   * Also extracts body.error label (e.g. "Not Found") separately from message.
+   */
   async function apiCall(url, options = {}) {
-    const res = await fetch(url, options);
+    const res  = await fetch(url, options);
     const text = await res.text();
     const body = parseBody(text);
 
     if (!res.ok) {
-      const message =
-        (body && typeof body === "object" && (body.message || body.error)) ||
-        (typeof body === "string" && body.trim()) ||
-        `HTTP ${res.status}`;
-      throw {
-        status: res.status,
-        message,
-        body
-      };
+      // Extract structured fields from backend error response
+      const message   = (body && typeof body === "object" && body.message)
+                      || (typeof body === "string" && body.trim())
+                      || `HTTP ${res.status}`;
+      const errorLabel = (body && typeof body === "object" && body.error) || "Error";
+      const timestamp  = (body && typeof body === "object" && body.timestamp) || null;
+
+      throw { status: res.status, message, error: errorLabel, timestamp, body };
     }
 
-    return {
-      status: res.status,
-      body
-    };
+    return { status: res.status, body };
   }
 
+  /**
+   * Validate that a field intended as a numeric ID is not empty and is
+   * a valid positive integer. Returns the parsed integer, or throws a
+   * client-side error that openErrorTab can render.
+   *
+   * FIX: Previously parseInt("") returned NaN, which JSON.stringify
+   * silently converts to null. The backend then received null IDs.
+   *
+   * @param {string} value     - Raw string from the input field
+   * @param {string} fieldName - Human-readable name for the error message
+   * @returns {number}
+   */
+  function requireId(value, fieldName) {
+    const trimmed = (value || "").trim();
+    if (!trimmed) {
+      throw { status: 400, message: `${fieldName} is required.`, error: "Validation Error", timestamp: new Date().toISOString() };
+    }
+    const parsed = parseInt(trimmed, 10);
+    if (isNaN(parsed) || parsed <= 0) {
+      throw { status: 400, message: `${fieldName} must be a positive number.`, error: "Validation Error", timestamp: new Date().toISOString() };
+    }
+    return parsed;
+  }
+
+  /**
+   * Validate that a required text field (select or input) is not empty.
+   *
+   * FIX: Previously filter dropdowns called the API with an empty string
+   * in the URL when no option was selected — e.g. /api/v1/tasks/status/
+   * This validates before the fetch so the user sees a clear error.
+   *
+   * @param {string} value     - Raw string from the field
+   * @param {string} fieldName - Human-readable name for the error message
+   * @returns {string}
+   */
+  function requireText(value, fieldName) {
+    const trimmed = (value || "").trim();
+    if (!trimmed) {
+      throw { status: 400, message: `${fieldName} is required.`, error: "Validation Error", timestamp: new Date().toISOString() };
+    }
+    return trimmed;
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // TASK ENDPOINTS
+  // ─────────────────────────────────────────────────────────────────────────
+
+  /**
+   * POST /api/v1/tasks
+   *
+   * FIX (critical): the original function had a broken try-block — it called
+   * openResponseTab inside the try using variables `message` and `title`
+   * that were never defined in that scope. This caused a ReferenceError on
+   * every successful POST, meaning success responses were never displayed.
+   *
+   * Fix: replaced with the correct openResponseTab call using `body` and
+   * `status` from the apiCall response.
+   *
+   * FIX: parseInt on empty string returns NaN → replaced with requireId().
+   */
   async function createTask() {
     try {
-      const { status, body } = await apiCall(BASE + "/tasks", {
-        method: "POST",
+      const taskID     = requireId(document.getElementById("createTaskId").value, "Task ID");
+      const projectID  = requireId(document.getElementById("createTaskProjectId").value, "Project ID");
+      const userID     = requireId(document.getElementById("createTaskUserId").value, "User ID");
+      const taskName   = requireText(document.getElementById("createTaskName").value, "Task Name");
+      const priority   = requireText(document.getElementById("createTaskPriority").value, "Priority");
+      const status     = requireText(document.getElementById("createTaskStatus").value, "Status");
+
+      const descRaw = document.getElementById("createTaskDesc").value;
+      if (descRaw.length > 0 && descRaw.trim() === "") {
+        throw { status: 400, message: "Description cannot be blank. Provide a valid description or leave the field empty.", error: "Validation Error", timestamp: new Date().toISOString() };
+      }
+      const description = descRaw.trim() || null;
+
+      const dueDateRaw = document.getElementById("createTaskDue").value;
+      if (!dueDateRaw) {
+        throw { status: 400, message: "Due Date is required.", error: "Validation Error", timestamp: new Date().toISOString() };
+      }
+
+      const { status: httpStatus, body } = await apiCall(BASE + "/tasks", {
+        method : "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          taskID: parseInt(document.getElementById("createTaskId").value),
-          taskName: document.getElementById("createTaskName").value,
-          description: document.getElementById("createTaskDesc").value,
-          dueDate: document.getElementById("createTaskDue").value,
-          priority: document.getElementById("createTaskPriority").value,
-          status: document.getElementById("createTaskStatus").value,
-          projectID: parseInt(document.getElementById("createTaskProjectId").value),
-          userID: parseInt(document.getElementById("createTaskUserId").value)
+        body   : JSON.stringify({
+          taskID,
+          taskName,
+          description,
+          dueDate    : dueDateRaw,
+          priority,
+          status,
+          projectID,
+          userID
         })
       });
 
+      // FIX: was broken — now correctly opens the success response
       openResponseTab({
-        httpStatus: status,
+        httpStatus,
         message: "Task created successfully",
-        data: body
+        data   : body
       });
+
     } catch (err) {
-      openErrorTab(err.message || "Failed to create task", err.status || 500);
+      openErrorTab(err.message || "Failed to create task", err.status || 500, err.error || "Error", err.timestamp);
     }
   }
 
+  /**
+   * GET /api/v1/tasks/{taskId}
+   *
+   * FIX: requireId() prevents empty/NaN path variable.
+   */
   async function getTaskById() {
-    const id = document.getElementById("getTaskId").value;
-
     try {
+      const id = requireId(document.getElementById("getTaskId").value, "Task ID");
       const { status, body } = await apiCall(BASE + "/tasks/" + id);
       openResponseTab({ httpStatus: status, data: body });
     } catch (err) {
-      openErrorTab(err.message || "Request failed", err.status || 500);
+      openErrorTab(err.message || "Request failed", err.status || 500, err.error || "Error", err.timestamp);
     }
   }
 
+  /** GET /api/v1/tasks */
   async function getAllTasks() {
     try {
       const { status, body } = await apiCall(BASE + "/tasks");
       openResponseTab({ httpStatus: status, data: body });
     } catch (err) {
-      openErrorTab(err.message || "Request failed", err.status || 500);
+      openErrorTab(err.message || "Request failed", err.status || 500, err.error || "Error", err.timestamp);
     }
   }
 
+  /**
+   * PUT /api/v1/tasks/{taskId}
+   *
+   * FIX: requireId() for taskId, projectId, userId.
+   */
   async function updateTask() {
-    const id = document.getElementById("updateTaskId").value;
-
     try {
-      const { status, body } = await apiCall(BASE + "/tasks/" + id, {
-        method: "PUT",
+      const id        = requireId(document.getElementById("updateTaskId").value, "Task ID");
+      const projectID = requireId(document.getElementById("updateTaskProjectId").value, "Project ID");
+      const userID    = requireId(document.getElementById("updateTaskUserId").value, "User ID");
+      const taskName  = requireText(document.getElementById("updateTaskName").value, "Task Name");
+      const priority  = requireText(document.getElementById("updateTaskPriority").value, "Priority");
+      const status    = requireText(document.getElementById("updateTaskStatus").value, "Status");
+
+      const descRaw = document.getElementById("updateTaskDesc").value;
+      if (descRaw.length > 0 && descRaw.trim() === "") {
+        throw { status: 400, message: "Description cannot be blank. Provide a valid description or leave the field empty.", error: "Validation Error", timestamp: new Date().toISOString() };
+      }
+      const description = descRaw.trim() || null;
+
+      const dueDateRaw = document.getElementById("updateTaskDue").value;
+      if (!dueDateRaw) {
+        throw { status: 400, message: "Due Date is required.", error: "Validation Error", timestamp: new Date().toISOString() };
+      }
+
+      const { status: httpStatus, body } = await apiCall(BASE + "/tasks/" + id, {
+        method : "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          taskID: parseInt(id),
-          taskName: document.getElementById("updateTaskName").value,
-          description: document.getElementById("updateTaskDesc").value,
-          dueDate: document.getElementById("updateTaskDue").value,
-          priority: document.getElementById("updateTaskPriority").value,
-          status: document.getElementById("updateTaskStatus").value,
-          projectID: parseInt(document.getElementById("updateTaskProjectId").value),
-          userID: parseInt(document.getElementById("updateTaskUserId").value)
+        body   : JSON.stringify({
+          taskID     : id,
+          taskName,
+          description,
+          dueDate    : dueDateRaw,
+          priority,
+          status,
+          projectID,
+          userID
         })
       });
 
       openResponseTab({
-        httpStatus: status,
-        message: "Task updated successfully",
-        data: body
+        httpStatus: httpStatus,
+        message   : "Task updated successfully",
+        data      : body
       });
     } catch (err) {
-      openErrorTab(err.message || "Failed to update task", err.status || 500);
+      openErrorTab(err.message || "Failed to update task", err.status || 500, err.error || "Error", err.timestamp);
     }
   }
 
+  /**
+   * DELETE /api/v1/tasks/{taskId}
+   *
+   * FIX: requireId() prevents empty/NaN path variable.
+   */
   async function deleteTask() {
-    const id = document.getElementById("deleteTaskId").value;
-
     try {
-      const { status } = await apiCall(BASE + "/tasks/" + id, {
-        method: "DELETE"
-      });
+      const id = requireId(document.getElementById("deleteTaskId").value, "Task ID");
+      const { status } = await apiCall(BASE + "/tasks/" + id, { method: "DELETE" });
 
       openResponseTab({
         httpStatus: status,
-        message: "Task with ID " + id + " deleted successfully",
-        data: [
-          {
-            taskID: id,
-            status: "Deleted Successfully"
-          }
-        ]
+        message   : "Task with ID " + id + " deleted successfully",
+        data      : [{ taskID: id, status: "Deleted Successfully" }]
       });
     } catch (err) {
-      openErrorTab(err.message || "Failed to delete task", err.status || 500);
+      openErrorTab(err.message || "Failed to delete task", err.status || 500, err.error || "Error", err.timestamp);
     }
   }
 
-  async function getTasksByProject() {
-    const id = document.getElementById("filterProjectId").value;
+  // ─────────────────────────────────────────────────────────────────────────
+  // TASK FILTERING
+  // ─────────────────────────────────────────────────────────────────────────
 
+  /**
+   * GET /api/v1/projects/{projectId}/tasks
+   * FIX: requireId() validation.
+   */
+  async function getTasksByProject() {
     try {
+      const id = requireId(document.getElementById("filterProjectId").value, "Project ID");
       const { status, body } = await apiCall(BASE + "/projects/" + id + "/tasks");
       openResponseTab({ httpStatus: status, data: body });
     } catch (err) {
-      openErrorTab(err.message || "Request failed", err.status || 500);
+      openErrorTab(err.message || "Request failed", err.status || 500, err.error || "Error", err.timestamp);
     }
   }
 
+  /**
+   * GET /api/v1/users/{userId}/tasks
+   * FIX: requireId() validation.
+   */
   async function getTasksByUser() {
-    const id = document.getElementById("filterUserId").value;
-
     try {
+      const id = requireId(document.getElementById("filterUserId").value, "User ID");
       const { status, body } = await apiCall(BASE + "/users/" + id + "/tasks");
       openResponseTab({ httpStatus: status, data: body });
     } catch (err) {
-      openErrorTab(err.message || "Request failed", err.status || 500);
+      openErrorTab(err.message || "Request failed", err.status || 500, err.error || "Error", err.timestamp);
     }
   }
 
+  /**
+   * GET /api/v1/tasks/status/{status}
+   *
+   * FIX: previously called API with empty string when no option was selected.
+   * requireText() now catches the empty selection before the fetch fires.
+   */
   async function getTasksByStatus() {
-    const statusValue = document.getElementById("filterStatus").value;
-
     try {
+      const statusValue = requireText(document.getElementById("filterStatus").value, "Status");
       const { status, body } = await apiCall(BASE + "/tasks/status/" + encodeURIComponent(statusValue));
       openResponseTab({ httpStatus: status, data: body });
     } catch (err) {
-      openErrorTab(err.message || "Request failed", err.status || 500);
+      openErrorTab(err.message || "Request failed", err.status || 500, err.error || "Error", err.timestamp);
     }
   }
 
+  /**
+   * GET /api/v1/tasks/priority/{priority}
+   *
+   * FIX: same as getTasksByStatus — requireText() guards empty selection.
+   */
   async function getTasksByPriority() {
-    const priority = document.getElementById("filterPriority").value;
-
     try {
+      const priority = requireText(document.getElementById("filterPriority").value, "Priority");
       const { status, body } = await apiCall(BASE + "/tasks/priority/" + encodeURIComponent(priority));
       openResponseTab({ httpStatus: status, data: body });
     } catch (err) {
-      openErrorTab(err.message || "Request failed", err.status || 500);
+      openErrorTab(err.message || "Request failed", err.status || 500, err.error || "Error", err.timestamp);
     }
   }
 
+  // ─────────────────────────────────────────────────────────────────────────
+  // CATEGORY ENDPOINTS
+  // ─────────────────────────────────────────────────────────────────────────
+
+  /**
+   * POST /api/v1/categories
+   * FIX: requireId() for categoryID, requireText() for categoryName.
+   */
   async function createCategory() {
     try {
+      const categoryID   = requireId(document.getElementById("createCatId").value, "Category ID");
+      const categoryName = requireText(document.getElementById("createCatName").value, "Category Name");
+
       const { status, body } = await apiCall(BASE + "/categories", {
-        method: "POST",
+        method : "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          categoryID: parseInt(document.getElementById("createCatId").value),
-          categoryName: document.getElementById("createCatName").value
-        })
+        body   : JSON.stringify({ categoryID, categoryName })
       });
 
       openResponseTab({
         httpStatus: status,
-        message: "Category created successfully",
-        data: body
+        message   : "Category created successfully",
+        data      : body
       });
     } catch (err) {
-      openErrorTab(err.message || "Failed to create category", err.status || 500);
+      openErrorTab(err.message || "Failed to create category", err.status || 500, err.error || "Error", err.timestamp);
     }
   }
 
+  /** GET /api/v1/categories */
   async function getAllCategories() {
     try {
       const { status, body } = await apiCall(BASE + "/categories");
       openResponseTab({ httpStatus: status, data: body });
     } catch (err) {
-      openErrorTab(err.message || "Request failed", err.status || 500);
+      openErrorTab(err.message || "Request failed", err.status || 500, err.error || "Error", err.timestamp);
     }
   }
 
+  // ─────────────────────────────────────────────────────────────────────────
+  // TASK–CATEGORY MAPPING
+  // ─────────────────────────────────────────────────────────────────────────
+
+  /**
+   * POST /api/v1/tasks/{taskId}/categories/{categoryId}
+   * FIX: requireId() for both IDs.
+   */
   async function assignCategory() {
-    const taskId = document.getElementById("assignTaskId").value;
-    const catId = document.getElementById("assignCatId").value;
-
     try {
-      const { status } = await apiCall(BASE + "/tasks/" + taskId + "/categories/" + catId, {
-        method: "POST"
-      });
+      const taskId  = requireId(document.getElementById("assignTaskId").value, "Task ID");
+      const catId   = requireId(document.getElementById("assignCatId").value, "Category ID");
+
+      const { status } = await apiCall(
+        BASE + "/tasks/" + taskId + "/categories/" + catId,
+        { method: "POST" }
+      );
 
       openResponseTab({
         httpStatus: status,
-        message: "Category assigned to task successfully"
+        message   : "Category " + catId + " assigned to Task " + taskId + " successfully"
       });
     } catch (err) {
-      openErrorTab(err.message || "Failed to assign category", err.status || 500);
+      openErrorTab(err.message || "Failed to assign category", err.status || 500, err.error || "Error", err.timestamp);
     }
   }
 
+  /**
+   * DELETE /api/v1/tasks/{taskId}/categories/{categoryId}
+   * FIX: requireId() for both IDs.
+   */
   async function removeCategory() {
-    const taskId = document.getElementById("removeCatTaskId").value;
-    const catId = document.getElementById("removeCatId").value;
-
     try {
-      const { status } = await apiCall(BASE + "/tasks/" + taskId + "/categories/" + catId, {
-        method: "DELETE"
-      });
+      const taskId = requireId(document.getElementById("removeCatTaskId").value, "Task ID");
+      const catId  = requireId(document.getElementById("removeCatId").value, "Category ID");
+
+      const { status } = await apiCall(
+        BASE + "/tasks/" + taskId + "/categories/" + catId,
+        { method: "DELETE" }
+      );
 
       openResponseTab({
         httpStatus: status,
-        message: "Category with ID " + catId + " removed from Task " + taskId + " successfully",
-        data: [
-          {
-            taskID: taskId,
-            categoryID: catId,
-            status: "Removed Successfully"
-          }
-        ]
+        message   : "Category " + catId + " removed from Task " + taskId + " successfully",
+        data      : [{ taskID: taskId, categoryID: catId, result: "Removed Successfully" }]
       });
     } catch (err) {
-      openErrorTab(err.message || "Failed to remove category", err.status || 500);
+      openErrorTab(err.message || "Failed to remove category", err.status || 500, err.error || "Error", err.timestamp);
     }
   }
 
+  /**
+   * GET /api/v1/tasks/{taskId}/categories
+   * FIX: requireId() validation.
+   */
   async function getCategoriesForTask() {
-    const taskId = document.getElementById("getCatTaskId").value;
-
     try {
+      const taskId = requireId(document.getElementById("getCatTaskId").value, "Task ID");
       const { status, body } = await apiCall(BASE + "/tasks/" + taskId + "/categories");
       openResponseTab({ httpStatus: status, data: body });
     } catch (err) {
-      openErrorTab(err.message || "Request failed", err.status || 500);
+      openErrorTab(err.message || "Request failed", err.status || 500, err.error || "Error", err.timestamp);
     }
   }
 
-  async function getOverdueTasksReport() {
-    const days = document.getElementById("overdueDays").value || 7;
+  // ─────────────────────────────────────────────────────────────────────────
+  // REPORTS
+  // ─────────────────────────────────────────────────────────────────────────
 
+  /**
+   * GET /api/v1/reports/tasks/overdue?days={days}
+   *
+   * FIX 1: previously fell back silently to || 7 when empty — the user
+   *   received results without knowing a default was applied. Now raises
+   *   a clear validation error for empty input.
+   *
+   * FIX 2: client-side validation rejects negative and zero values before
+   *   the request is sent, giving an instant error without a round-trip.
+   *   The backend also validates (service layer), so both are protected.
+   *
+   * FIX 3: non-numeric input (e.g. "abc") is caught before the fetch —
+   *   previously it was URL-encoded and sent, causing a backend type
+   *   mismatch error which was then rendered as a confusing 400.
+   */
+  async function getOverdueTasksReport() {
     try {
-      const { status, body } = await apiCall(BASE + "/reports/tasks/overdue?days=" + encodeURIComponent(days));
-      openResponseTab({
-        httpStatus: status,
-        data: body
-      }, "Overdue Tasks Report");
+      // Step 1: require non-empty input
+      const rawDays = requireText(document.getElementById("overdueDays").value, "Days");
+
+      // Step 2: require numeric value
+      const days = parseInt(rawDays, 10);
+      if (isNaN(days)) {
+        throw {
+          status   : 400,
+          message  : "Days must be a numeric value (e.g. 7).",
+          error    : "Validation Error",
+          timestamp: new Date().toISOString()
+        };
+      }
+
+      // Step 3: require positive value
+      if (days < 1) {
+        throw {
+          status   : 400,
+          message  : "Days must be a positive number (minimum 1).",
+          error    : "Validation Error",
+          timestamp: new Date().toISOString()
+        };
+      }
+
+      const { status, body } = await apiCall(
+        BASE + "/reports/tasks/overdue?days=" + days
+      );
+
+      openResponseTab({ httpStatus: status, data: body }, "Overdue Tasks Report");
+
     } catch (err) {
-      openErrorTab(err.message || "Request failed", err.status || 500, "Overdue Tasks Report");
+      openErrorTab(
+        err.message  || "Request failed",
+        err.status   || 500,
+        err.error    || "Error",
+        err.timestamp,
+        "Overdue Tasks Report"
+      );
     }
   }
 </script>

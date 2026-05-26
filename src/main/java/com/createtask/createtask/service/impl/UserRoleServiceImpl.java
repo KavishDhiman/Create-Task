@@ -29,7 +29,7 @@ public class UserRoleServiceImpl implements UserRoleService {
         // Checks whether role ID already exists
         if (userRoleRepository.existsById(userRole.getUserRoleID())) {
 
-            throw new RuntimeException(
+            throw new DuplicateRoleException(
                     "Role ID already exists"
             ); // Throws exception for duplicate role ID
         }
@@ -43,7 +43,7 @@ public class UserRoleServiceImpl implements UserRoleService {
         // Validates role name contains only letters and spaces
         if (!userRole.getRoleName().matches("^[A-Za-z ]+$")) {
 
-            throw new RuntimeException(
+            throw new IllegalArgumentException(
                     "Role name must contain only letters"
             ); // Throws exception for invalid role name
         }

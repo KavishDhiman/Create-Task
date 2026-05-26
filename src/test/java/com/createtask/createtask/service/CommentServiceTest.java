@@ -6,11 +6,14 @@ import com.createtask.createtask.entity.AppUser;
 import com.createtask.createtask.entity.Comment;
 import com.createtask.createtask.entity.Task;
 import com.createtask.createtask.exception.CommentNotFoundException;
+import com.createtask.createtask.exception.DuplicateResourceException;
 import com.createtask.createtask.repository.CommentRepository;
 import com.createtask.createtask.repository.TaskRepository;
 import com.createtask.createtask.repository.UserRepository;
 import com.createtask.createtask.service.impl.CommentServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -22,6 +25,15 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+/**
+ * Unit tests for {@link CommentServiceImpl}.
+ *
+ * <p>Validates all business logic in the comment service layer using
+ * Mockito-based mocks for repository dependencies. Covers both positive
+ * (happy path) and negative (exception/edge case) scenarios.
+ */
+@Tag("unit")
+@DisplayName("Comment Service Tests")
 public class CommentServiceTest {
 
     private CommentRepository commentRepository;
@@ -29,6 +41,10 @@ public class CommentServiceTest {
     private UserRepository userRepository;
     private CommentService commentService;
 
+    /**
+     * Initialises fresh mock instances and injects them into the service
+     * implementation before each test to ensure full test isolation.
+     */
     @BeforeEach
     void setUp() {
 
@@ -46,8 +62,13 @@ public class CommentServiceTest {
                 );
     }
 
+    /**
+     * Verifies that a valid comment is saved and the response DTO
+     * contains the expected comment ID.
+     */
     // Tests successful comment creation
     @Test
+    @DisplayName("Should save comment and return response DTO with correct ID")
     void testAddCommentSuccess() {
 
         Task task = new Task();
@@ -70,6 +91,15 @@ public class CommentServiceTest {
                         1
                 );
 
+        when(commentRepository.existsById(11))
+                .thenReturn(false);
+
+        when(taskRepository.existsById(1))
+                .thenReturn(true);
+
+        when(userRepository.existsById(1))
+                .thenReturn(true);
+
         when(taskRepository.findById(1))
                 .thenReturn(Optional.of(task));
 
@@ -86,8 +116,13 @@ public class CommentServiceTest {
         assertEquals(11, response.getCommentID());
     }
 
+    /**
+     * Verifies that all comments belonging to a given task ID
+     * are returned as a list of response DTOs.
+     */
     // Tests retrieval of comments by task ID
     @Test
+    @DisplayName("Should return list of comments for a given task ID")
     void testGetCommentsByTaskId() {
 
         Task task = new Task();
@@ -111,8 +146,13 @@ public class CommentServiceTest {
         assertEquals(1, response.size());
     }
 
+    /**
+     * Verifies that an existing comment is deleted and a success
+     * confirmation message is returned.
+     */
     // Tests successful comment deletion
     @Test
+    @DisplayName("Should delete comment and return success message")
     void testDeleteCommentSuccess() {
 
         Comment comment = new Comment();
@@ -130,8 +170,13 @@ public class CommentServiceTest {
         );
     }
 
-    // Tests comment deletion failure
+    /**
+     * Verifies that {@link CommentNotFoundException} is thrown
+     * when attempting to delete a comment with a non-existent ID.
+     */
+    // Tests comment deletion failure when ID does not exist
     @Test
+    @DisplayName("Should throw CommentNotFoundException when deleting non-existent comment")
     void testDeleteCommentNotFound() {
 
         when(commentRepository.findById(99))
@@ -143,8 +188,13 @@ public class CommentServiceTest {
         );
     }
 
-    // Tests empty comment list
+    /**
+     * Verifies that an empty list is returned when no comments
+     * exist for the given task ID.
+     */
+    // Tests empty comment list returned when no comments exist
     @Test
+    @DisplayName("Should return empty list when no comments exist for task")
     void testGetCommentsEmptyList() {
 
         when(commentRepository.findAll())
@@ -156,8 +206,13 @@ public class CommentServiceTest {
         assertTrue(response.isEmpty());
     }
 
-    // Tests comment text mapping
+    /**
+     * Verifies that the comment text from the entity is correctly
+     * mapped into the response DTO.
+     */
+    // Tests comment text is correctly mapped to response DTO
     @Test
+    @DisplayName("Should map comment text correctly into response DTO")
     void testCommentTextMapping() {
 
         Task task = new Task();
@@ -184,8 +239,13 @@ public class CommentServiceTest {
         );
     }
 
-    // Tests comment user mapping
+    /**
+     * Verifies that the user ID from the comment entity is correctly
+     * mapped into the response DTO.
+     */
+    // Tests comment user ID is correctly mapped to response DTO
     @Test
+    @DisplayName("Should map user ID correctly into comment response DTO")
     void testCommentUserMapping() {
 
         Task task = new Task();
@@ -211,8 +271,13 @@ public class CommentServiceTest {
         );
     }
 
-    // Tests comment sorting by ID
+    /**
+     * Verifies that comments are returned in ascending order
+     * of their comment ID.
+     */
+    // Tests comments are returned sorted by comment ID ascending
     @Test
+    @DisplayName("Should return comments sorted by comment ID in ascending order")
     void testCommentSortingById() {
 
         Task task = new Task();
@@ -240,8 +305,13 @@ public class CommentServiceTest {
         assertEquals(1, response.get(0).getCommentID());
     }
 
-    // Tests comment task ID mapping
+    /**
+     * Verifies that the task ID from the comment entity is correctly
+     * mapped into the response DTO.
+     */
+    // Tests comment task ID is correctly mapped to response DTO
     @Test
+    @DisplayName("Should map task ID correctly into comment response DTO")
     void testCommentTaskIdMapping() {
 
         Task task = new Task();
@@ -267,8 +337,13 @@ public class CommentServiceTest {
         );
     }
 
-    // Tests filtering comments by task ID
+    /**
+     * Verifies that only comments belonging to the specified task ID
+     * are included in the returned list, filtering out all others.
+     */
+    // Tests comments are filtered correctly by task ID
     @Test
+    @DisplayName("Should return only comments belonging to the specified task ID")
     void testCommentFilteringByTaskId() {
 
         Task task1 = new Task();
@@ -299,100 +374,97 @@ public class CommentServiceTest {
         assertEquals(1, response.size());
     }
 
-    // Tests comment creation with different text
+    /**
+     * Verifies that {@link DuplicateResourceException} is thrown when
+     * a comment with an already-existing ID is submitted, and that
+     * the repository save operation is never invoked.
+     */
+    // Tests exception is thrown when duplicate comment ID is used
     @Test
-    void testAddCommentDifferentText() {
-
-        Task task = new Task();
-        task.setTaskID(1);
-
-        AppUser user = new AppUser();
-        user.setUserID(1);
-
-        Comment comment = new Comment();
-        comment.setCommentID(25);
-        comment.setText("New Comment");
-        comment.setCreatedAt(LocalDateTime.now());
-        comment.setTask(task);
-        comment.setUser(user);
+    @DisplayName("Should throw DuplicateResourceException when comment ID already exists")
+    void testAddCommentDuplicateId() {
 
         CommentRequestDTO requestDTO =
                 new CommentRequestDTO(
-                        25,
-                        "New Comment",
+                        11,
+                        "Testing",
                         1
                 );
 
-        when(taskRepository.findById(1))
-                .thenReturn(Optional.of(task));
+        when(commentRepository.existsById(11))
+                .thenReturn(true);
 
-        when(userRepository.findById(1))
-                .thenReturn(Optional.of(user));
-
-        when(commentRepository.save(any(Comment.class)))
-                .thenReturn(comment);
-
-        CommentResponseDTO response =
-                commentService.addComment(1, requestDTO);
-
-        assertEquals(
-                "New Comment",
-                response.getText()
+        assertThrows(
+                DuplicateResourceException.class,
+                () -> commentService.addComment(1, requestDTO)
         );
+
+        verify(commentRepository, never())
+                .save(any());
     }
 
-    // Tests comment deletion repository invocation
+    /**
+     * Verifies that a {@link RuntimeException} is thrown when the provided
+     * task ID does not exist, and that no partial data is persisted.
+     */
+    // Tests exception is thrown when task ID does not exist during comment creation
     @Test
-    void testCommentDeleteInvocation() {
-
-        Comment comment = new Comment();
-        comment.setCommentID(1);
-
-        when(commentRepository.findById(1))
-                .thenReturn(Optional.of(comment));
-
-        commentService.deleteComment(1);
-
-        verify(commentRepository, times(1))
-                .delete(comment);
-    }
-
-    // Tests comment response is not null
-    @Test
-    void testCommentResponseNotNull() {
-
-        Task task = new Task();
-        task.setTaskID(1);
-
-        AppUser user = new AppUser();
-        user.setUserID(1);
-
-        Comment comment = new Comment();
-        comment.setCommentID(50);
-        comment.setText("Hello");
-        comment.setCreatedAt(LocalDateTime.now());
-        comment.setTask(task);
-        comment.setUser(user);
+    @DisplayName("Should throw RuntimeException when task ID is not found")
+    void testAddCommentTaskNotFound() {
 
         CommentRequestDTO requestDTO =
                 new CommentRequestDTO(
-                        50,
-                        "Hello",
+                        11,
+                        "Testing",
                         1
                 );
 
-        when(taskRepository.findById(1))
-                .thenReturn(Optional.of(task));
+        when(commentRepository.existsById(11))
+                .thenReturn(false);
 
-        when(userRepository.findById(1))
-                .thenReturn(Optional.of(user));
+        when(taskRepository.existsById(99))
+                .thenReturn(false);
 
-        when(commentRepository.save(any(Comment.class)))
-                .thenReturn(comment);
+        assertThrows(
+                RuntimeException.class,
+                () -> commentService.addComment(99, requestDTO)
+        );
 
-        CommentResponseDTO response =
-                commentService.addComment(1, requestDTO);
+        verify(commentRepository, never())
+                .save(any());
+    }
 
-        assertNotNull(response);
+    /**
+     * Verifies that a {@link RuntimeException} is thrown when the provided
+     * user ID does not exist, and that no partial data is persisted.
+     */
+    // Tests exception is thrown when user ID does not exist during comment creation
+    @Test
+    @DisplayName("Should throw RuntimeException when user ID is not found")
+    void testAddCommentUserNotFound() {
+
+        CommentRequestDTO requestDTO =
+                new CommentRequestDTO(
+                        11,
+                        "Testing",
+                        99
+                );
+
+        when(commentRepository.existsById(11))
+                .thenReturn(false);
+
+        when(taskRepository.existsById(1))
+                .thenReturn(true);
+
+        when(userRepository.existsById(99))
+                .thenReturn(false);
+
+        assertThrows(
+                RuntimeException.class,
+                () -> commentService.addComment(1, requestDTO)
+        );
+
+        verify(commentRepository, never())
+                .save(any());
     }
 }

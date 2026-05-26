@@ -346,13 +346,21 @@
         }
 
         if (payload?.message) {
-            messageBanner.style.display = 'block';
-            messageBanner.textContent = payload.message;
-            statusPill.textContent = '200 OK';
-            statusPill.className = 'status-pill ok';
-        } else {
-            messageBanner.style.display = 'none';
-        }
+    messageBanner.style.display = 'block';
+    messageBanner.textContent = payload.message;
+
+    // show actual status dynamically
+    if (payload.status === 201) {
+        statusPill.textContent = '201 Created';
+    } else {
+        statusPill.textContent = `${payload.status || 200} OK`;
+    }
+
+    statusPill.className = 'status-pill ok';
+
+} else {
+    messageBanner.style.display = 'none';
+}
 
         if (payload?.error) {
 

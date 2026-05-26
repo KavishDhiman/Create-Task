@@ -4,11 +4,13 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.Positive;
 
 // DTO class for receiving user request data
 public class UserRequestDTO {
 
     @NotNull(message = "UserID must not be null") // Validates non-null user ID
+    @Positive(message = "UserID must be positive")
     private Integer userID; // Stores user ID
 
     @NotBlank(message = "Username must not be blank") // Prevents blank username

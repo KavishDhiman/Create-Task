@@ -659,6 +659,9 @@
             data = { message: text };
         }
 
+        // ADD THIS
+        data.status = response.status;
+
         if (!response.ok) {
             throw data;
         }
@@ -700,9 +703,14 @@
     })
         .then(handleResponse)
         .then(d => {
-            d.message = "User created successfully";
-            openResponse(d);
-        })
+
+    openResponse({
+        ...d,
+        status: d.status,
+        message: "User created successfully"
+    });
+
+})
         .catch(handleErr);
 }
 
@@ -719,7 +727,19 @@
 }
 
     function getUserById() {
+
     const id = document.getElementById("getUserId").value;
+
+    if (!id || id.trim() === "") {
+
+        openResponse({
+            error: "Validation Error",
+            message: "User ID must not be blank",
+            status: 400
+        });
+
+        return;
+    }
 
     fetch(`${BASE}/users/${id}`)
         .then(handleResponse)
@@ -735,6 +755,17 @@
     function updateUser() {
 
     const id = document.getElementById("updateUserId").value;
+
+    if (!id || id.trim() === "") {
+
+        openResponse({
+            error: "Validation Error",
+            message: "User ID must not be blank",
+            status: 400
+        });
+
+        return;
+    }
 
     const body = {
         userID: id,
@@ -760,6 +791,17 @@
     function deleteUser() {
 
     const id = document.getElementById("deleteUserId").value;
+
+    if (!id || id.trim() === "") {
+
+        openResponse({
+            error: "Validation Error",
+            message: "User ID must not be blank",
+            status: 400
+        });
+
+        return;
+    }
 
     fetch(`${BASE}/users/${id}`, {
         method: "DELETE"
@@ -814,6 +856,17 @@ function getAllRoles() {
     const uid = document.getElementById("assignUserId").value;
     const rid = document.getElementById("assignRoleId").value;
 
+    if (!uid || uid.trim() === "" || !rid || rid.trim() === "") {
+
+        openResponse({
+            error: "Validation Error",
+            message: "User ID and Role ID must not be blank",
+            status: 400
+        });
+
+        return;
+    }
+
     fetch(`${BASE}/users/${uid}/roles/${rid}`, {
         method: "POST"
     })
@@ -821,6 +874,8 @@ function getAllRoles() {
         .then(d => {
 
             openResponse({
+                ...d,
+                status: d.status,
                 message: "Role assigned successfully",
                 userId: uid,
                 roleId: rid
@@ -834,6 +889,17 @@ function getAllRoles() {
 
     const uid = document.getElementById("removeUserId").value;
     const rid = document.getElementById("removeRoleId").value;
+
+    if (!uid || uid.trim() === "" || !rid || rid.trim() === "") {
+
+        openResponse({
+            error: "Validation Error",
+            message: "User ID and Role ID must not be blank",
+            status: 400
+        });
+
+        return;
+    }
 
     fetch(`${BASE}/users/${uid}/roles/${rid}`, {
         method: "DELETE"
@@ -853,7 +919,19 @@ function getAllRoles() {
 }
 
     function getUserRoles() {
+
     const uid = document.getElementById("getRolesUserId").value;
+
+    if (!uid || uid.trim() === "") {
+
+        openResponse({
+            error: "Validation Error",
+            message: "User ID must not be blank",
+            status: 400
+        });
+
+        return;
+    }
 
     fetch(`${BASE}/users/${uid}/roles`)
         .then(handleResponse)

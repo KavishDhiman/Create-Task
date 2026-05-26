@@ -5,6 +5,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.Positive;
 
 import java.util.Objects;
 
@@ -15,6 +16,7 @@ public class AppUser implements Comparable<AppUser> { // Comparable allows sorti
     @Id // Marks primary key
     @Column(name = "UserID") // Maps field to UserID column
     @NotNull(message = "UserID must not be null") // Validates non-null ID
+    @Positive(message = "UserID must be positive")
     private Integer userID; // Stores user ID
 
     @Column(name = "Username", nullable = false, length = 255) // Username column mapping

@@ -621,6 +621,7 @@
 
         if (!commentId || commentId === "0") return openResponse({ error: "Please enter a valid Comment ID" }, "Comment Service", 400);
         if (!taskId || taskId === "0") return openResponse({ error: "Task ID is required" }, "Comment Service", 400);
+        if (parseInt(taskId) < 0) return openResponse({ error: "Please enter a valid Task ID" }, "Comment Service", 400);
         if (!userId || userId === "0") return openResponse({ error: "Please enter a valid User ID" }, "Comment Service", 400);
 
         const body = {
@@ -665,6 +666,7 @@
         const taskId = document.getElementById("getCommentsTaskId").value;
 
         if (!taskId || taskId === "0") return openResponse({ error: "Task ID is required" }, "Comment Service", 400);
+        if (parseInt(taskId) < 0) return openResponse({ error: "Please enter a valid Task ID" }, "Comment Service", 400);
 
         fetch(`${BASE}/tasks/${taskId}/comments`)
             .then(r => r.json().then(d => ({ ok: r.ok, d, status: r.status })))
@@ -699,7 +701,8 @@
 
         const id = document.getElementById("deleteCommentId").value;
 
-        if (!id || id === "0") return openResponse({ error: "Please enter a valid Comment ID" }, "Comment Service", 400);
+        if (!id.trim() || id.trim() === "0") return openResponse({ error: "Please enter a valid Comment ID" }, "Comment Service", 400);
+        if (parseInt(id) < 0) return openResponse({ error: "Please enter a valid Comment ID" }, "Comment Service", 400);
 
         fetch(`${BASE}/comments/${id}`, { method: "DELETE" })
             .then(r => r.ok
@@ -735,6 +738,7 @@
 
         if (!attachmentId || attachmentId === "0") return openResponse({ error: "Please enter a valid Attachment ID" }, "Attachment Service", 400);
         if (!taskId || taskId === "0") return openResponse({ error: "Task ID is required" }, "Attachment Service", 400);
+        if (parseInt(taskId) < 0) return openResponse({ error: "Please enter a valid Task ID" }, "Attachment Service", 400);
 
         const body = {
             attachmentID: parseInt(attachmentId),
@@ -778,6 +782,7 @@
         const taskId = document.getElementById("getAttachmentsTaskId").value;
 
         if (!taskId || taskId === "0") return openResponse({ error: "Task ID is required" }, "Attachment Service", 400);
+        if (parseInt(taskId) < 0) return openResponse({ error: "Please enter a valid Task ID" }, "Attachment Service", 400);
 
         fetch(`${BASE}/tasks/${taskId}/attachments`)
             .then(r => r.json().then(d => ({ ok: r.ok, d, status: r.status })))
@@ -812,7 +817,8 @@
 
         const id = document.getElementById("deleteAttachmentId").value;
 
-        if (!id || id === "0") return openResponse({ error: "Please enter a valid Attachment ID" }, "Attachment Service", 400);
+        if (!id.trim() || id.trim() === "0") return openResponse({ error: "Please enter a valid Attachment ID" }, "Attachment Service", 400);
+        if (parseInt(id) < 0) return openResponse({ error: "Please enter a valid Attachment ID" }, "Attachment Service", 400);
 
         fetch(`${BASE}/attachments/${id}`, { method: "DELETE" })
             .then(r => r.ok

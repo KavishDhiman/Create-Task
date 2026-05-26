@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.Positive;
 
 import java.util.Objects;
 
@@ -14,6 +15,7 @@ public class UserRole implements Comparable<UserRole> { // Enables sorting of Us
     @Id // Marks primary key
     @Column(name = "UserRoleID") // Maps field to UserRoleID column
     @NotNull(message = "UserRoleID must not be null") // Validates non-null ID
+    @Positive(message = "UserRoleID must be positive")
     private Integer userRoleID; // Stores role ID
 
     @Column(name = "RoleName", nullable = false, length = 255) // Maps RoleName column

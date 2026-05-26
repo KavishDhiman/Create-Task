@@ -2,6 +2,7 @@ package com.createtask.createtask.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 
 import java.io.Serializable;
 import java.util.Objects;
@@ -84,10 +85,12 @@ public class UserRoles implements Comparable<UserRoles> { // Enables sorting of 
 
         @Column(name = "UserID") // Maps UserID column
         @NotNull(message = "UserID must not be null") // Validates non-null userID
+        @Positive(message = "UserID must be positive")
         private Integer userID; // Stores user ID
 
         @Column(name = "UserRoleID") // Maps UserRoleID column
         @NotNull(message = "UserRoleID must not be null") // Validates non-null role ID
+        @Positive(message = "UserRoleID must be positive")
         private Integer userRoleID; // Stores role ID
 
         // Getter method for userID

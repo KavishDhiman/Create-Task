@@ -7,6 +7,8 @@ import com.createtask.createtask.entity.Task;
 import com.createtask.createtask.entity.AppUser;
 import com.createtask.createtask.exception.CommentNotFoundException;
 import com.createtask.createtask.exception.DuplicateResourceException;
+import com.createtask.createtask.exception.TaskNotFoundException;
+import com.createtask.createtask.exception.UserNotFoundException;
 import com.createtask.createtask.repository.CommentRepository;
 import com.createtask.createtask.repository.TaskRepository;
 import com.createtask.createtask.repository.UserRepository;
@@ -73,12 +75,12 @@ public class CommentServiceImpl implements CommentService {
 
         // Validates whether the provided task ID exists
         if (!taskRepository.existsById(taskId)) {
-            throw new RuntimeException("Task ID not found: " + taskId);
+            throw new TaskNotFoundException("Task ID not found: " + taskId);
         }
 
         // Validates whether the provided user ID exists
         if (!userRepository.existsById(requestDTO.getUserID())) {
-            throw new RuntimeException("User ID not found: " + requestDTO.getUserID());
+            throw new UserNotFoundException(requestDTO.getUserID());
         }
 
         // Retrieves task entity from database

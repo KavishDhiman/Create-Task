@@ -6,6 +6,7 @@ import com.createtask.createtask.entity.Attachment;
 import com.createtask.createtask.entity.Task;
 import com.createtask.createtask.exception.AttachmentNotFoundException;
 import com.createtask.createtask.exception.DuplicateResourceException;
+import com.createtask.createtask.exception.TaskNotFoundException;
 import com.createtask.createtask.repository.AttachmentRepository;
 import com.createtask.createtask.repository.TaskRepository;
 import com.createtask.createtask.service.AttachmentService;
@@ -62,13 +63,13 @@ public class AttachmentServiceImpl implements AttachmentService {
 
         // Validates whether the provided task ID exists
         if (!taskRepository.existsById(taskId)) {
-            throw new RuntimeException("Task ID not found: " + taskId);
+            throw new TaskNotFoundException("Task ID not found: " + taskId);
         }
 
         // Validates file path format
         String filePath = requestDTO.getFilePath();
         if (filePath == null || !filePath.matches("^(/[\\w\\-\\.]+)+$")) {
-            throw new RuntimeException("Please enter valid file path (e.g. /uploads/report.pdf or /path/to/file)");
+            throw new IllegalArgumentException("Please enter valid file path (e.g. /uploads/report.pdf or /path/to/file)");
         }
 
         // Retrieves task entity from database

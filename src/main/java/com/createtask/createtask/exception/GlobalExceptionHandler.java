@@ -334,4 +334,13 @@ public class GlobalExceptionHandler {
                 ));
     }
 
+    // 409 - task cannot be deleted because category mappings exist
+    @ExceptionHandler(TaskDeletionNotAllowedException.class)
+    public ResponseEntity<Map<String, Object>> handleTaskDeletionNotAllowed(
+            TaskDeletionNotAllowedException ex) {
+
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(buildError(HttpStatus.CONFLICT, ex.getMessage()));
+    }
+
 }

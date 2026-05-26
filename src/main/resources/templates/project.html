@@ -1166,9 +1166,18 @@
 
             if(response.ok){
 
-                data.message = "User projects fetched successfully";
+                if(Array.isArray(data) && data.length === 0){
 
-                data.status = 200;
+                    openResponse({
+                        message:"No projects found for this user",
+                        status:200,
+                        timestamp:new Date().toISOString()
+                    });
+
+                    return;
+                }
+
+                data.message = "User projects fetched successfully";
             }
 
             openResponse(data);

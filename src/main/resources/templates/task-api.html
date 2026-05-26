@@ -171,6 +171,20 @@
     .input-group input::placeholder { color: var(--muted); }
     .input-group select option { background: var(--card); color: var(--text); }
 
+    /* ── Date picker visibility fix ── */
+
+input[type="date"] {
+    color-scheme: dark;
+    min-height: 48px;
+    font-size: 0.92rem;
+    cursor: pointer;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+    opacity: 1;
+    filter: invert(1) brightness(1.6);
+    cursor: pointer;
+}
     /* ── Send buttons ── */
     .send-btn {
         width: 100%;
@@ -228,7 +242,7 @@
       <div class="api-card-body">
         <div class="input-group">
           <label>Task ID</label>
-          <input id="createTaskId" placeholder="e.g. 11" />
+          <input type="number" min="1" step="1" id="createTaskId" placeholder="e.g. 11" />
         </div>
         <div class="input-group">
           <label>Task Name</label>
@@ -262,11 +276,11 @@
         </div>
         <div class="input-group">
           <label>Project ID</label>
-          <input id="createTaskProjectId" placeholder="e.g. 1" />
+          <input type="number" min="1" step="1" id="createTaskProjectId" placeholder="e.g. 1" />
         </div>
         <div class="input-group">
           <label>User ID</label>
-          <input id="createTaskUserId" placeholder="e.g. 1" />
+          <input type="number" min="1" step="1" id="createTaskUserId" placeholder="e.g. 1" />
         </div>
         <button class="send-btn btn-post" onclick="createTask()">Send POST →</button>
       </div>
@@ -287,7 +301,7 @@
       <div class="api-card-body">
         <div class="input-group">
           <label>Task ID</label>
-          <input id="getTaskId" placeholder="e.g. 1" />
+          <input type="number" min="1" step="1" id="getTaskId" placeholder="e.g. 1" />
         </div>
         <button class="send-btn btn-get" onclick="getTaskById()">Send GET →</button>
       </div>
@@ -325,7 +339,7 @@
       <div class="api-card-body">
         <div class="input-group">
           <label>Task ID (URL)</label>
-          <input id="updateTaskId" placeholder="e.g. 1" />
+          <input type="number" min="1" step="1" id="updateTaskId" placeholder="e.g. 1" />
         </div>
         <div class="input-group">
           <label>New Task Name</label>
@@ -359,11 +373,11 @@
         </div>
         <div class="input-group">
           <label>New Project ID</label>
-          <input id="updateTaskProjectId" placeholder="e.g. 2" />
+          <input type="number" min="1" step="1" id="updateTaskProjectId" placeholder="e.g. 2" />
         </div>
         <div class="input-group">
           <label>New User ID</label>
-          <input id="updateTaskUserId" placeholder="e.g. 3" />
+          <input type="number" min="1" step="1" id="updateTaskUserId" placeholder="e.g. 3" />
         </div>
         <button class="send-btn btn-put" onclick="updateTask()">Send PUT →</button>
       </div>
@@ -384,7 +398,7 @@
       <div class="api-card-body">
         <div class="input-group">
           <label>Task ID</label>
-          <input id="deleteTaskId" placeholder="e.g. 1" />
+          <input type="number" min="1" step="1" id="deleteTaskId" placeholder="e.g. 1" />
         </div>
         <button class="send-btn btn-delete" onclick="deleteTask()">Send DELETE →</button>
       </div>
@@ -415,7 +429,7 @@
       <div class="api-card-body">
         <div class="input-group">
           <label>Project ID</label>
-          <input id="filterProjectId" placeholder="e.g. 1" />
+          <input type="number" min="1" step="1" id="filterProjectId" placeholder="e.g. 1" />
         </div>
         <button class="send-btn btn-get" onclick="getTasksByProject()">Send GET →</button>
       </div>
@@ -435,7 +449,7 @@
       <div class="api-card-body">
         <div class="input-group">
           <label>User ID</label>
-          <input id="filterUserId" placeholder="e.g. 1" />
+          <input type="number" min="1" step="1" id="filterUserId" placeholder="e.g. 1" />
         </div>
         <button class="send-btn btn-get" onclick="getTasksByUser()">Send GET →</button>
       </div>
@@ -516,7 +530,7 @@
       <div class="api-card-body">
         <div class="input-group">
           <label>Category ID</label>
-          <input id="createCatId" placeholder="e.g. 11" />
+          <input type="number" min="1" step="1" id="createCatId" placeholder="e.g. 11" />
         </div>
         <div class="input-group">
           <label>Category Name</label>
@@ -567,11 +581,11 @@
       <div class="api-card-body">
         <div class="input-group">
           <label>Task ID</label>
-          <input id="assignTaskId" placeholder="e.g. 1" />
+          <input type="number" min="1" step="1" id="assignTaskId" placeholder="e.g. 1" />
         </div>
         <div class="input-group">
           <label>Category ID</label>
-          <input id="assignCatId" placeholder="e.g. 2" />
+          <input type="number" min="1" step="1" id="assignCatId" placeholder="e.g. 2" />
         </div>
         <button class="send-btn btn-post" onclick="assignCategory()">Send POST →</button>
       </div>
@@ -591,11 +605,11 @@
       <div class="api-card-body">
         <div class="input-group">
           <label>Task ID</label>
-          <input id="removeCatTaskId" placeholder="e.g. 1" />
+          <input type="number" min="1" step="1" id="removeCatTaskId" placeholder="e.g. 1" />
         </div>
         <div class="input-group">
           <label>Category ID</label>
-          <input id="removeCatId" placeholder="e.g. 2" />
+          <input type="number" min="1" step="1" id="removeCatId" placeholder="e.g. 2" />
         </div>
         <button class="send-btn btn-delete" onclick="removeCategory()">Send DELETE →</button>
       </div>
@@ -615,7 +629,7 @@
       <div class="api-card-body">
         <div class="input-group">
           <label>Task ID</label>
-          <input id="getCatTaskId" placeholder="e.g. 1" />
+          <input type="number" min="1" step="1" id="getCatTaskId" placeholder="e.g. 1" />
         </div>
         <button class="send-btn btn-get" onclick="getCategoriesForTask()">Send GET →</button>
       </div>
@@ -646,7 +660,7 @@
       <div class="api-card-body">
         <div class="input-group">
           <label>Days (must be ≥ 1)</label>
-          <input id="overdueDays" placeholder="e.g. 7" />
+          <input type="number" min="1" step="1" id="overdueDays" placeholder="e.g. 7" />
         </div>
         <button class="send-btn btn-get" onclick="getOverdueTasksReport()">Send GET →</button>
       </div>

@@ -2,7 +2,10 @@ package com.createtask.createtask.dto.response;
 
 import java.time.LocalDate;
 
-// DTO to send task details back to the client — avoids exposing raw entity relationships
+/**
+ * Response DTO for Task API operations.
+ * Carries task details back to the client without exposing entity relationships.
+ */
 public class TaskResponseDTO {
 
     // Unique identifier of the task
@@ -26,74 +29,107 @@ public class TaskResponseDTO {
     // ID of the project this task belongs to
     private Integer projectID;
 
-    // Project name — included for display without a second API call
+    // Project name for display purposes
     private String projectName;
 
     // ID of the user assigned to this task
     private Integer userID;
 
-    // Full name of the assigned user — included for display convenience
+    // Full name of the assigned user
     private String userName;
 
-    // Stores success or informational messages for UI responses
+    // Optional response message for UI display
     private String message;
 
-    // Default constructor required by Jackson for JSON serialization
-    public TaskResponseDTO() {}
+    // Default constructor required by Jackson
+    public TaskResponseDTO() {
+    }
 
-    // Returns the task's unique ID
-    public int getTaskID() { return taskID; }
-    // Sets the task ID
-    public void setTaskID(int taskID) { this.taskID = taskID; }
+    public int getTaskID() {
+        return taskID;
+    }
 
-    // Returns the task name
-    public String getTaskName() { return taskName; }
-    // Sets the task name
-    public void setTaskName(String taskName) { this.taskName = taskName; }
+    public void setTaskID(int taskID) {
+        this.taskID = taskID;
+    }
 
-    // Returns the description
-    public String getDescription() { return description; }
-    // Sets the description
-    public void setDescription(String description) { this.description = description; }
+    public String getTaskName() {
+        return taskName;
+    }
 
-    // Returns the task due date
-    public LocalDate getDueDate() { return dueDate; }
-    // Sets the due date
-    public void setDueDate(LocalDate dueDate) { this.dueDate = dueDate; }
+    public void setTaskName(String taskName) {
+        this.taskName = taskName;
+    }
 
-    // Returns the priority string
-    public String getPriority() { return priority; }
-    // Sets the priority
-    public void setPriority(String priority) { this.priority = priority; }
+    public String getDescription() {
+        return description;
+    }
 
-    // Returns the current status
-    public String getStatus() { return status; }
-    // Sets the status
-    public void setStatus(String status) { this.status = status; }
+    public void setDescription(String description) {
+        this.description = description;
+    }
 
-    // Returns the project ID linked to this task
-    public Integer getProjectID() { return projectID; }
-    // Sets the project ID
-    public void setProjectID(Integer projectID) { this.projectID = projectID; }
+    public LocalDate getDueDate() {
+        return dueDate;
+    }
 
-    // Returns the project name for display purposes
-    public String getProjectName() { return projectName; }
-    // Sets the project name
-    public void setProjectName(String projectName) { this.projectName = projectName; }
+    public void setDueDate(LocalDate dueDate) {
+        this.dueDate = dueDate;
+    }
 
-    // Returns the assigned user's ID
-    public Integer getUserID() { return userID; }
-    // Sets the user ID
-    public void setUserID(Integer userID) { this.userID = userID; }
+    public String getPriority() {
+        return priority;
+    }
 
-    // Returns the assigned user's full name
-    public String getUserName() { return userName; }
-    // Sets the user's full name
-    public void setUserName(String userName) { this.userName = userName; }
+    public void setPriority(String priority) {
+        this.priority = priority;
+    }
 
-    // Returns the response message
-    public String getMessage() { return message; }
+    public String getStatus() {
+        return status;
+    }
 
-    // Sets the response message
-    public void setMessage(String message) { this.message = message; }
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public Integer getProjectID() {
+        return projectID;
+    }
+
+    public void setProjectID(Integer projectID) {
+        this.projectID = projectID;
+    }
+
+    public String getProjectName() {
+        return projectName;
+    }
+
+    public void setProjectName(String projectName) {
+        this.projectName = projectName;
+    }
+
+    public Integer getUserID() {
+        return userID;
+    }
+
+    public void setUserID(Integer userID) {
+        this.userID = userID;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
 }

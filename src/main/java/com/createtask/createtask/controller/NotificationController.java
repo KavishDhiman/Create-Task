@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.Parameter; // Swagger documentation for pat
 import io.swagger.v3.oas.annotations.tags.Tag; // Swagger: groups all endpoints under a named tag in UI
 import jakarta.validation.Valid; // Triggers bean validation on the incoming request body
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Positive;
 import org.springframework.http.HttpStatus; // Provides HTTP status code constants
 import org.springframework.http.ResponseEntity; // Wraps response body with a status code
 import org.springframework.web.bind.annotation.*; // Imports all REST mapping annotations
@@ -40,7 +41,7 @@ public class NotificationController {
     @Operation(summary = "Get notification by ID") // Swagger endpoint label
     @GetMapping("/notifications/{notificationId}")
     public ResponseEntity<NotificationResponseDTO> getNotification(
-            @PathVariable @Min(value = 1, message = "Notification ID must be a positive number")
+            @PathVariable @Positive( message = "Notification ID must be a positive number")
             int notificationId) { // Extracts notificationId from the URL path segment
 
         NotificationResponseDTO response = notificationService.getNotificationById(notificationId); // Service call
@@ -52,7 +53,7 @@ public class NotificationController {
     @GetMapping("/users/{userId}/notifications") // Handles GET /api/v1/users/{userId}/notifications
     public ResponseEntity<List<NotificationResponseDTO>> getUserNotifications(
             @Parameter(description = "User ID") // Swagger description for the path variable
-            @PathVariable@Min(value = 1, message = "User ID must be a positive number")  int userId) { // Extracts userId from the URL path segment
+            @PathVariable @Positive( message = "User ID must be a positive number")  int userId) { // Extracts userId from the URL path segment
 
         List<NotificationResponseDTO> notifications =
                 notificationService.getNotificationsByUserId(userId); // Service call
@@ -65,7 +66,7 @@ public class NotificationController {
     @DeleteMapping("/notifications/{notificationId}") // Handles DELETE /api/v1/notifications/{notificationId}
     public ResponseEntity<String> deleteNotification(
             @Parameter(description = "Notification ID") // Swagger description for the path variable
-            @PathVariable @Min(value = 1, message = "Notification ID must be a positive number")  int notificationId) { // Extracts notificationId from the URL path segment
+            @PathVariable @Positive( message = "Notification ID must be a positive number")  int notificationId) { // Extracts notificationId from the URL path segment
 
         String message = notificationService.deleteNotification(notificationId); // Service deletes and returns confirmation
         return ResponseEntity.ok(message); // 200 OK with the deletion confirmation string

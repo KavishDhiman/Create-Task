@@ -16,4 +16,6 @@ public interface UserRolesRepository extends JpaRepository<UserRoles, UserRolesI
 
     // Checks whether a specific user-role mapping already exists
     boolean existsByUser_UserIDAndUserRole_UserRoleID(int userID, int userRoleID);
+
+    boolean existsByUser_UserID(int userID);
 }

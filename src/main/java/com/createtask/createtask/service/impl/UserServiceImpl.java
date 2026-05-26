@@ -6,7 +6,8 @@ import com.createtask.createtask.exception.UserNotFoundException;
 import com.createtask.createtask.repository.UserRepository;
 import com.createtask.createtask.service.UserService;
 import org.springframework.stereotype.Service;
-
+import com.createtask.createtask.exception.UserRoleMappingExistsException;
+import com.createtask.createtask.repository.UserRolesRepository;
 import java.util.List;
 import java.util.TreeSet;
 
@@ -16,10 +17,14 @@ public class UserServiceImpl implements UserService {
 
     // Repository dependency for database operations
     private final UserRepository userRepository;
+    private final UserRolesRepository userRolesRepository;
 
-    // Constructor injection for UserRepository
-    public UserServiceImpl(UserRepository userRepository) {
-        this.userRepository = userRepository; // Assigns repository object
+    // Constructor injection for UserRepository and UserRolesRepository
+    public UserServiceImpl(UserRepository userRepository,
+                           UserRolesRepository userRolesRepository) {
+
+        this.userRepository = userRepository;
+        this.userRolesRepository = userRolesRepository;
     }
 
     // Creates a new user after validation
@@ -37,6 +42,22 @@ public class UserServiceImpl implements UserService {
         // Checks if email already exists
         if (userRepository.existsByEmail(user.getEmail())) {
             throw new DuplicateUserException("email", user.getEmail()); // Throws duplicate email exception
+        }
+
+        // Checks username contains only letters and spaces
+        if (!user.getUsername().matches("^[A-Za-z ]+$")) {
+
+            throw new IllegalArgumentException(
+                    "Username must contain only letters"
+            );
+        }
+
+// Checks full name contains only letters and spaces
+        if (!user.getFullName().matches("^[A-Za-z ]+$")) {
+
+            throw new IllegalArgumentException(
+                    "FullName must contain only letters"
+            );
         }
 
         // Saves user into database
@@ -83,7 +104,23 @@ public class UserServiceImpl implements UserService {
             throw new DuplicateUserException("email", updatedUser.getEmail()); // Throws duplicate email exception
         }
 
-        // Updates username field
+        // Checks username contains only letters and spaces
+        if (!updatedUser.getUsername().matches("^[A-Za-z ]+$")) {
+
+            throw new IllegalArgumentException(
+                    "Username must contain only letters"
+            );
+        }
+
+// Checks full name contains only letters and spaces
+        if (!updatedUser.getFullName().matches("^[A-Za-z ]+$")) {
+
+            throw new IllegalArgumentException(
+                    "FullName must contain only letters"
+            );
+        }
+
+// Updates username field
         existing.setUsername(updatedUser.getUsername());
 
         // Updates password field
@@ -103,16 +140,19 @@ public class UserServiceImpl implements UserService {
     @Override
     public boolean deleteUser(Integer userId) {
 
-        // Checks whether user exists
         if (!userRepository.existsById(userId)) {
 
-            throw new UserNotFoundException(userId); // Throws exception if user missing
+            throw new UserNotFoundException(userId);
         }
 
-        // Deletes user from database
+        // Checks whether user has role mappings
+        if (userRolesRepository.existsByUser_UserID(userId)) {
+
+            throw new UserRoleMappingExistsException(userId);
+        }
+
         userRepository.deleteById(userId);
 
-        // Returns true after successful deletion
         return true;
     }
 }

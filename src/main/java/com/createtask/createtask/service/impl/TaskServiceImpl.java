@@ -7,7 +7,9 @@ import com.createtask.createtask.entity.Project;
 import com.createtask.createtask.entity.Task;
 import com.createtask.createtask.exception.DuplicateResourceException;
 import com.createtask.createtask.exception.ResourceNotFoundException;
+import com.createtask.createtask.exception.TaskDeletionNotAllowedException;
 import com.createtask.createtask.repository.ProjectRepository;
+import com.createtask.createtask.repository.TaskCategoryRepository;
 import com.createtask.createtask.repository.TaskRepository;
 import com.createtask.createtask.repository.UserRepository;
 import com.createtask.createtask.service.TaskService;
@@ -31,16 +33,21 @@ public class TaskServiceImpl implements TaskService {
     // Used to validate that the referenced user exists before saving a task
     private final UserRepository userRepository;
 
+    // Used to check whether a task is still mapped to any category before delete
+    private final TaskCategoryRepository taskCategoryRepository;
+
     // Constructor injection — preferred for testability over field injection
     public TaskServiceImpl(TaskRepository taskRepository,
                            ProjectRepository projectRepository,
-                           UserRepository userRepository) {
+                           UserRepository userRepository,
+                           TaskCategoryRepository taskCategoryRepository) {
         this.taskRepository = taskRepository;
         this.projectRepository = projectRepository;
         this.userRepository = userRepository;
+        this.taskCategoryRepository = taskCategoryRepository;
     }
 
-    // Creates a new task after validating duplicate task ID, project, and user existence
+    // Creates a new task after validating duplicate task ID, project, user, and due date range
     @Override
     public TaskResponseDTO createTask(TaskRequestDTO requestDTO) {
 
@@ -62,6 +69,8 @@ public class TaskServiceImpl implements TaskService {
                     .orElseThrow(() -> new ResourceNotFoundException(
                             "User not found with ID: " + requestDTO.getUserID()));
         }
+
+        validateDueDateWithinProjectRange(requestDTO.getDueDate(), project);
 
         Task task = new Task();
         task.setTaskID(requestDTO.getTaskID());
@@ -100,14 +109,9 @@ public class TaskServiceImpl implements TaskService {
         Task task = taskRepository.findById(taskID)
                 .orElseThrow(() -> new ResourceNotFoundException("Task not found with ID: " + taskID));
 
-        task.setTaskName(requestDTO.getTaskName());
-        task.setDescription(requestDTO.getDescription());
-        task.setDueDate(requestDTO.getDueDate());
-        task.setPriority(requestDTO.getPriority());
-        task.setStatus(requestDTO.getStatus());
-
+        Project project = task.getProject();
         if (requestDTO.getProjectID() != null) {
-            Project project = projectRepository.findById(requestDTO.getProjectID())
+            project = projectRepository.findById(requestDTO.getProjectID())
                     .orElseThrow(() -> new ResourceNotFoundException(
                             "Project not found with ID: " + requestDTO.getProjectID()));
             task.setProject(project);
@@ -120,11 +124,18 @@ public class TaskServiceImpl implements TaskService {
             task.setUser(user);
         }
 
+        validateDueDateWithinProjectRange(requestDTO.getDueDate(), project);
+
+        task.setTaskName(requestDTO.getTaskName());
+        task.setDescription(requestDTO.getDescription());
+        task.setDueDate(requestDTO.getDueDate());
+        task.setPriority(requestDTO.getPriority());
+        task.setStatus(requestDTO.getStatus());
+
         return mapToResponseDTO(taskRepository.save(task));
     }
 
     // Captures the task details first, deletes it, then returns the deleted task as DTO
-// Deletes the task and returns a success message response
     @Override
     public TaskResponseDTO deleteTask(int taskID) {
 
@@ -132,11 +143,17 @@ public class TaskServiceImpl implements TaskService {
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Task not found with ID: " + taskID));
 
+        if (!taskCategoryRepository.findByTaskID(taskID).isEmpty()) {
+            throw new TaskDeletionNotAllowedException(
+                    "Task cannot be deleted because it is mapped to one or more categories. " +
+                            "Please remove all category mappings before deleting this task."
+            );
+        }
+
         taskRepository.delete(task);
 
         TaskResponseDTO response = new TaskResponseDTO();
         response.setMessage("Task with ID " + taskID + " deleted successfully");
-
         return response;
     }
 
@@ -180,6 +197,26 @@ public class TaskServiceImpl implements TaskService {
         return taskRepository.findByPriority(priority).stream()
                 .map(this::mapToResponseDTO)
                 .collect(Collectors.toList());
+    }
+
+    // Validates that due date lies within the selected project's start and end dates
+    private void validateDueDateWithinProjectRange(java.time.LocalDate dueDate, Project project) {
+        if (dueDate == null || project == null) {
+            return;
+        }
+
+        if (project.getStartDate() == null || project.getEndDate() == null) {
+            return;
+        }
+
+        if (dueDate.isBefore(project.getStartDate()) || dueDate.isAfter(project.getEndDate())) {
+            throw new IllegalArgumentException(
+                    "Task due date must be between " +
+                            project.getStartDate() +
+                            " and " +
+                            project.getEndDate()
+            );
+        }
     }
 
     // Converts a Task entity to a TaskResponseDTO — safely handles null project/user

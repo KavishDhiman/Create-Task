@@ -6,17 +6,10 @@ import jakarta.validation.constraints.Positive;
 
 /**
  * DTO for creating a Category.
- *
- * Same layering principle as TaskRequestDTO:
- *   - Validation belongs on the DTO, not the Entity.
- *   - Remove @NotBlank from Category.java entity.
  */
 public class CategoryRequestDTO {
 
-    /**
-     * categoryID — client-supplied manual ID.
-     *
-     * Use Integer (boxed), not int, so @NotNull fires correctly.
+    /*
      * @Positive rejects 0 and negative values.
      */
     @NotNull(message = "Category ID is required")

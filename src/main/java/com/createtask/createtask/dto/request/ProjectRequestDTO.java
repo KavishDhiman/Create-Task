@@ -1,5 +1,5 @@
 package com.createtask.createtask.dto.request;
-
+import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.*;
 import java.time.LocalDate;
 import java.util.Objects;
@@ -9,6 +9,7 @@ import java.util.Objects;
 public class ProjectRequestDTO {
 
     @NotNull(message = "Project ID must not be null. Please provide a valid project identifier.")
+    @Positive(message = "Project ID must be greater than 0. Please provide a positive project identifier.")
     private Integer projectID;
 
     @NotBlank(message = "Project name must not be blank. Please provide a meaningful name for the project.")
@@ -29,6 +30,7 @@ public class ProjectRequestDTO {
      * Full user object is fetched in the service layer.
      */
     @NotNull(message = "User ID must not be null. Every project must be associated with a valid registered user.")
+    @Positive(message = "User ID must be greater than 0. Please provide a positive user identifier.")
     private Integer userID;
 
     public ProjectRequestDTO() {}

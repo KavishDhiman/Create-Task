@@ -6,8 +6,10 @@ import com.createtask.createtask.service.ProjectService;
 import io.swagger.v3.oas.annotations.Operation;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,6 +20,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/api/v1")
+@Validated
 public class ProjectController {
 
     /*
@@ -61,7 +64,12 @@ public class ProjectController {
     // Retrieves project details using the provided project ID.
     @GetMapping("/projects/{projectId}")
     public ResponseEntity<ProjectResponseDTO> getProjectById(
-            @PathVariable Integer projectId) {
+
+            @PathVariable
+            @Positive(
+                    message = "Project ID must be greater than 0. Please provide a positive project identifier."
+            )
+            Integer projectId) {
 
         return ResponseEntity.ok(
                 projectService.getProjectById(projectId)
@@ -76,7 +84,13 @@ public class ProjectController {
      */
     @PutMapping("/projects/{projectId}")
     public ResponseEntity<ProjectResponseDTO> updateProject(
-            @PathVariable Integer projectId,
+
+            @PathVariable
+            @Positive(
+                    message = "Project ID must be greater than 0. Please provide a positive project identifier."
+            )
+            Integer projectId,
+
             @Valid @RequestBody ProjectRequestDTO requestDTO) {
 
         return ResponseEntity.ok(
@@ -89,7 +103,12 @@ public class ProjectController {
     // Deletes the specified project and returns confirmation message.
     @DeleteMapping("/projects/{projectId}")
     public ResponseEntity<String> deleteProject(
-            @PathVariable Integer projectId) {
+
+            @PathVariable
+            @Positive(
+                    message = "Project ID must be greater than 0. Please provide a positive project identifier."
+            )
+            Integer projectId) {
 
         return ResponseEntity.ok(
                 projectService.deleteProject(projectId)
@@ -106,7 +125,12 @@ public class ProjectController {
      */
     @GetMapping("/users/{userId}/projects")
     public ResponseEntity<List<ProjectResponseDTO>> getProjectsByUser(
-            @PathVariable Integer userId) {
+
+            @PathVariable
+            @Positive(
+                    message = "User ID must be greater than 0. Please provide a positive user identifier."
+            )
+            Integer userId) {
 
         return ResponseEntity.ok(
                 projectService.getProjectsByUser(userId)

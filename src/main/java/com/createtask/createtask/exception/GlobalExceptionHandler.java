@@ -97,6 +97,15 @@ public class GlobalExceptionHandler {
                 .body(buildError(HttpStatus.CONFLICT, ex.getMessage()));
     }
 
+    // 409 - Cannot delete user because role mappings exist
+    @ExceptionHandler(UserRoleMappingExistsException.class)
+    public ResponseEntity<Map<String, Object>> handleUserRoleMappingExists(
+            UserRoleMappingExistsException ex) {
+
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(buildError(HttpStatus.CONFLICT, ex.getMessage()));
+    }
+
     // 409 - role already assigned
     @ExceptionHandler(RoleAlreadyAssignedException.class)
     public ResponseEntity<Map<String, Object>> handleRoleAlreadyAssigned(RoleAlreadyAssignedException ex) {

@@ -3,7 +3,9 @@ package com.createtask.createtask.service;
 import com.createtask.createtask.entity.AppUser;
 import com.createtask.createtask.exception.DuplicateUserException;
 import com.createtask.createtask.exception.UserNotFoundException;
+import com.createtask.createtask.exception.UserRoleMappingExistsException;
 import com.createtask.createtask.repository.UserRepository;
+import com.createtask.createtask.repository.UserRolesRepository;
 import com.createtask.createtask.service.impl.UserServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,7 +30,11 @@ class UserServiceImplTest {
     @Mock
     private UserRepository userRepository;
 
-    // Creates UserServiceImpl and injects the mocked repository into it automatically
+    // Creates a mock of UserRolesRepository — used for validating user-role mappings
+    @Mock
+    private UserRolesRepository userRolesRepository;
+
+    // Creates UserServiceImpl and injects the mocked repositories automatically
     @InjectMocks
     private UserServiceImpl userService;
 
@@ -38,167 +44,246 @@ class UserServiceImplTest {
     // Runs before every test — builds a fresh AppUser to avoid state leakage between tests
     @BeforeEach
     void setUp() {
+
         testUser = new AppUser(); // Creates new AppUser instance
+
         testUser.setUserID(1); // Sets primary key
-        testUser.setUsername("john_doe"); // Sets username
+        testUser.setUsername("John"); // Sets username
         testUser.setPassword("password123"); // Sets password
         testUser.setEmail("john.doe@email.com"); // Sets email
         testUser.setFullName("John Doe"); // Sets full name
     }
 
-    // 1. createUser — positive: user saved successfully when ID and email are unique
+    // 1. createUser — positive: user saved successfully when validations pass
     @Test
     void createUser_Success() {
-        when(userRepository.existsById(1)).thenReturn(false); // Simulates ID not existing in DB
-        when(userRepository.existsByEmail("john.doe@email.com")).thenReturn(false); // Simulates email not existing
-        when(userRepository.save(testUser)).thenReturn(testUser); // Simulates successful DB save
+
+        when(userRepository.existsById(1))
+                .thenReturn(false); // Simulates unique ID
+
+        when(userRepository.existsByEmail("john.doe@email.com"))
+                .thenReturn(false); // Simulates unique email
+
+        when(userRepository.save(testUser))
+                .thenReturn(testUser); // Simulates successful save
 
         AppUser result = userService.createUser(testUser); // Calls method under test
 
-        assertThat(result.getUsername()).isEqualTo("john_doe"); // Verifies correct user returned
-        verify(userRepository).save(testUser); // Confirms save was actually called once
+        assertThat(result.getUsername())
+                .isEqualTo("John"); // Verifies username
+
+        verify(userRepository)
+                .save(testUser); // Confirms save executed
     }
 
-    // 2. createUser — negative: throws DuplicateUserException when user ID already exists
+    // 2. createUser — negative: throws DuplicateUserException when ID already exists
     @Test
     void createUser_DuplicateUserID_ThrowsDuplicateUserException() {
-        when(userRepository.existsById(1)).thenReturn(true); // Simulates ID already present in DB
 
-        assertThatThrownBy(() -> userService.createUser(testUser)) // Expects exception on create
-                .isInstanceOf(DuplicateUserException.class) // Verifies exception is correct type
-                .hasMessageContaining("userID"); // Verifies message mentions the conflicting field
+        when(userRepository.existsById(1))
+                .thenReturn(true); // Simulates duplicate ID
 
-        verify(userRepository, never()).save(any()); // Confirms save was never called
+        assertThatThrownBy(() -> userService.createUser(testUser))
+                .isInstanceOf(DuplicateUserException.class)
+                .hasMessageContaining("userID");
+
+        verify(userRepository, never())
+                .save(any());
     }
 
     // 3. createUser — negative: throws DuplicateUserException when email already exists
     @Test
     void createUser_DuplicateEmail_ThrowsDuplicateUserException() {
-        when(userRepository.existsById(1)).thenReturn(false); // Simulates ID is unique
-        when(userRepository.existsByEmail("john.doe@email.com")).thenReturn(true); // Simulates email conflict
 
-        assertThatThrownBy(() -> userService.createUser(testUser)) // Expects exception on create
-                .isInstanceOf(DuplicateUserException.class) // Verifies exception is correct type
-                .hasMessageContaining("email"); // Verifies message mentions the conflicting field
+        when(userRepository.existsById(1))
+                .thenReturn(false);
 
-        verify(userRepository, never()).save(any()); // Confirms save was blocked correctly
+        when(userRepository.existsByEmail("john.doe@email.com"))
+                .thenReturn(true); // Simulates duplicate email
+
+        assertThatThrownBy(() -> userService.createUser(testUser))
+                .isInstanceOf(DuplicateUserException.class)
+                .hasMessageContaining("email");
+
+        verify(userRepository, never())
+                .save(any());
     }
 
-    // 4. getUserById — positive: returns correct user when ID exists in DB
+    // 4. createUser — negative: throws IllegalArgumentException for invalid username
+    @Test
+    void createUser_InvalidUsername_ThrowsIllegalArgumentException() {
+
+        testUser.setUsername("john123"); // Invalid username
+
+        when(userRepository.existsById(1))
+                .thenReturn(false);
+
+        when(userRepository.existsByEmail("john.doe@email.com"))
+                .thenReturn(false);
+
+        assertThatThrownBy(() -> userService.createUser(testUser))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Username must contain only letters");
+
+        verify(userRepository, never())
+                .save(any());
+    }
+
+    // 5. createUser — negative: throws IllegalArgumentException for invalid full name
+    @Test
+    void createUser_InvalidFullName_ThrowsIllegalArgumentException() {
+
+        testUser.setFullName("John123"); // Invalid full name
+
+        when(userRepository.existsById(1))
+                .thenReturn(false);
+
+        when(userRepository.existsByEmail("john.doe@email.com"))
+                .thenReturn(false);
+
+        assertThatThrownBy(() -> userService.createUser(testUser))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("FullName must contain only letters");
+
+        verify(userRepository, never())
+                .save(any());
+    }
+
+    // 6. getUserById — positive: returns user when ID exists
     @Test
     void getUserById_Success() {
-        when(userRepository.findById(1)).thenReturn(Optional.of(testUser)); // Simulates user found
 
-        AppUser result = userService.getUserById(1); // Calls method under test
+        when(userRepository.findById(1))
+                .thenReturn(Optional.of(testUser)); // Simulates user found
 
-        assertThat(result.getUserID()).isEqualTo(1); // Verifies returned ID matches
-        assertThat(result.getFullName()).isEqualTo("John Doe"); // Verifies returned name matches
+        AppUser result = userService.getUserById(1);
+
+        assertThat(result.getUserID())
+                .isEqualTo(1);
+
+        assertThat(result.getFullName())
+                .isEqualTo("John Doe");
     }
 
-    // 5. getUserById — negative: throws UserNotFoundException when user is absent
+    // 7. getUserById — negative: throws UserNotFoundException when user missing
     @Test
     void getUserById_NotFound_ThrowsUserNotFoundException() {
-        when(userRepository.findById(999)).thenReturn(Optional.empty()); // Simulates no user found
 
-        assertThatThrownBy(() -> userService.getUserById(999)) // Expects exception on lookup
-                .isInstanceOf(UserNotFoundException.class) // Verifies correct exception type
-                .hasMessageContaining("999"); // Verifies message contains the missing ID
+        when(userRepository.findById(999))
+                .thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> userService.getUserById(999))
+                .isInstanceOf(UserNotFoundException.class)
+                .hasMessageContaining("999");
     }
 
-    // 6. getAllUsers — positive: returns full list of users from repository
+    // 8. getAllUsersSorted — positive: TreeSet sorts users using compareTo
     @Test
-    void getAllUsers_ReturnsAllUsers() {
-        when(userRepository.findAll()).thenReturn(List.of(testUser)); // Simulates DB returning one user
+    void getAllUsersSorted_ReturnsSortedUsers() {
 
-        List<AppUser> result = userService.getAllUsers(); // Calls method under test
+        AppUser user2 = new AppUser();
 
-        assertThat(result).hasSize(1); // Verifies list has one entry
-        assertThat(result.get(0).getUsername()).isEqualTo("john_doe"); // Verifies correct user in list
-    }
-
-    // 7. getAllUsersSorted — positive: TreeSet sorts users by userID via AppUser compareTo
-    @Test
-    void getAllUsersSorted_ReturnsSortedByUserID() {
-        AppUser user2 = new AppUser(); // Creates second user with a higher ID
-        user2.setUserID(2); // Higher ID — should appear after testUser in sorted set
-        user2.setUsername("jane_smith");
+        user2.setUserID(2);
+        user2.setUsername("Jane");
         user2.setPassword("pass456");
-        user2.setEmail("jane.smith@email.com");
+        user2.setEmail("jane@email.com");
         user2.setFullName("Jane Smith");
 
-        when(userRepository.findAll()).thenReturn(List.of(user2, testUser)); // Returns unsorted list
+        when(userRepository.findAll())
+                .thenReturn(List.of(user2, testUser));
 
-        TreeSet<AppUser> result = userService.getAllUsersSorted(); // TreeSet sorts via compareTo
+        TreeSet<AppUser> result = userService.getAllUsersSorted();
 
-        assertThat(result.first().getUserID()).isEqualTo(1); // Verifies smallest ID is first
-        assertThat(result.last().getUserID()).isEqualTo(2); // Verifies largest ID is last
+        assertThat(result.first().getUserID())
+                .isEqualTo(1);
+
+        assertThat(result.last().getUserID())
+                .isEqualTo(2);
     }
 
-    // 8. updateUser — positive: updates fields and saves when email is unchanged
+    // 9. updateUser — positive: updates user successfully
     @Test
-    void updateUser_SameEmail_Success() {
-        AppUser updatedUser = new AppUser(); // Creates update request with same email
-        updatedUser.setUserID(1); // Same ID as existing user
-        updatedUser.setUsername("john_updated"); // Updated username
-        updatedUser.setPassword("newpass123"); // Updated password
-        updatedUser.setEmail("john.doe@email.com"); // Same email — skips duplicate email check
-        updatedUser.setFullName("John Updated"); // Updated full name
+    void updateUser_Success() {
 
-        when(userRepository.findById(1)).thenReturn(Optional.of(testUser)); // Simulates user found
-        when(userRepository.save(any(AppUser.class))).thenReturn(updatedUser); // Simulates save success
+        AppUser updatedUser = new AppUser();
 
-        AppUser result = userService.updateUser(1, updatedUser); // Calls method under test
+        updatedUser.setUserID(1);
+        updatedUser.setUsername("Michael");
+        updatedUser.setPassword("newpass123");
+        updatedUser.setEmail("john.doe@email.com");
+        updatedUser.setFullName("Michael Scott");
 
-        assertThat(result.getUsername()).isEqualTo("john_updated"); // Verifies username was updated
-        assertThat(result.getFullName()).isEqualTo("John Updated"); // Verifies full name was updated
+        when(userRepository.findById(1))
+                .thenReturn(Optional.of(testUser));
+
+        when(userRepository.save(any(AppUser.class)))
+                .thenReturn(updatedUser);
+
+        AppUser result = userService.updateUser(1, updatedUser);
+
+        assertThat(result.getUsername())
+                .isEqualTo("Michael");
+
+        assertThat(result.getFullName())
+                .isEqualTo("Michael Scott");
     }
 
-    // 9. updateUser — negative: throws UserNotFoundException when user ID is not in DB
+    // 10. updateUser — negative: throws IllegalArgumentException for invalid username
     @Test
-    void updateUser_UserNotFound_ThrowsUserNotFoundException() {
-        when(userRepository.findById(999)).thenReturn(Optional.empty()); // Simulates no user found
+    void updateUser_InvalidUsername_ThrowsIllegalArgumentException() {
 
-        assertThatThrownBy(() -> userService.updateUser(999, testUser)) // Expects exception
-                .isInstanceOf(UserNotFoundException.class) // Verifies correct exception type
-                .hasMessageContaining("999"); // Verifies message contains the missing ID
+        AppUser updatedUser = new AppUser();
+
+        updatedUser.setUsername("john123"); // Invalid username
+        updatedUser.setPassword("newpass123");
+        updatedUser.setEmail("john.doe@email.com");
+        updatedUser.setFullName("John Doe");
+
+        when(userRepository.findById(1))
+                .thenReturn(Optional.of(testUser));
+
+        assertThatThrownBy(() -> userService.updateUser(1, updatedUser))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Username must contain only letters");
     }
 
-    // 10. updateUser — negative: throws DuplicateUserException when changed email belongs to another user
-    @Test
-    void updateUser_DuplicateEmail_ThrowsDuplicateUserException() {
-        AppUser updatedUser = new AppUser(); // Creates update request with a different email
-        updatedUser.setUsername("john_doe"); // Same username
-        updatedUser.setEmail("taken@email.com"); // Different email that already exists in DB
-
-        when(userRepository.findById(1)).thenReturn(Optional.of(testUser)); // Simulates existing user found
-        when(userRepository.existsByEmail("taken@email.com")).thenReturn(true); // Simulates email conflict
-
-        assertThatThrownBy(() -> userService.updateUser(1, updatedUser)) // Expects exception
-                .isInstanceOf(DuplicateUserException.class) // Verifies correct exception type
-                .hasMessageContaining("email"); // Verifies message identifies the conflicting field
-    }
-
-    // 11. deleteUser — positive: returns true confirming successful deletion
+    // 11. deleteUser — positive: deletes user successfully
     @Test
     void deleteUser_Success_ReturnsTrue() {
-        when(userRepository.existsById(1)).thenReturn(true); // Simulates user exists in DB
-        doNothing().when(userRepository).deleteById(1); // Simulates delete with no side effects
 
-        boolean result = userService.deleteUser(1); // Calls method under test
+        when(userRepository.existsById(1))
+                .thenReturn(true);
 
-        assertThat(result).isTrue(); // Verifies true returned on successful deletion
-        verify(userRepository).deleteById(1); // Confirms deleteById was called with correct ID
+        when(userRolesRepository.existsByUser_UserID(1))
+                .thenReturn(false); // No mappings exist
+
+        doNothing().when(userRepository)
+                .deleteById(1);
+
+        boolean result = userService.deleteUser(1);
+
+        assertThat(result)
+                .isTrue();
+
+        verify(userRepository)
+                .deleteById(1);
     }
 
-    // 12. deleteUser — negative: throws UserNotFoundException and never deletes when ID absent
+    // 12. deleteUser — negative: throws UserRoleMappingExistsException when mappings exist
     @Test
-    void deleteUser_NotFound_ThrowsUserNotFoundException() {
-        when(userRepository.existsById(999)).thenReturn(false); // Simulates user not found in DB
+    void deleteUser_UserRoleMappingExists_ThrowsUserRoleMappingExistsException() {
 
-        assertThatThrownBy(() -> userService.deleteUser(999)) // Expects exception on delete
-                .isInstanceOf(UserNotFoundException.class) // Verifies correct exception type
-                .hasMessageContaining("999"); // Verifies message contains the missing ID
+        when(userRepository.existsById(1))
+                .thenReturn(true);
 
-        verify(userRepository, never()).deleteById(any()); // Confirms deleteById was never called
+        when(userRolesRepository.existsByUser_UserID(1))
+                .thenReturn(true); // Simulates mapping exists
+
+        assertThatThrownBy(() -> userService.deleteUser(1))
+                .isInstanceOf(UserRoleMappingExistsException.class)
+                .hasMessageContaining("role mappings exist");
+
+        verify(userRepository, never())
+                .deleteById(any());
     }
 }

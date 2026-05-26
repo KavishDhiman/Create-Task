@@ -573,7 +573,7 @@
      */
     function openResponse(payload, moduleName, httpStatus) {
         if (moduleName) payload.module = moduleName;
-        if (httpStatus) payload.httpStatus = httpStatus;
+        if (httpStatus) payload.status = httpStatus;
         const encoded = encodeURIComponent(JSON.stringify(payload));
         window.open(
             '/response-view?data=' + encoded + '&module=' + encodeURIComponent(moduleName || '') + '&status=' + (httpStatus || ''),
@@ -619,9 +619,9 @@
         const commentId = document.getElementById("addCommentId").value;
         const userId = document.getElementById("addCommentUserId").value;
 
-        if (!commentId || commentId === "0") return openResponse({ error: "Please enter a valid Comment ID" }, "Comment Service");
-        if (!taskId || taskId === "0") return openResponse({ error: "Task ID is required" }, "Comment Service");
-        if (!userId || userId === "0") return openResponse({ error: "Please enter a valid User ID" }, "Comment Service");
+        if (!commentId || commentId === "0") return openResponse({ error: "Please enter a valid Comment ID" }, "Comment Service", 400);
+        if (!taskId || taskId === "0") return openResponse({ error: "Task ID is required" }, "Comment Service", 400);
+        if (!userId || userId === "0") return openResponse({ error: "Please enter a valid User ID" }, "Comment Service", 400);
 
         const body = {
             commentID: parseInt(commentId),
@@ -664,13 +664,13 @@
 
         const taskId = document.getElementById("getCommentsTaskId").value;
 
-        if (!taskId || taskId === "0") return openResponse({ error: "Task ID is required" }, "Comment Service");
+        if (!taskId || taskId === "0") return openResponse({ error: "Task ID is required" }, "Comment Service", 400);
 
         fetch(`${BASE}/tasks/${taskId}/comments`)
             .then(r => r.json().then(d => ({ ok: r.ok, d, status: r.status })))
             .then(({ ok, d, status }) => {
                 if (ok && Array.isArray(d) && d.length === 0) {
-                    openResponse({ error: `Task ID ${taskId} does not exist or has no comments` }, "Comment Service", status);
+                    openResponse({ error: `Task ID ${taskId} does not exist or has no comments` }, "Comment Service", 404);
                 } else if (ok) {
                     openResponse({ data: d }, "Comment Service", status);
                 } else {
@@ -699,7 +699,7 @@
 
         const id = document.getElementById("deleteCommentId").value;
 
-        if (!id || id === "0") return openResponse({ error: "Please enter a valid Comment ID" }, "Comment Service");
+        if (!id || id === "0") return openResponse({ error: "Please enter a valid Comment ID" }, "Comment Service", 400);
 
         fetch(`${BASE}/comments/${id}`, { method: "DELETE" })
             .then(r => r.ok
@@ -733,8 +733,8 @@
         const taskId = document.getElementById("addAttachmentTaskId").value;
         const attachmentId = document.getElementById("addAttachmentId").value;
 
-        if (!attachmentId || attachmentId === "0") return openResponse({ error: "Please enter a valid Attachment ID" }, "Attachment Service");
-        if (!taskId || taskId === "0") return openResponse({ error: "Task ID is required" }, "Attachment Service");
+        if (!attachmentId || attachmentId === "0") return openResponse({ error: "Please enter a valid Attachment ID" }, "Attachment Service", 400);
+        if (!taskId || taskId === "0") return openResponse({ error: "Task ID is required" }, "Attachment Service", 400);
 
         const body = {
             attachmentID: parseInt(attachmentId),
@@ -777,13 +777,13 @@
 
         const taskId = document.getElementById("getAttachmentsTaskId").value;
 
-        if (!taskId || taskId === "0") return openResponse({ error: "Task ID is required" }, "Attachment Service");
+        if (!taskId || taskId === "0") return openResponse({ error: "Task ID is required" }, "Attachment Service", 400);
 
         fetch(`${BASE}/tasks/${taskId}/attachments`)
             .then(r => r.json().then(d => ({ ok: r.ok, d, status: r.status })))
             .then(({ ok, d, status }) => {
                 if (ok && Array.isArray(d) && d.length === 0) {
-                    openResponse({ error: `Task ID ${taskId} does not exist or has no attachments` }, "Attachment Service", status);
+                    openResponse({ error: `Task ID ${taskId} does not exist or has no attachments` }, "Attachment Service", 404);
                 } else if (ok) {
                     openResponse({ data: d }, "Attachment Service", status);
                 } else {
@@ -812,7 +812,7 @@
 
         const id = document.getElementById("deleteAttachmentId").value;
 
-        if (!id || id === "0") return openResponse({ error: "Please enter a valid Attachment ID" }, "Attachment Service");
+        if (!id || id === "0") return openResponse({ error: "Please enter a valid Attachment ID" }, "Attachment Service", 400);
 
         fetch(`${BASE}/attachments/${id}`, { method: "DELETE" })
             .then(r => r.ok
